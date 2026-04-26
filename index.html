@@ -2,38 +2,625 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>מדד האושר העולמי</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#07070f;font-family:Heebo,sans-serif;color:#e0e0f0;min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:4px}
+html,body{height:100%;overflow-x:hidden}
+body{background:#07070f;font-family:Heebo,sans-serif;color:#e0e0f0;font-weight:500}
+::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:#1a1a2e;border-radius:2px}
-.app{max-width:500px;margin:0 auto;padding:0 0 80px}
-.header{padding:24px 18px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.app-title{font-size:22px;font-weight:900;color:#f0f0ff;letter-spacing:-0.5px}
-.app-sub{font-size:12px;color:#ffffff35}
-.badge{background:linear-gradient(135deg,#ff8c42,#ff3b5c);border-radius:20px;padding:3px 11px;font-size:11px;font-weight:700;color:#fff}
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#070712;border-top:1px solid #1a1a2e;padding:8px 10px 16px}
-.nav-inner{max-width:500px;margin:0 auto;display:flex;gap:4px}
-.nav-btn{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:11px;font-weight:700;color:#ffffff30;padding:7px 4px 5px;border-radius:10px;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
-.nav-btn.on{color:#e0e0f0;background:#14142a}
-.nav-icon{font-size:20px}
-.screen{padding:0 18px;display:none;flex-direction:column;gap:14px;animation:fadeUp .3s ease}
-.screen.on{display:flex}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.card{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:18px;padding:18px}
-.label{font-size:11px;color:#ffffff35;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;border:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #07070f}
-textarea,input[type=text]{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:11px;color:#e0e0f0;font-family:Heebo,sans-serif;font-size:14px;line-height:1.6;padding:11px 14px;width:100%;outline:none;resize:none}
-textarea::placeholder,input[type=text]::placeholder{color:#2a2a40}
-textarea:focus,input[type=text]:focus{border-color:#3de8a044}
-.row2{display:flex;gap:10px}
+.wrap{max-width:480px;margin:0 auto;padding:0 0 76px;position:relative;z-index:1}
+.header{padding:22px 16px 0;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.htitle{font-size:22px;font-weight:900;color:#f0f0ff;letter-spacing:-0.5px}
+.hsub{font-size:11px;color:#ffffff30;margin-top:2px}
+.badge{background:linear-gradient(135deg,#ff8c42,#ff3b5c);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#fff;display:inline-block}
+.screen{padding:0 16px;display:none;flex-direction:column;gap:13px}
+.screen.on{display:flex;animation:fu .3s ease}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:16px;padding:16px}
+.lbl{font-size:10px;color:#ffffff30;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;font-weight:700}
+.range-wrap{padding:4px 0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;outline:none;cursor:pointer;border:none;display:block}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #07070f;box-shadow:0 0 0 2px var(--rc,#3de8a0)}
+.rmarks{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:#ffffff20;direction:ltr}
+textarea,input[type=text]{background:#0a0a14;border:1px solid #1a1a2e;border-radius:10px;color:#e0e0f0;font-family:Heebo,sans-serif;font-size:14px;line-height:1.6;padding:10px 13px;width:100%;outline:none;resize:none;display:block}
+textarea::placeholder,input[type=text]::placeholder{color:#252535}
+textarea:focus,input[type=text]:focus{border-color:#3de8a033}
+.row2{display:flex;gap:8px}
 .row2>div{flex:1}
-.upload-zone{border:1.5px dashed #1a1a2e;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#0a0a14;transition:all .2s}
+.uzone{border:1.5px dashed #1a1a2e;border-radius:11px;padding:18px;text-align:center;cursor:pointer;background:#0a0a14}
+.mprev{position:relative;border-radius:11px;overflow:hidden}
+.mprev img,.mprev video{width:100%;max-height:200px;object-fit:cover;display:block}
+.mrem{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.8);color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;line-height:26px;text-align:center}
+.sbtn{width:100%;border:none;border-radius:12px;font-family:Heebo,sans-serif;font-size:16px;font-weight:900;padding:14px;cursor:pointer;color:#fff;display:block}
+.abtn{border:1px solid #1a1a2e;border-radius:11px;padding:13px 14px;background:#0d0d1a;color:#c9d1d9;font-family:Heebo,sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;text-align:right}
+.stabs{display:flex;gap:3px;overflow-x:auto;padding-bottom:2px}
+.stab{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:6px 13px;border-radius:18px;color:#ffffff30;white-space:nowrap}
+.stab.on{color:#fff;background:#ffffff12}
+.rring{position:relative;width:96px;height:96px;flex-shrink:0}
+.rring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.rring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.erow{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.erow:active{background:#111124}
+.lrow{display:flex;align-items:center;gap:10px;padding:10px 13px;background:#0d0d1a;border-radius:11px;border:1px solid #1a1a2e}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sbox{background:#0a0a14;border:1px solid #1a1a2e;border-radius:11px;padding:14px;text-align:center}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.mbox{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:18px;padding:22px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto}
+.wbar{height:4px;border-radius:2px;background:#1a1a2e;overflow:hidden}
+.wbar-fill{height:100%;border-radius:2px}
+.wchart{display:flex;align-items:flex-end;gap:4px;height:60px}
+.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.wbbar{width:100%;border-radius:3px 3px 0 0;min-height:2px}
+.wblbl{font-size:8px;color:#ffffff25}
+.world-map-wrap{background:#08080f;border-radius:10px;overflow:hidden}
+.err{color:#ff3b5c;font-size:12px;margin-top:5px}
+.anote{font-size:10px;color:#ffffff18;text-align:center;margin-top:-5px}
+.empty{text-align:center;color:#ffffff20;padding:50px 0}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#050510;border-top:1px solid #1a1a2e;padding:6px 8px 14px}
+.nav-in{max-width:480px;margin:0 auto;display:flex}
+.nb{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:10px;font-weight:900;color:#ffffff25;padding:6px 4px 4px;border-radius:9px;display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+.nb.on{color:#e0e0f0;background:#13132a}
+.nb span{font-size:19px}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="htitle">מדד האושר 🌍</div>
+      <div class="hsub" id="hdate"></div>
+    </div>
+    <div style="text-align:left;display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+      <div class="badge" id="streak" style="display:none"></div>
+      <div class="hsub" id="hdays"></div>
+    </div>
+  </div>
+
+  <!-- TODAY -->
+  <div class="screen on" id="s-today">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <span class="lbl">ציון היום</span>
+          <div id="slabel" style="font-size:14px;font-weight:700"></div>
+        </div>
+        <div class="rring">
+          <svg width="96" height="96">
+            <circle cx="48" cy="48" r="40" fill="none" stroke="#ffffff0e" stroke-width="7"/>
+            <circle id="rarc" cx="48" cy="48" r="40" fill="none" stroke="#3de8a0" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 251"/>
+          </svg>
+          <div class="rring-c">
+            <div id="snum" style="font-size:30px;font-weight:900;line-height:1"></div>
+            <div id="semoji" style="font-size:18px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="range-wrap">
+        <input type="range" id="srange" min="0" max="100" value="70" dir="ltr" oninput="onRange(this.value)">
+      </div>
+      <div class="rmarks"><span>0</span><span>50</span><span>100</span></div>
+    </div>
+
+    <div>
+      <span class="lbl">מיקום (אנונימי)</span>
+      <div class="row2">
+        <div><input type="text" id="city" placeholder="עיר"></div>
+        <div><input type="text" id="country" placeholder="מדינה"></div>
+      </div>
+      <div class="anote">📍 אנונימי — אין שמות, אין זיהוי</div>
+    </div>
+
+    <div>
+      <span class="lbl">מה היה מיוחד?</span>
+      <textarea id="special" rows="3" placeholder="רגע אחד מהיום..."></textarea>
+    </div>
+
+    <div>
+      <span class="lbl">תמונה / סרטון (עד 10 שניות)</span>
+      <div id="uarea">
+        <div class="uzone" onclick="document.getElementById('finput').click()">
+          <div style="font-size:26px;margin-bottom:5px">📷</div>
+          <div style="font-size:13px;color:#ffffff35">לחץ להעלאת תמונה או סרטון</div>
+          <div style="font-size:11px;color:#ffffff18;margin-top:3px">JPG · PNG · MP4</div>
+        </div>
+      </div>
+      <div class="err" id="verr" style="display:none"></div>
+      <input type="file" id="finput" accept="image/*,video/*" style="display:none" onchange="onFile(this)">
+    </div>
+
+    <button class="sbtn" id="savebtn" onclick="saveEntry()">שמור את היום</button>
+
+    <div class="card" id="weekcard" style="display:none">
+      <span class="lbl">השבוע שלי</span>
+      <div class="wchart" id="mywchart"></div>
+    </div>
+
+    <div class="card" id="vscard" style="display:none">
+      <span class="lbl">אתה מול העולם</span>
+      <div id="vsrows"></div>
+      <div id="vsdiff" style="text-align:center;margin-top:10px;font-size:13px;color:#ffffff35"></div>
+    </div>
+  </div>
+
+  <!-- WORLD -->
+  <div class="screen" id="s-world">
+    <div style="text-align:center;padding:8px 0 4px">
+      <div style="position:relative;width:150px;height:150px;margin:0 auto">
+        <svg id="globesvg" viewBox="0 0 200 200" width="150" height="150"></svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div id="gnum" style="font-size:44px;font-weight:900;line-height:1"></div>
+          <div style="font-size:11px;color:#ffffff35">ציון גלובלי</div>
+        </div>
+      </div>
+      <div id="gtotal" style="font-size:12px;color:#ffffff25;margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <span class="lbl">מגמה עולמית — 7 ימים</span>
+      <div class="wchart" id="worldchart"></div>
+    </div>
+    <div class="stabs" id="wtabs">
+      <button class="stab on" onclick="wTab('cities',this)">🏙️ ערים</button>
+      <button class="stab" onclick="wTab('countries',this)">🌐 מדינות</button>
+      <button class="stab" onclick="wTab('map',this)">🗺️ מפה</button>
+    </div>
+    <div id="wcities" style="display:flex;flex-direction:column;gap:7px"></div>
+    <div id="wcountries" style="display:none;flex-direction:column;gap:7px"></div>
+    <div id="wmap" style="display:none">
+      <div class="card" style="padding:12px">
+        <span class="lbl" style="margin-bottom:8px;display:block">מפה עולמית — ציון אושר לפי מדינה</span>
+        <div class="world-map-wrap" id="mapwrap"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;justify-content:center;font-size:10px;color:#ffffff35">
+          <div style="width:8px;height:8px;border-radius:2px;background:#ff3b5c"></div>נמוך
+          <div style="width:8px;height:8px;border-radius:2px;background:#f5c842;margin-right:4px"></div>בינוני
+          <div style="width:8px;height:8px;border-radius:2px;background:#3de8a0;margin-right:4px"></div>גבוה
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="screen" id="s-history">
+    <div class="stabs">
+      <button class="stab on" onclick="hTab('list',this)">📋 רשימה</button>
+      <button class="stab" onclick="hTab('month',this)">📆 חודש</button>
+      <button class="stab" onclick="hTab('stats',this)">📊 סטטס</button>
+    </div>
+    <div id="hlist" style="display:flex;flex-direction:column;gap:7px"></div>
+    <div id="hmonth" style="display:none;flex-direction:column;gap:12px"></div>
+    <div id="hstats" style="display:none;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="screen" id="s-export">
+    <div class="card">
+      <div style="font-size:15px;font-weight:900;color:#f0f0ff;margin-bottom:5px">ייצוא הנתונים שלך</div>
+      <div id="expinfo" style="font-size:13px;color:#ffffff35;line-height:1.7"></div>
+    </div>
+    <button class="abtn" onclick="doCSV()">
+      <span style="font-size:22px">📊</span>
+      <div><div style="font-weight:700">ייצא כ-CSV</div><div style="font-size:11px;color:#ffffff35;margin-top:1px">נפתח ב-Excel / Google Sheets</div></div>
+    </button>
+    <button class="abtn" onclick="doJSON()">
+      <span style="font-size:22px">💾</span>
+      <div><div style="font-weight:700">ייצא כ-JSON</div><div style="font-size:11px;color:#ffffff35;margin-top:1px">גיבוי מלא של כל הנתונים</div></div>
+    </button>
+    <div id="expmsg" style="display:none;text-align:center;color:#3de8a0;font-weight:700;padding:8px"></div>
+    <div style="border-top:1px solid #1a1a2e;padding-top:12px">
+      <span class="lbl">שיתוף יום בודד</span>
+      <div id="sharelist"></div>
+    </div>
+    <div class="card" style="background:#0a0a14">
+      <span class="lbl">📌 אחסון</span>
+      <div id="storinfo" style="font-size:13px;color:#ffffff40;line-height:1.8"></div>
+    </div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-in">
+    <button class="nb on" onclick="goTo('today',this)"><span>✍️</span>היום</button>
+    <button class="nb" onclick="goTo('world',this)"><span>🌍</span>עולם</button>
+    <button class="nb" onclick="goTo('history',this)"><span>📅</span>ארכיון</button>
+    <button class="nb" onclick="goTo('export',this)"><span>💾</span>ייצוא</button>
+  </div>
+</nav>
+
+<div class="mbg" id="modal" style="display:none" onclick="closeM()">
+  <div class="mbox" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div id="mdate" style="font-size:11px;color:#ffffff35;margin-bottom:3px"></div>
+        <div id="mscore" style="font-size:46px;font-weight:900;line-height:1"></div>
+        <div id="mlabel" style="font-size:14px;margin-top:2px"></div>
+      </div>
+      <button onclick="closeM()" style="background:#1a1a2e;border:none;color:#666;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px;line-height:30px;text-align:center">✕</button>
+    </div>
+    <div id="mloc" style="font-size:13px;color:#ffffff35;margin-bottom:12px;display:none"></div>
+    <div id="mmedia" style="border-radius:11px;overflow:hidden;margin-bottom:14px;display:none"></div>
+    <div id="mspecial" style="background:#07070f;border-radius:11px;padding:13px;border:1px solid #1a1a2e;display:none">
+      <div style="font-size:10px;color:#ffffff30;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">מה היה מיוחד</div>
+      <div id="mtext" style="font-size:14px;line-height:1.8"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SK='whi-v2',G=68,GTOT=142839;
+var GW=[62,65,71,68,74,70,68];
+var WL=['ב','ג','ד','ה','ו','ש','א'];
+var CITIES=[
+  {n:'Tel Aviv',f:'🇮🇱',s:74,p:4102},{n:'Auckland',f:'🇳🇿',s:79,p:1243},
+  {n:'Copenhagen',f:'🇩🇰',s:77,p:2891},{n:'Amsterdam',f:'🇳🇱',s:73,p:3340},
+  {n:'Tokyo',f:'🇯🇵',s:72,p:8821},{n:'Berlin',f:'🇩🇪',s:71,p:5210},
+  {n:'Haifa',f:'🇮🇱',s:70,p:1890},{n:'Melbourne',f:'🇦🇺',s:69,p:3102},
+  {n:'Toronto',f:'🇨🇦',s:68,p:4500},{n:'Sao Paulo',f:'🇧🇷',s:63,p:9200}
+];
+var COUNTRIES=[
+  {n:'Finland',f:'🇫🇮',s:78,p:18200},{n:'Denmark',f:'🇩🇰',s:77,p:15400},
+  {n:'Iceland',f:'🇮🇸',s:76,p:4200},{n:'Israel',f:'🇮🇱',s:72,p:28900},
+  {n:'Netherlands',f:'🇳🇱',s:71,p:22100},{n:'Sweden',f:'🇸🇪',s:70,p:19800},
+  {n:'Germany',f:'🇩🇪',s:68,p:41200},{n:'Japan',f:'🇯🇵',s:67,p:38900},
+  {n:'USA',f:'🇺🇸',s:65,p:89400},{n:'Brazil',f:'🇧🇷',s:63,p:34100},
+  {n:'India',f:'🇮🇳',s:58,p:71000},{n:'Egypt',f:'🇪🇬',s:55,p:22000}
+];
+var MAPC=[
+  {n:'USA',s:65,x:18,y:38,r:7},{n:'Canada',s:72,x:18,y:25,r:6},
+  {n:'Brazil',s:63,x:28,y:62,r:6},{n:'Argentina',s:61,x:26,y:72,r:4},
+  {n:'Mexico',s:62,x:15,y:44,r:3},{n:'UK',s:69,x:45,y:28,r:2.5},
+  {n:'France',s:67,x:47,y:32,r:2.5},{n:'Germany',s:68,x:49,y:29,r:2.5},
+  {n:'Sweden',s:70,x:50,y:22,r:2.5},{n:'Finland',s:78,x:52,y:19,r:2.5},
+  {n:'Russia',s:54,x:62,y:24,r:9},{n:'Israel',s:72,x:55,y:38,r:2},
+  {n:'Egypt',s:55,x:54,y:42,r:3},{n:'Nigeria',s:52,x:48,y:50,r:3},
+  {n:'S.Africa',s:57,x:52,y:65,r:3.5},{n:'India',s:58,x:65,y:43,r:5},
+  {n:'China',s:61,x:72,y:37,r:7},{n:'Japan',s:67,x:80,y:34,r:2.5},
+  {n:'Indonesia',s:64,x:75,y:52,r:4},{n:'Australia',s:69,x:77,y:62,r:6},
+  {n:'NZ',s:79,x:84,y:68,r:2}
+];
+
+var entries={},curScore=70,curMedia=null,curMediaType=null;
+
+function gc(s){if(s<=20)return'#ff3b5c';if(s<=40)return'#ff7c2a';if(s<=60)return'#f5c842';if(s<=80)return'#3de8a0';return'#00d4ff';}
+function gg(s){if(s<=20)return'linear-gradient(135deg,#ff3b5c,#9b0000)';if(s<=40)return'linear-gradient(135deg,#ff7c2a,#8b3000)';if(s<=60)return'linear-gradient(135deg,#f5c842,#8b7000)';if(s<=80)return'linear-gradient(135deg,#3de8a0,#007a50)';return'linear-gradient(135deg,#00d4ff,#005a8b)';}
+function ge(s){if(s<=20)return'😞';if(s<=40)return'😕';if(s<=60)return'😐';if(s<=80)return'🙂';return'😄';}
+function gl(s){if(s<=20)return'יום קשה';if(s<=40)return'לא קל';if(s<=60)return'סבבה';if(s<=80)return'יום טוב!';return'יום מעולה!';}
+function tod(){return new Date().toISOString().slice(0,10);}
+function fs(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'short',day:'numeric',month:'short'});}
+function fl(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function fm(d){return new Date(d+'-01').toLocaleDateString('he-IL',{month:'long',year:'numeric'});}
+function allE(){return Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});}
+
+function init(){
+  try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(e){}
+  makestars();
+  document.getElementById('hdate').textContent=fl(tod());
+  updateUI(curScore);
+  loadToday();
+  renderHeader();
+  renderGlobe();
+  renderWChart('worldchart',GW,WL);
+  renderLeaders();
+  renderMap();
+  renderWeekCard();
+  renderVsCard();
+}
+
+function saveSt(){localStorage.setItem(SK,JSON.stringify(entries));}
+
+function updateUI(s){
+  curScore=s;
+  var c=gc(s);
+  document.getElementById('snum').textContent=s;
+  document.getElementById('snum').style.color=c;
+  document.getElementById('semoji').textContent=ge(s);
+  document.getElementById('slabel').textContent=gl(s);
+  document.getElementById('slabel').style.color=c;
+  document.getElementById('savebtn').style.background=gg(s);
+  var r=40,circ=2*Math.PI*r,dash=(s/100)*circ;
+  var arc=document.getElementById('rarc');
+  arc.setAttribute('stroke',c);
+  arc.setAttribute('stroke-dasharray',dash+' '+(circ-dash));
+  var rng=document.getElementById('srange');
+  rng.style.background='linear-gradient(to right,'+c+' '+s+'%,#1a1a2e '+s+'%)';
+  rng.style.setProperty('--rc',c);
+}
+
+function onRange(v){updateUI(parseInt(v));}
+
+function onFile(inp){
+  var file=inp.files[0];if(!file)return;
+  document.getElementById('verr').style.display='none';
+  if(file.type.startsWith('video/')){
+    var url=URL.createObjectURL(file);
+    var v=document.createElement('video');v.src=url;
+    v.onloadedmetadata=function(){
+      URL.revokeObjectURL(url);
+      if(v.duration>10){document.getElementById('verr').textContent='הסרטון ארוך מ-10 שניות';document.getElementById('verr').style.display='block';return;}
+      var fr=new FileReader();
+      fr.onload=function(e){curMedia=e.target.result;curMediaType='video';showPreview();};
+      fr.readAsDataURL(file);
+    };
+  } else if(file.type.startsWith('image/')){
+    var fr=new FileReader();
+    fr.onload=function(e){curMedia=e.target.result;curMediaType='image';showPreview();};
+    fr.readAsDataURL(file);
+  }
+}
+
+function showPreview(){
+  var html='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" onclick="clearMedia()">✕</button></div>';
+  document.getElementById('uarea').innerHTML=html;
+}
+
+function clearMedia(){
+  curMedia=null;curMediaType=null;
+  document.getElementById('uarea').innerHTML='<div class="uzone" onclick="document.getElementById(\'finput\').click()"><div style="font-size:26px;margin-bottom:5px">📷</div><div style="font-size:13px;color:#ffffff35">לחץ להעלאת תמונה או סרטון</div><div style="font-size:11px;color:#ffffff18;margin-top:3px">JPG · PNG · MP4</div></div>';
+  document.getElementById('finput').value='';
+}
+
+function saveEntry(){
+  var t=tod();
+  entries[t]={score:curScore,city:document.getElementById('city').value,country:document.getElementById('country').value,special:document.getElementById('special').value,mediaPreview:curMedia,mediaType:curMediaType,date:t};
+  saveSt();
+  var b=document.getElementById('savebtn');b.textContent='✓ נשמר!';
+  setTimeout(function(){b.textContent='שמור את היום';},2000);
+  renderHeader();renderWeekCard();renderVsCard();
+}
+
+function renderHeader(){
+  var e=allE();document.getElementById('hdays').textContent=e.length+' ימים';
+  var s=0,d=new Date();
+  while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
+  var b=document.getElementById('streak');
+  if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';
+}
+
+function loadToday(){
+  var e=entries[tod()];if(!e)return;
+  curScore=e.score;
+  document.getElementById('srange').value=e.score;
+  document.getElementById('city').value=e.city||'';
+  document.getElementById('country').value=e.country||'';
+  document.getElementById('special').value=e.special||'';
+  if(e.mediaPreview){curMedia=e.mediaPreview;curMediaType=e.mediaType;showPreview();}
+  updateUI(e.score);
+}
+
+function renderWChart(id,data,labels){
+  var html='';
+  for(var i=0;i<data.length;i++){
+    var v=data[i]||0,isL=i===data.length-1,c=gc(v||G),h=Math.max((v/100)*52,2);
+    html+='<div class="wb"><div class="wbbar" style="height:'+h+'px;background:'+c+';opacity:'+(isL?1:0.5)+'"></div><div class="wblbl">'+labels[i]+'</div></div>';
+  }
+  document.getElementById(id).innerHTML=html;
+}
+
+function renderWeekCard(){
+  var e=allE();
+  if(e.length<2){document.getElementById('weekcard').style.display='none';return;}
+  document.getElementById('weekcard').style.display='block';
+  var arr=[];
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var ds=d.toISOString().slice(0,10);arr.push(entries[ds]?entries[ds].score:0);}
+  renderWChart('mywchart',arr,WL);
+}
+
+function renderVsCard(){
+  var e=entries[tod()];
+  if(!e){document.getElementById('vscard').style.display='none';return;}
+  document.getElementById('vscard').style.display='block';
+  var rows=[{l:'הציון שלך',v:e.score}];
+  if(e.city)rows.push({l:'ממוצע עיר שלך',v:Math.min(100,Math.max(0,Math.round(G+(Math.sin(e.city.length)*8))))});
+  rows.push({l:'ממוצע עולמי',v:G});
+  var html='';
+  rows.forEach(function(r){
+    var c=gc(r.v);
+    html+='<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#ffffff45">'+r.l+'</span><span style="font-weight:700;color:'+c+'">'+r.v+'</span></div><div class="wbar"><div class="wbar-fill" style="width:'+r.v+'%;background:'+c+'"></div></div></div>';
+  });
+  document.getElementById('vsrows').innerHTML=html;
+  var d=e.score-G;
+  document.getElementById('vsdiff').textContent=d>0?'+'+d+' מעל הממוצע העולמי':d<0?d+' מתחת לממוצע העולמי':'בדיוק בממוצע העולמי';
+}
+
+function renderGlobe(){
+  var c=gc(G),svg=document.getElementById('globesvg');
+  svg.style.filter='drop-shadow(0 0 25px '+c+'44)';
+  svg.innerHTML='<defs><radialGradient id="rg1" cx="38%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient><radialGradient id="rg2" cx="50%" cy="50%"><stop offset="0%" stop-color="'+c+'" stop-opacity="0.6"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0.08"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="78"/></clipPath></defs><circle cx="100" cy="100" r="88" fill="'+c+'" fill-opacity="0.05"/><circle cx="100" cy="100" r="78" fill="#08080f"/><circle cx="100" cy="100" r="78" fill="url(#rg2)"/><g clip-path="url(#gc)" fill="none" stroke="'+c+'" stroke-opacity="0.18" stroke-width="0.8"><ellipse cx="100" cy="100" rx="78" ry="18"/><ellipse cx="100" cy="100" rx="78" ry="40"/><ellipse cx="100" cy="100" rx="78" ry="62"/><line x1="22" y1="100" x2="178" y2="100"/><line x1="100" y1="22" x2="100" y2="178"/><line x1="56" y1="22" x2="56" y2="178"/><line x1="144" y1="22" x2="144" y2="178"/></g><circle cx="100" cy="100" r="78" fill="url(#rg1)"/><circle cx="100" cy="100" r="78" fill="none" stroke="'+c+'" stroke-opacity="0.4" stroke-width="1.5"/>';
+  var el=document.getElementById('gnum');el.style.color=c;
+  var start=Date.now();
+  function tick(){var p=Math.min((Date.now()-start)/1100,1),e2=1-Math.pow(1-p,3);el.textContent=Math.round(G*e2);if(p<1)requestAnimationFrame(tick);}
+  requestAnimationFrame(tick);
+  document.getElementById('gtotal').textContent=GTOT.toLocaleString()+' '+ge(G)+' כניסות היום';
+}
+
+function renderLeaders(){
+  var ch='';
+  CITIES.forEach(function(c,i){
+    var col=gc(c.s);
+    ch+='<div class="lrow"><div style="font-size:11px;font-weight:700;color:#ffffff20;min-width:16px">'+(i+1)+'</div><div style="font-size:18px">'+c.f+'</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+c.n+'</div><div style="font-size:11px;color:#ffffff28">'+c.p.toLocaleString()+' אנשים</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:48px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:16px;font-weight:900;color:'+col+';min-width:24px;text-align:center">'+c.s+'</div></div></div>';
+  });
+  document.getElementById('wcities').innerHTML=ch;
+  var cn='';
+  COUNTRIES.forEach(function(c,i){
+    var col=gc(c.s);
+    cn+='<div class="lrow"><div style="font-size:11px;font-weight:700;color:#ffffff20;min-width:16px">'+(i+1)+'</div><div style="font-size:18px">'+c.f+'</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+c.n+'</div><div style="font-size:11px;color:#ffffff28">'+c.p.toLocaleString()+' אנשים</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:48px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:16px;font-weight:900;color:'+col+';min-width:24px;text-align:center">'+c.s+'</div></div></div>';
+  });
+  document.getElementById('wcountries').innerHTML=cn;
+}
+
+function renderMap(){
+  var W=360,H=180;
+  var html='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="background:#05050e;display:block;width:100%">';
+  html+='<g stroke="#1a1a2e" stroke-width="0.5">';
+  for(var x=0;x<=W;x+=60)html+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'"/>';
+  for(var y=0;y<=H;y+=45)html+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'"/>';
+  html+='</g>';
+  MAPC.forEach(function(c){
+    var col=gc(c.s),cx=c.x/100*W,cy=c.y/100*H,r=c.r*2.8;
+    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="0.3" stroke="'+col+'" stroke-width="0.8" stroke-opacity="0.6"/>';
+    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.3+1)+'" fill="'+col+'" fill-opacity="0.95"/>';
+    if(r>8){
+      html+='<text x="'+cx+'" y="'+(cy+r+7)+'" text-anchor="middle" fill="'+col+'" fill-opacity="0.65" font-size="5.5" font-family="Heebo,sans-serif">'+c.n+'</text>';
+      html+='<text x="'+cx+'" y="'+(cy+2.5)+'" text-anchor="middle" fill="#fff" fill-opacity="0.9" font-size="6.5" font-family="Heebo,sans-serif" font-weight="bold">'+c.s+'</text>';
+    }
+  });
+  html+='</svg>';
+  document.getElementById('mapwrap').innerHTML=html;
+}
+
+function wTab(t,btn){
+  document.querySelectorAll('#wtabs .stab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');
+  document.getElementById('wcities').style.display=t==='cities'?'flex':'none';
+  document.getElementById('wcountries').style.display=t==='countries'?'flex':'none';
+  document.getElementById('wmap').style.display=t==='map'?'block':'none';
+}
+
+function renderHistory(){
+  var e=allE();
+  if(!e.length){
+    document.getElementById('hlist').innerHTML='<div class="empty"><div style="font-size:36px;margin-bottom:10px">📭</div>עדיין אין ימים שנשמרו</div>';
+    return;
+  }
+  var html='';
+  e.forEach(function(en){
+    var c=gc(en.score);
+    html+='<div class="erow" onclick="openM(\''+en.date+'\')">';
+    html+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#ffffff38;margin-bottom:2px">'+fs(en.date)+'</div>';
+    if(en.special)html+='<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>';
+    if(en.city)html+='<div style="font-size:11px;color:#ffffff25;margin-top:1px">📍 '+en.city+(en.country?', '+en.country:'')+'</div>';
+    html+='</div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0">';
+    if(en.mediaPreview)html+='<div style="width:32px;height:32px;border-radius:7px;overflow:hidden;flex-shrink:0">'+(en.mediaType==='image'?'<img src="'+en.mediaPreview+'" style="width:100%;height:100%;object-fit:cover">':'<video src="'+en.mediaPreview+'" style="width:100%;height:100%;object-fit:cover"></video>')+'</div>';
+    html+='<div style="text-align:center"><div style="font-size:21px;font-weight:900;color:'+c+';line-height:1">'+en.score+'</div><div style="font-size:13px">'+ge(en.score)+'</div></div></div></div>';
+  });
+  document.getElementById('hlist').innerHTML=html;
+
+  var byM={};
+  e.forEach(function(en){var m=en.date.slice(0,7);if(!byM[m])byM[m]=[];byM[m].push(en);});
+  var months=Object.keys(byM).sort(function(a,b){return b.localeCompare(a);});
+  var mh='<div class="stabs" id="mtabs">';
+  months.forEach(function(m,i){mh+='<button class="stab'+(i===0?' on':'')+'" onclick="showMo(\''+m+'\',this)">'+fm(m)+'</button>';});
+  mh+='</div>';
+  months.forEach(function(m,i){
+    mh+='<div id="mo-'+m+'" style="display:'+(i===0?'flex':'none')+';flex-direction:column;gap:7px">';
+    byM[m].forEach(function(en){
+      var c=gc(en.score),day=new Date(en.date).getDate(),wd=new Date(en.date).toLocaleDateString('he-IL',{weekday:'short'});
+      mh+='<div class="erow" onclick="openM(\''+en.date+'\')">';
+      mh+='<div style="width:40px;height:40px;border-radius:9px;background:'+c+'15;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0"><div style="font-size:15px;font-weight:900;color:'+c+'">'+day+'</div><div style="font-size:9px;color:#ffffff28">'+wd+'</div></div>';
+      mh+='<div style="flex:1;min-width:0">'+(en.special?'<div style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+(en.city?'<div style="font-size:11px;color:#ffffff25">📍 '+en.city+'</div>':'')+'</div>';
+      mh+='<div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:13px">'+ge(en.score)+'</div></div></div>';
+    });
+    mh+='</div>';
+  });
+  document.getElementById('hmonth').innerHTML=mh;
+
+  if(!e.length)return;
+  var avg=Math.round(e.reduce(function(a,b){return a+b.score;},0)/e.length);
+  var best=Math.max.apply(null,e.map(function(x){return x.score;}));
+  var worst=Math.min.apply(null,e.map(function(x){return x.score;}));
+  var bestDay=e.find(function(x){return x.score===best;});
+  var sh='<div class="sgrid">';
+  [{l:'ממוצע',v:avg,e:ge(avg)},{l:'סה״כ ימים',v:e.length,e:'📅'},{l:'הכי גבוה',v:best,e:'🏆'},{l:'הכי נמוך',v:worst,e:'💪'}].forEach(function(x){
+    var c=gc(x.l!=='סה״כ ימים'?x.v:avg);
+    sh+='<div class="sbox"><div style="font-size:10px;color:#ffffff28;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:3px">'+x.e+'</div></div>';
+  });
+  sh+='</div>';
+  if(bestDay){var bc=gc(best);sh+='<div class="card" style="background:'+bc+'10;border-color:'+bc+'22"><div style="font-size:11px;color:'+bc+';font-weight:700;margin-bottom:4px">🏆 היום הכי טוב</div><div style="font-size:12px;color:#ffffff45">'+fl(bestDay.date)+'</div>'+(bestDay.special?'<div style="font-size:13px;margin-top:4px">'+bestDay.special+'</div>':'')+'</div>';}
+  sh+='<div class="card"><span class="lbl">התפלגות מצב רוח</span>';
+  [{l:'מעולה 81–100',mn:81,mx:100,c:'#00d4ff'},{l:'טוב 61–80',mn:61,mx:80,c:'#3de8a0'},{l:'סבבה 41–60',mn:41,mx:60,c:'#f5c842'},{l:'קשה 21–40',mn:21,mx:40,c:'#ff7c2a'},{l:'מאוד קשה 0–20',mn:0,mx:20,c:'#ff3b5c'}].forEach(function(b){
+    var cnt=e.filter(function(x){return x.score>=b.mn&&x.score<=b.mx;}).length;
+    var pct=Math.round(cnt/e.length*100);
+    sh+='<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;color:#ffffff38">'+b.l+'</span><span style="font-size:12px;font-weight:700;color:'+b.c+'">'+cnt+' ('+pct+'%)</span></div><div class="wbar"><div class="wbar-fill" style="width:'+pct+'%;background:'+b.c+'"></div></div></div>';
+  });
+  sh+='</div>';
+  document.getElementById('hstats').innerHTML=sh;
+}
+
+function showMo(m,btn){
+  document.querySelectorAll('#mtabs .stab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');
+  document.querySelectorAll('[id^="mo-"]').forEach(function(el){el.style.display='none';});
+  document.getElementById('mo-'+m).style.display='flex';
+}
+
+function hTab(t,btn){
+  document.querySelectorAll('#s-history .stab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');
+  document.getElementById('hlist').style.display=t==='list'?'flex':'none';
+  document.getElementById('hmonth').style.display=t==='month'?'flex':'none';
+  document.getElementById('hstats').style.display=t==='stats'?'flex':'none';
+}
+
+function renderExport(){
+  var e=allE();
+  document.getElementById('expinfo').textContent=e.length+' ימים נרשמו. ייצא לקובץ לגיבוי או פתיחה ב-Excel.';
+  document.getElementById('storinfo').innerHTML=e.length+' ימים · '+Math.round(JSON.stringify(entries).length/1024)+' KB';
+  var html='';
+  e.slice(0,5).forEach(function(en){
+    var c=gc(en.score);
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;background:#0a0a14;border:1px solid #1a1a2e;border-radius:10px;margin-bottom:7px"><div><div style="font-size:12px;color:#ffffff35">'+fs(en.date)+'</div><div style="font-size:15px;font-weight:900;color:'+c+'">'+en.score+' '+ge(en.score)+'</div></div><button onclick="shareDay(\''+en.date+'\')" style="background:#1a1a2e;border:none;color:#8b949e;border-radius:7px;padding:6px 13px;font-family:Heebo,sans-serif;font-size:12px;cursor:pointer;font-weight:600">📤 שתף</button></div>';
+  });
+  if(!e.length)html='<div style="color:#ffffff20;font-size:13px;text-align:center;padding:20px">אין ימים עדיין</div>';
+  document.getElementById('sharelist').innerHTML=html;
+}
+
+function shareDay(date){
+  var e=entries[date];if(!e)return;
+  var t='מדד האושר שלי ב-'+fs(date)+': '+e.score+'/100 '+ge(e.score)+(e.special?' — '+e.special:'');
+  if(navigator.share)navigator.share({text:t});
+  else if(navigator.clipboard){navigator.clipboard.writeText(t);showExpMsg('הועתק! ✓');}
+}
+
+function doCSV(){
+  var e=allE(),rows=[['תאריך','ציון','עיר','מדינה','מיוחד']];
+  e.forEach(function(en){rows.push([en.date,en.score,en.city||'',en.country||'',(en.special||'').replace(/,/g,' ')]);});
+  var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();
+  showExpMsg('CSV הורד! ✓');
+}
+
+function doJSON(){
+  var blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.json';a.click();
+  showExpMsg('JSON הורד! ✓');
+}
+
+function showExpMsg(m){var el=document.getElementById('expmsg');el.textContent=m;el.style.display='block';setTimeout(function(){el.style.display='none';},2500);}
+
+function openM(date){
+  var e=entries[date];if(!e)return;
+  var c=gc(e.score);
+  document.getElementById('mdate').textContent=fl(date);
+  document.getElementById('mscore').textContent=e.score;document.getElementById('mscore').style.color=c;
+  document.getElementById('mlabel').textContent=gl(e.score)+' '+ge(e.score);document.getElementById('mlabel').style.color=c;
+  var ll=document.getElementById('mloc');
+  if(e.city){ll.textContent='📍 '+e.city+(e.country?', '+e.country:'');ll.style.display='block';}else ll.style.display='none';
+  var mm=document.getElementById('mmedia');
+  if(e.mediaPreview){mm.innerHTML=e.mediaType==='image'?'<img src="'+e.mediaPreview+'" style="width:100%;max-height:230px;object-fit:cover;display:block">':'<video src="'+e.mediaPreview+'" controls style="width:100%;display:block">';mm.style.display='block';}else mm.style.display='none';
+  var ms=document.getElementById('mspecial');
+  if(e.special){document.getElementById('mtext').textContent=e.special;ms.style.display='block';}else ms.style.display='none';
+  document.getElementById('modal').style.display='flex';
+}
+function closeM(){document.getElementById('modal').style.display='none';}
+
+function goTo(name,btn){
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});
+  document.getElementById('s-'+name).classList.add('on');
+  if(name==='history')renderHistory();
+  if(name==='export')renderExport();
+}
+
+function makestars(){
+  var html='';
+  for(var i=0;i<50;i++){var x=((i*137.5)%100),y=((i*97.3)%100),sz=(i%3)+1,op=0.04+(i%5)*0.025;html+='<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:#fff;opacity:'+op+'"></div>';}
+  document.getElementById('stars').innerHTML=html;
+}
+
+init();
+</script>
+</body>
+</html>
 .upload-zone:hover{border-color:#3de8a044}
 .upload-icon{font-size:26px;margin-bottom:6px}
 .upload-text{font-size:13px;color:#ffffff40}
