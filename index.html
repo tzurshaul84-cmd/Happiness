@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מדד האושר העולמי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07070f;font-family:Heebo,sans-serif;color:#e0e0f0;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#1a1a2e;border-radius:2px}
+.app{max-width:500px;margin:0 auto;padding:0 0 80px}
+.header{padding:24px 18px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.app-title{font-size:22px;font-weight:900;color:#f0f0ff;letter-spacing:-0.5px}
+.app-sub{font-size:12px;color:#ffffff35}
+.badge{background:linear-gradient(135deg,#ff8c42,#ff3b5c);border-radius:20px;padding:3px 11px;font-size:11px;font-weight:700;color:#fff}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#070712;border-top:1px solid #1a1a2e;padding:8px 10px 16px}
+.nav-inner{max-width:500px;margin:0 auto;display:flex;gap:4px}
+.nav-btn{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:11px;font-weight:700;color:#ffffff30;padding:7px 4px 5px;border-radius:10px;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.nav-btn.on{color:#e0e0f0;background:#14142a}
+.nav-icon{font-size:20px}
+.screen{padding:0 18px;display:none;flex-direction:column;gap:14px;animation:fadeUp .3s ease}
+.screen.on{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:18px;padding:18px}
+.label{font-size:11px;color:#ffffff35;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;border:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #07070f}
+textarea,input[type=text]{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:11px;color:#e0e0f0;font-family:Heebo,sans-serif;font-size:14px;line-height:1.6;padding:11px 14px;width:100%;outline:none;resize:none}
+textarea::placeholder,input[type=text]::placeholder{color:#2a2a40}
+textarea:focus,input[type=text]:focus{border-color:#3de8a044}
+.row2{display:flex;gap:10px}
+.row2>div{flex:1}
+.upload-zone{border:1.5px dashed #1a1a2e;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#0a0a14;transition:all .2s}
+.upload-zone:hover{border-color:#3de8a044}
+.upload-icon{font-size:26px;margin-bottom:6px}
+.upload-text{font-size:13px;color:#ffffff40}
+.upload-sub{font-size:11px;color:#ffffff20;margin-top:3px}
+.media-preview{position:relative;border-radius:12px;overflow:hidden}
+.media-preview img,.media-preview video{width:100%;max-height:200px;object-fit:cover;display:block}
+.remove-media{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.8);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.save-btn{width:100%;border:none;border-radius:13px;font-family:Heebo,sans-serif;font-size:16px;font-weight:900;padding:15px;cursor:pointer;transition:all .2s;color:#fff}
+.save-btn:hover{opacity:.9;transform:translateY(-1px)}
+.score-display{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.score-num{font-size:52px;font-weight:900;line-height:1}
+.score-emoji{font-size:26px;text-align:center}
+.score-label{font-size:14px;font-weight:700;margin-top:4px}
+.range-marks{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:#ffffff20}
+.ring-wrap{position:relative;width:100px;height:100px}
+.ring-wrap svg{position:absolute;inset:0}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-score{font-size:32px;font-weight:900;line-height:1}
+.ring-emoji{font-size:20px}
+.erow{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:13px;padding:13px 15px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
+.erow:hover{background:#111124;transform:translateX(-2px)}
+.erow-date{font-size:13px;color:#ffffff45;margin-bottom:2px}
+.erow-special{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.erow-loc{font-size:11px;color:#ffffff30}
+.erow-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.erow-score{font-size:22px;font-weight:900;line-height:1;text-align:center}
+.erow-thumb{width:34px;height:34px;border-radius:8px;overflow:hidden;flex-shrink:0}
+.erow-thumb img,.erow-thumb video{width:100%;height:100%;object-fit:cover}
+.stabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.stab{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:20px;color:#ffffff35;white-space:nowrap;transition:all .2s}
+.stab.on{color:#fff;background:#ffffff12}
+.lrow{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#0d0d1a;border-radius:12px;border:1px solid #1a1a2e}
+.lrow-name{font-size:14px;font-weight:700}
+.lrow-sub{font-size:11px;color:#ffffff35}
+.lrow-bar-wrap{height:4px;width:52px;background:#1a1a2e;border-radius:2px}
+.lrow-bar{height:100%;border-radius:2px}
+.lrow-score{font-size:17px;font-weight:900;min-width:26px;text-align:center}
+.lrow-rank{font-size:12px;font-weight:700;color:#ffffff25;min-width:18px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-box{background:#0a0a14;border:1px solid #1a1a2e;border-radius:12px;padding:16px;text-align:center}
+.stat-val{font-size:30px;font-weight:900;line-height:1}
+.stat-emoji{font-size:18px;margin-top:4px}
+.dist-row{margin-bottom:10px}
+.dist-row-head{display:flex;justify-content:space-between;margin-bottom:4px}
+.dist-label{font-size:12px;color:#ffffff50}
+.dist-val{font-size:12px;font-weight:700}
+.dist-bar-bg{height:4px;background:#1a1a2e;border-radius:2px}
+.dist-bar{height:100%;border-radius:2px}
+.abtn{border:1px solid #1a1a2e;border-radius:12px;padding:14px;background:#0d0d1a;color:#c9d1d9;font-family:Heebo,sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;width:100%}
+.abtn:hover{background:#111124;border-color:#3de8a033}
+.abtn-icon{font-size:24px}
+.abtn-title{font-weight:700}
+.abtn-sub{font-size:11px;color:#ffffff40;font-weight:400}
+.share-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0a0a14;border:1px solid #1a1a2e;border-radius:11px;margin-bottom:8px}
+.share-btn{background:#1a1a2e;border:none;color:#8b949e;border-radius:8px;padding:7px 14px;font-family:Heebo,sans-serif;font-size:13px;cursor:pointer;font-weight:600}
+.info-box{background:#0a0a14;border:1px solid #1a1a2e;border-radius:12px;padding:16px}
+.info-line{font-size:13px;color:#ffffff50;line-height:1.8}
+.globe-wrap{position:relative;width:160px;height:160px;margin:0 auto}
+.globe-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.globe-score{font-size:46px;font-weight:900;line-height:1}
+.globe-sub{font-size:12px;color:#ffffff40}
+.globe-total{font-size:13px;color:#ffffff30;margin-top:8px;text-align:center}
+.week-chart{display:flex;align-items:flex-end;gap:5px;height:64px}
+.week-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.week-bar{width:100%;border-radius:3px 3px 0 0;min-height:3px}
+.week-label{font-size:9px;color:#ffffff33}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:100;display:flex;align-items:center;justify-content:center;padding:18px}
+.modal-box{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:20px;padding:24px;max-width:450px;width:100%;max-height:88vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.modal-close{background:#1a1a2e;border:none;color:#8b949e;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px}
+.modal-score{font-size:48px;font-weight:900;line-height:1}
+.modal-label{font-size:15px;margin-top:3px}
+.modal-loc{font-size:13px;color:#ffffff40;margin-bottom:14px}
+.modal-media{border-radius:12px;overflow:hidden;margin-bottom:16px}
+.modal-media img,.modal-media video{width:100%;max-height:240px;object-fit:cover;display:block}
+.modal-special{background:#07070f;border-radius:12px;padding:14px;border:1px solid #1a1a2e}
+.modal-special-label{font-size:11px;color:#ffffff35;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px}
+.modal-special-text{font-size:15px;line-height:1.8}
+.vs-row{margin-bottom:10px}
+.vs-head{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px}
+.vs-name{color:#ffffff55}
+.vs-val{font-weight:700}
+.vs-bar-bg{height:5px;background:#1a1a2e;border-radius:3px}
+.vs-bar{height:100%;border-radius:3px}
+.vs-diff{text-align:center;margin-top:10px;font-size:13px;color:#ffffff40}
+.empty{text-align:center;color:#ffffff25;padding-top:50px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.export-msg{text-align:center;color:#3de8a0;font-weight:700;font-size:15px;padding:10px}
+.month-scores{display:flex;flex-direction:column;gap:8px}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff}
+.content{position:relative;z-index:1}
+.err{color:#ff3b5c;font-size:12px;margin-top:6px}
+.anon-note{font-size:11px;color:#ffffff20;text-align:center;margin-top:-8px}
+.map-placeholder{text-align:center;padding:40px}
+.map-icon{font-size:42px;margin-bottom:12px}
+.map-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.map-sub{font-size:13px;color:#ffffff30}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="content">
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="app-title">מדד האושר</div>
+      <div class="app-sub" id="today-date"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+      <div class="badge" id="streak-badge" style="display:none"></div>
+      <div class="app-sub" id="total-days"></div>
+    </div>
+  </div>
+
+  <!-- TODAY -->
+  <div class="screen on" id="screen-today">
+    <div class="card" id="score-card">
+      <div class="score-display">
+        <div>
+          <div class="label">ציון היום</div>
+          <div class="score-label" id="score-label-text"></div>
+        </div>
+        <div class="ring-wrap">
+          <svg width="100" height="100" style="transform:rotate(-90deg)">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#ffffff10" stroke-width="7"/>
+            <circle id="ring-arc" cx="50" cy="50" r="42" fill="none" stroke="#3de8a0" stroke-width="7" stroke-linecap="round"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-score" id="ring-score-num">70</div>
+            <div class="ring-emoji" id="ring-emoji">🙂</div>
+          </div>
+        </div>
+      </div>
+      <input type="range" id="score-range" min="0" max="100" value="70">
+      <div class="range-marks"><span>0</span><span>50</span><span>100</span></div>
+    </div>
+
+    <div>
+      <div class="label">מיקום (אנונימי)</div>
+      <div class="row2">
+        <div><input type="text" id="city-input" placeholder="עיר"></div>
+        <div><input type="text" id="country-input" placeholder="מדינה"></div>
+      </div>
+    </div>
+    <div class="anon-note">📍 אנונימי לחלוטין — אין שמות</div>
+
+    <div>
+      <div class="label">מה היה מיוחד?</div>
+      <textarea id="special-input" rows="3" placeholder="רגע אחד מהיום..."></textarea>
+    </div>
+
+    <div>
+      <div class="label">תמונה / סרטון (עד 10 שניות)</div>
+      <div id="upload-area">
+        <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">לחץ להעלאת תמונה או סרטון</div>
+          <div class="upload-sub">JPG · PNG · MP4</div>
+        </div>
+      </div>
+      <div class="err" id="video-err" style="display:none"></div>
+      <input type="file" id="file-input" accept="image/*,video/*" style="display:none">
+    </div>
+
+    <button class="save-btn" id="save-btn" onclick="saveEntry()">שמור את היום</button>
+
+    <div class="card" id="week-card" style="display:none">
+      <div class="label">השבוע שלי</div>
+      <div class="week-chart" id="my-week-chart"></div>
+    </div>
+
+    <div class="card" id="vs-card" style="display:none">
+      <div class="label">אתה מול העולם</div>
+      <div id="vs-rows"></div>
+      <div class="vs-diff" id="vs-diff-text"></div>
+    </div>
+  </div>
+
+  <!-- WORLD -->
+  <div class="screen" id="screen-world">
+    <div style="text-align:center;padding:10px 0">
+      <div class="globe-wrap">
+        <svg id="globe-svg" viewBox="0 0 200 200" width="160" height="160"></svg>
+        <div class="globe-center">
+          <div class="globe-score" id="globe-score-num">0</div>
+          <div class="globe-sub">ציון גלובלי</div>
+        </div>
+      </div>
+      <div class="globe-total" id="globe-total"></div>
+    </div>
+
+    <div class="card">
+      <div class="label">מגמה עולמית — 7 ימים</div>
+      <div class="week-chart" id="world-week-chart"></div>
+    </div>
+
+    <div class="stabs">
+      <button class="stab on" onclick="setWorldTab('cities',this)">🏙️ ערים</button>
+      <button class="stab" onclick="setWorldTab('countries',this)">🌐 מדינות</button>
+      <button class="stab" onclick="setWorldTab('map',this)">🗺️ מפה</button>
+    </div>
+
+    <div id="world-cities" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="world-countries" style="display:none;flex-direction:column;gap:8px"></div>
+    <div id="world-map" style="display:none">
+      <div class="card map-placeholder">
+        <div class="map-icon">🗺️</div>
+        <div class="map-title">מפה עולמית אינטראקטיבית</div>
+        <div class="map-sub">בקרוב — תציג את האושר לפי צבעים בזמן אמת</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="screen" id="screen-history">
+    <div class="stabs">
+      <button class="stab on" onclick="setHistoryTab('list',this)">📋 רשימה</button>
+      <button class="stab" onclick="setHistoryTab('calendar',this)">📆 לפי חודש</button>
+      <button class="stab" onclick="setHistoryTab('stats',this)">📊 סטטס</button>
+    </div>
+    <div id="history-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="history-calendar" style="display:none;flex-direction:column;gap:14px"></div>
+    <div id="history-stats" style="display:none;flex-direction:column;gap:12px"></div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="screen" id="screen-export">
+    <div class="card">
+      <div style="font-size:16px;font-weight:900;margin-bottom:6px;color:#f0f0ff">ייצוא הנתונים שלך</div>
+      <div style="font-size:13px;color:#ffffff40;line-height:1.7" id="export-info"></div>
+    </div>
+    <button class="abtn" onclick="exportCSV()">
+      <span class="abtn-icon">📊</span>
+      <div><div class="abtn-title">ייצא כ-CSV</div><div class="abtn-sub">נפתח ב-Excel / Google Sheets</div></div>
+    </button>
+    <button class="abtn" onclick="exportJSON()">
+      <span class="abtn-icon">💾</span>
+      <div><div class="abtn-title">ייצא כ-JSON</div><div class="abtn-sub">גיבוי מלא</div></div>
+    </button>
+    <div class="export-msg" id="export-msg" style="display:none"></div>
+    <div style="border-top:1px solid #1a1a2e;padding-top:14px;margin-top:4px">
+      <div class="label">שיתוף יום בודד</div>
+      <div id="share-list"></div>
+    </div>
+    <div class="info-box">
+      <div class="label">📌 אחסון</div>
+      <div class="info-line" id="storage-info"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn on" onclick="setScreen('today',this)"><span class="nav-icon">✍️</span>היום</button>
+    <button class="nav-btn" onclick="setScreen('world',this)"><span class="nav-icon">🌍</span>עולם</button>
+    <button class="nav-btn" onclick="setScreen('history',this)"><span class="nav-icon">📅</span>ארכיון</button>
+    <button class="nav-btn" onclick="setScreen('export',this)"><span class="nav-icon">💾</span>ייצוא</button>
+  </div>
+</nav>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" style="display:none" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div>
+        <div style="font-size:12px;color:#ffffff40;margin-bottom:4px" id="modal-date"></div>
+        <div class="modal-score" id="modal-score"></div>
+        <div class="modal-label" id="modal-label"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-loc" id="modal-loc" style="display:none"></div>
+    <div class="modal-media" id="modal-media" style="display:none"></div>
+    <div class="modal-special" id="modal-special" style="display:none">
+      <div class="modal-special-label">מה היה מיוחד</div>
+      <div class="modal-special-text" id="modal-special-text"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var STORAGE_KEY = 'whi-v1';
+var MOCK_GLOBAL = 68;
+var MOCK_TOTAL = 142839;
+var MOCK_WEEK = [62,65,71,68,74,70,68];
+var WEEK_LABELS = ['ב׳','ג׳','ד׳','ה׳','ו׳','ש׳','א׳'];
+var MOCK_CITIES = [
+  {name:'Auckland',flag:'🇳🇿',score:79,people:1243},
+  {name:'Copenhagen',flag:'🇩🇰',score:77,people:2891},
+  {name:'Tel Aviv',flag:'🇮🇱',score:74,people:4102},
+  {name:'Amsterdam',flag:'🇳🇱',score:73,people:3340},
+  {name:'Tokyo',flag:'🇯🇵',score:72,people:8821},
+  {name:'Berlin',flag:'🇩🇪',score:71,people:5210},
+  {name:'Haifa',flag:'🇮🇱',score:70,people:1890},
+  {name:'Melbourne',flag:'🇦🇺',score:69,people:3102}
+];
+var MOCK_COUNTRIES = [
+  {name:'Finland',flag:'🇫🇮',score:78,people:18200},
+  {name:'Denmark',flag:'🇩🇰',score:77,people:15400},
+  {name:'Israel',flag:'🇮🇱',score:72,people:28900},
+  {name:'Netherlands',flag:'🇳🇱',score:71,people:22100},
+  {name:'Sweden',flag:'🇸🇪',score:70,people:19800},
+  {name:'Germany',flag:'🇩🇪',score:68,people:41200},
+  {name:'Japan',flag:'🇯🇵',score:67,people:38900},
+  {name:'USA',flag:'🇺🇸',score:65,people:89400}
+];
+
+var entries = {};
+var currentScore = 70;
+var currentMedia = null;
+var currentMediaType = null;
+
+function getColor(s){
+  if(s<=20)return'#ff3b5c';
+  if(s<=40)return'#ff7c2a';
+  if(s<=60)return'#f5c842';
+  if(s<=80)return'#3de8a0';
+  return'#00d4ff';
+}
+function getGrad(s){
+  if(s<=20)return'linear-gradient(135deg,#ff3b5c,#c0003c)';
+  if(s<=40)return'linear-gradient(135deg,#ff7c2a,#c94400)';
+  if(s<=60)return'linear-gradient(135deg,#f5c842,#c49000)';
+  if(s<=80)return'linear-gradient(135deg,#3de8a0,#00b870)';
+  return'linear-gradient(135deg,#00d4ff,#0088cc)';
+}
+function getEmoji(s){
+  if(s<=20)return'😞';
+  if(s<=40)return'😕';
+  if(s<=60)return'😐';
+  if(s<=80)return'🙂';
+  return'😄';
+}
+function getLabel(s){
+  if(s<=20)return'יום קשה';
+  if(s<=40)return'לא קל';
+  if(s<=60)return'סבבה';
+  if(s<=80)return'יום טוב!';
+  return'יום מעולה!';
+}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function fmtShort(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'short',day:'numeric',month:'short'});}
+function fmtLong(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function fmtMonth(d){return new Date(d+'-01').toLocaleDateString('he-IL',{month:'long',year:'numeric'});}
+function sorted(){return Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});}
+
+function loadData(){
+  try{var r=localStorage.getItem(STORAGE_KEY);if(r)entr
