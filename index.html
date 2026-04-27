@@ -4,78 +4,115 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>מדד האושר העולמי</title>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow-x:hidden}
-body{background:#07070f;font-family:Heebo,sans-serif;color:#e0e0f0}
+body{background:#0a0a14;font-family:Heebo,sans-serif;color:#ffffff;font-weight:600}
 ::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-thumb{background:#1a1a2e;border-radius:2px}
-.wrap{max-width:480px;margin:0 auto;padding:0 0 76px;position:relative;z-index:1}
-.header{padding:22px 16px 0;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
-.htitle{font-size:22px;font-weight:900;color:#f0f0ff;letter-spacing:-0.5px}
-.hsub{font-size:11px;color:#ffffff30;margin-top:2px}
-.badge{background:linear-gradient(135deg,#ff8c42,#ff3b5c);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#fff;display:inline-block}
-.screen{padding:0 16px;display:none;flex-direction:column;gap:13px}
+::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:2px}
+
+.wrap{max-width:480px;margin:0 auto;padding:0 0 80px;position:relative;z-index:1}
+
+/* HEADER */
+.hdr{padding:20px 16px 0;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.htitle{font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px}
+.hsub{font-size:12px;color:#aaaacc;margin-top:3px;font-weight:600}
+.badge{background:linear-gradient(135deg,#ff6b2b,#ff2d55);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:900;color:#fff;display:inline-block}
+
+/* SCREENS */
+.screen{padding:0 16px;display:none;flex-direction:column;gap:14px}
 .screen.on{display:flex;animation:fu .3s ease}
-@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.card{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:16px;padding:16px}
-.lbl{font-size:10px;color:#ffffff30;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.range-wrap{padding:4px 0}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;outline:none;cursor:pointer;border:none;display:block}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #07070f;box-shadow:0 0 0 2px var(--rc,#3de8a0)}
-.rmarks{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:#ffffff20;direction:ltr}
-textarea,input[type=text]{background:#0a0a14;border:1px solid #1a1a2e;border-radius:10px;color:#e0e0f0;font-family:Heebo,sans-serif;font-size:14px;line-height:1.6;padding:10px 13px;width:100%;outline:none;resize:none;display:block}
-textarea::placeholder,input[type=text]::placeholder{color:#252535}
-textarea:focus,input[type=text]:focus{border-color:#3de8a033}
-.row2{display:flex;gap:8px}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{background:#13132a;border:1px solid #2a2a4a;border-radius:16px;padding:18px}
+.lbl{font-size:11px;color:#8888bb;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;display:block;font-weight:700}
+
+/* RANGE */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;border:none;display:block;margin:8px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #0a0a14;box-shadow:0 0 0 3px var(--rc,#00ff88),0 0 20px var(--rc,#00ff88)}
+.rmarks{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#6666aa;direction:ltr;font-weight:700}
+
+/* INPUTS */
+textarea,input[type=text]{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;color:#ffffff;font-family:Heebo,sans-serif;font-size:15px;line-height:1.6;padding:12px 14px;width:100%;outline:none;resize:none;display:block;font-weight:600}
+textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a;font-weight:500}
+textarea:focus,input[type=text]:focus{border-color:#4444aa}
+.row2{display:flex;gap:10px}
 .row2>div{flex:1}
-.uzone{border:1.5px dashed #1a1a2e;border-radius:11px;padding:18px;text-align:center;cursor:pointer;background:#0a0a14}
-.mprev{position:relative;border-radius:11px;overflow:hidden}
+
+/* UPLOAD */
+.uzone{border:2px dashed #2a2a5a;border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:#0d0d20;transition:all .2s}
+.uzone:active{background:#13132a}
+.mprev{position:relative;border-radius:12px;overflow:hidden}
 .mprev img,.mprev video{width:100%;max-height:200px;object-fit:cover;display:block}
-.mrem{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.8);color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;line-height:26px;text-align:center}
-.sbtn{width:100%;border:none;border-radius:12px;font-family:Heebo,sans-serif;font-size:16px;font-weight:900;padding:14px;cursor:pointer;color:#fff;display:block}
-.abtn{border:1px solid #1a1a2e;border-radius:11px;padding:13px 14px;background:#0d0d1a;color:#c9d1d9;font-family:Heebo,sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;text-align:right}
-.stabs{display:flex;gap:3px;overflow-x:auto;padding-bottom:2px}
-.stab{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:13px;font-weight:600;padding:6px 13px;border-radius:18px;color:#ffffff30;white-space:nowrap}
-.stab.on{color:#fff;background:#ffffff12}
-.rring{position:relative;width:96px;height:96px;flex-shrink:0}
+.mrem{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.85);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:28px;text-align:center}
+
+/* BUTTONS */
+.sbtn{width:100%;border:none;border-radius:13px;font-family:Heebo,sans-serif;font-size:17px;font-weight:900;padding:16px;cursor:pointer;color:#000;display:block;letter-spacing:0.3px}
+.abtn{border:2px solid #2a2a4a;border-radius:12px;padding:14px 16px;background:#13132a;color:#ffffff;font-family:Heebo,sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%}
+.abtn:active{background:#1a1a35}
+
+/* TABS */
+.stabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.stab{background:#13132a;border:2px solid #2a2a4a;cursor:pointer;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;color:#8888bb;white-space:nowrap;transition:all .2s}
+.stab.on{color:#ffffff;background:#2a2a5a;border-color:#4444aa}
+
+/* RING */
+.rring{position:relative;width:100px;height:100px;flex-shrink:0}
 .rring svg{position:absolute;inset:0;transform:rotate(-90deg)}
 .rring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.erow{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px}
-.erow:active{background:#111124}
-.lrow{display:flex;align-items:center;gap:10px;padding:10px 13px;background:#0d0d1a;border-radius:11px;border:1px solid #1a1a2e}
-.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.sbox{background:#0a0a14;border:1px solid #1a1a2e;border-radius:11px;padding:14px;text-align:center}
-.mbg{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.mbox{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:18px;padding:22px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto}
-.wbar{height:4px;border-radius:2px;background:#1a1a2e;overflow:hidden}
-.wbar-fill{height:100%;border-radius:2px}
-.wchart{display:flex;align-items:flex-end;gap:4px;height:60px}
-.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
-.wbbar{width:100%;border-radius:3px 3px 0 0;min-height:2px}
-.wblbl{font-size:8px;color:#ffffff25}
-.world-map-wrap{background:#08080f;border-radius:10px;overflow:hidden}
-.err{color:#ff3b5c;font-size:12px;margin-top:5px}
-.anote{font-size:10px;color:#ffffff18;text-align:center;margin-top:-5px}
-.empty{text-align:center;color:#ffffff20;padding:50px 0}
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#050510;border-top:1px solid #1a1a2e;padding:6px 8px 14px}
-.nav-in{max-width:480px;margin:0 auto;display:flex}
-.nb{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:10px;font-weight:700;color:#ffffff25;padding:6px 4px 4px;border-radius:9px;display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
-.nb.on{color:#e0e0f0;background:#13132a}
-.nb span{font-size:19px}
+
+/* LIST ROWS */
+.erow{background:#13132a;border:2px solid #2a2a4a;border-radius:13px;padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.erow:active{background:#1a1a35}
+.lrow{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#13132a;border-radius:12px;border:2px solid #2a2a4a}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sbox{background:#0d0d20;border:2px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.mbox{background:#13132a;border:2px solid #2a2a4a;border-radius:18px;padding:24px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto}
+
+/* BARS */
+.wbar{height:5px;border-radius:3px;background:#1a1a35;overflow:hidden}
+.wbar-fill{height:100%;border-radius:3px}
+.wchart{display:flex;align-items:flex-end;gap:5px;height:64px}
+.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.wbbar{width:100%;border-radius:4px 4px 0 0;min-height:3px}
+.wblbl{font-size:9px;color:#5555aa;font-weight:700}
+
+/* MAP */
+.mapwrap{background:#080818;border-radius:10px;overflow:hidden;border:2px solid #1a1a35}
+
+/* MISC */
+.err{color:#ff4466;font-size:13px;margin-top:6px;font-weight:700}
+.anote{font-size:11px;color:#4444aa;text-align:center;margin-top:-6px;font-weight:600}
+.empty{text-align:center;color:#4444aa;padding:50px 0;font-weight:700}
+.divider{border-top:2px solid #1a1a35;margin:6px 0}
+
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#080818;border-top:2px solid #2a2a4a;padding:8px 8px 16px}
+.nav-in{max-width:480px;margin:0 auto;display:flex;gap:4px}
+.nb{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:11px;font-weight:900;color:#4444aa;padding:6px 4px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;transition:all .2s}
+.nb.on{color:#ffffff;background:#1a1a35}
+.nb span{font-size:20px}
+
+/* STARS */
 .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 </style>
 </head>
 <body>
 <div class="stars" id="stars"></div>
 <div class="wrap">
-  <div class="header">
+  <div class="hdr">
     <div>
       <div class="htitle">מדד האושר 🌍</div>
       <div class="hsub" id="hdate"></div>
     </div>
-    <div style="text-align:left;display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
       <div class="badge" id="streak" style="display:none"></div>
       <div class="hsub" id="hdays"></div>
     </div>
@@ -84,26 +121,24 @@ textarea:focus,input[type=text]:focus{border-color:#3de8a033}
   <!-- TODAY -->
   <div class="screen on" id="s-today">
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <div>
           <span class="lbl">ציון היום</span>
-          <div id="slabel" style="font-size:14px;font-weight:700"></div>
+          <div id="slabel" style="font-size:18px;font-weight:900;margin-top:2px"></div>
         </div>
         <div class="rring">
-          <svg width="96" height="96">
-            <circle cx="48" cy="48" r="40" fill="none" stroke="#ffffff0e" stroke-width="7"/>
-            <circle id="rarc" cx="48" cy="48" r="40" fill="none" stroke="#3de8a0" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 251"/>
+          <svg width="100" height="100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a35" stroke-width="8"/>
+            <circle id="rarc" cx="50" cy="50" r="42" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 264"/>
           </svg>
           <div class="rring-c">
-            <div id="snum" style="font-size:30px;font-weight:900;line-height:1"></div>
-            <div id="semoji" style="font-size:18px"></div>
+            <div id="snum" style="font-size:32px;font-weight:900;line-height:1;color:#00ff88"></div>
+            <div id="semoji" style="font-size:20px"></div>
           </div>
         </div>
       </div>
-      <div class="range-wrap">
-        <input type="range" id="srange" min="0" max="100" value="70" dir="ltr" oninput="onRange(this.value)">
-      </div>
-      <div class="rmarks"><span>0</span><span>50</span><span>100</span></div>
+      <input type="range" id="srange" min="0" max="100" value="70" dir="ltr" oninput="onRange(this.value)">
+      <div class="rmarks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
     </div>
 
     <div>
@@ -112,7 +147,7 @@ textarea:focus,input[type=text]:focus{border-color:#3de8a033}
         <div><input type="text" id="city" placeholder="עיר"></div>
         <div><input type="text" id="country" placeholder="מדינה"></div>
       </div>
-      <div class="anote">📍 אנונימי — אין שמות, אין זיהוי</div>
+      <div class="anote" style="margin-top:6px">📍 אנונימי — אין שמות, אין זיהוי</div>
     </div>
 
     <div>
@@ -124,16 +159,16 @@ textarea:focus,input[type=text]:focus{border-color:#3de8a033}
       <span class="lbl">תמונה / סרטון (עד 10 שניות)</span>
       <div id="uarea">
         <div class="uzone" onclick="document.getElementById('finput').click()">
-          <div style="font-size:26px;margin-bottom:5px">📷</div>
-          <div style="font-size:13px;color:#ffffff35">לחץ להעלאת תמונה או סרטון</div>
-          <div style="font-size:11px;color:#ffffff18;margin-top:3px">JPG · PNG · MP4</div>
+          <div style="font-size:28px;margin-bottom:6px">📷</div>
+          <div style="font-size:14px;color:#8888cc;font-weight:700">לחץ להעלאת תמונה או סרטון</div>
+          <div style="font-size:12px;color:#4444aa;margin-top:4px">JPG · PNG · MP4</div>
         </div>
       </div>
       <div class="err" id="verr" style="display:none"></div>
       <input type="file" id="finput" accept="image/*,video/*" style="display:none" onchange="onFile(this)">
     </div>
 
-    <button class="sbtn" id="savebtn" onclick="saveEntry()">שמור את היום</button>
+    <button class="sbtn" id="savebtn" onclick="saveEntry()">💾 שמור את היום</button>
 
     <div class="card" id="weekcard" style="display:none">
       <span class="lbl">השבוע שלי</span>
@@ -143,41 +178,44 @@ textarea:focus,input[type=text]:focus{border-color:#3de8a033}
     <div class="card" id="vscard" style="display:none">
       <span class="lbl">אתה מול העולם</span>
       <div id="vsrows"></div>
-      <div id="vsdiff" style="text-align:center;margin-top:10px;font-size:13px;color:#ffffff35"></div>
+      <div id="vsdiff" style="text-align:center;margin-top:12px;font-size:14px;color:#8888cc;font-weight:700"></div>
     </div>
   </div>
 
   <!-- WORLD -->
   <div class="screen" id="s-world">
-    <div style="text-align:center;padding:8px 0 4px">
-      <div style="position:relative;width:150px;height:150px;margin:0 auto">
-        <svg id="globesvg" viewBox="0 0 200 200" width="150" height="150"></svg>
+    <div style="text-align:center;padding:8px 0">
+      <div style="position:relative;width:160px;height:160px;margin:0 auto">
+        <svg id="globesvg" viewBox="0 0 200 200" width="160" height="160"></svg>
         <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div id="gnum" style="font-size:44px;font-weight:900;line-height:1"></div>
-          <div style="font-size:11px;color:#ffffff35">ציון גלובלי</div>
+          <div id="gnum" style="font-size:48px;font-weight:900;line-height:1"></div>
+          <div style="font-size:13px;color:#8888cc;font-weight:700">ציון גלובלי</div>
         </div>
       </div>
-      <div id="gtotal" style="font-size:12px;color:#ffffff25;margin-top:8px"></div>
+      <div id="gtotal" style="font-size:13px;color:#6666aa;margin-top:10px;font-weight:700"></div>
     </div>
+
     <div class="card">
       <span class="lbl">מגמה עולמית — 7 ימים</span>
       <div class="wchart" id="worldchart"></div>
     </div>
+
     <div class="stabs" id="wtabs">
       <button class="stab on" onclick="wTab('cities',this)">🏙️ ערים</button>
       <button class="stab" onclick="wTab('countries',this)">🌐 מדינות</button>
       <button class="stab" onclick="wTab('map',this)">🗺️ מפה</button>
     </div>
-    <div id="wcities" style="display:flex;flex-direction:column;gap:7px"></div>
-    <div id="wcountries" style="display:none;flex-direction:column;gap:7px"></div>
+
+    <div id="wcities" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div id="wcountries" style="display:none;flex-direction:column;gap:8px"></div>
     <div id="wmap" style="display:none">
-      <div class="card" style="padding:12px">
-        <span class="lbl" style="margin-bottom:8px;display:block">מפה עולמית — ציון אושר לפי מדינה</span>
-        <div class="world-map-wrap" id="mapwrap"></div>
-        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;justify-content:center;font-size:10px;color:#ffffff35">
-          <div style="width:8px;height:8px;border-radius:2px;background:#ff3b5c"></div>נמוך
-          <div style="width:8px;height:8px;border-radius:2px;background:#f5c842;margin-right:4px"></div>בינוני
-          <div style="width:8px;height:8px;border-radius:2px;background:#3de8a0;margin-right:4px"></div>גבוה
+      <div class="card" style="padding:14px">
+        <span class="lbl" style="margin-bottom:10px;display:block">מפה עולמית — ציון אושר לפי מדינה</span>
+        <div class="mapwrap" id="mapwrap"></div>
+        <div style="display:flex;gap:10px;margin-top:10px;align-items:center;justify-content:center;font-size:12px;color:#6666aa;font-weight:700">
+          <div style="width:10px;height:10px;border-radius:2px;background:#ff3b5c"></div>נמוך
+          <div style="width:10px;height:10px;border-radius:2px;background:#f5c842;margin-right:6px"></div>בינוני
+          <div style="width:10px;height:10px;border-radius:2px;background:#00ff88;margin-right:6px"></div>גבוה
         </div>
       </div>
     </div>
@@ -190,7 +228,7 @@ textarea:focus,input[type=text]:focus{border-color:#3de8a033}
       <button class="stab" onclick="hTab('month',this)">📆 חודש</button>
       <button class="stab" onclick="hTab('stats',this)">📊 סטטס</button>
     </div>
-    <div id="hlist" style="display:flex;flex-direction:column;gap:7px"></div>
+    <div id="hlist" style="display:flex;flex-direction:column;gap:8px"></div>
     <div id="hmonth" style="display:none;flex-direction:column;gap:12px"></div>
     <div id="hstats" style="display:none;flex-direction:column;gap:10px"></div>
   </div>
@@ -198,29 +236,29 @@ textarea:focus,input[type=text]:focus{border-color:#3de8a033}
   <!-- EXPORT -->
   <div class="screen" id="s-export">
     <div class="card">
-      <div style="font-size:15px;font-weight:900;color:#f0f0ff;margin-bottom:5px">ייצוא הנתונים שלך</div>
-      <div id="expinfo" style="font-size:13px;color:#ffffff35;line-height:1.7"></div>
+      <div style="font-size:17px;font-weight:900;color:#ffffff;margin-bottom:6px">💾 ייצוא הנתונים שלך</div>
+      <div id="expinfo" style="font-size:14px;color:#8888cc;line-height:1.7;font-weight:600"></div>
     </div>
     <button class="abtn" onclick="doCSV()">
-      <span style="font-size:22px">📊</span>
-      <div><div style="font-weight:700">ייצא כ-CSV</div><div style="font-size:11px;color:#ffffff35;margin-top:1px">נפתח ב-Excel / Google Sheets</div></div>
+      <span style="font-size:24px">📊</span>
+      <div><div style="font-weight:900;font-size:15px">ייצא כ-CSV</div><div style="font-size:12px;color:#6666aa;margin-top:2px">נפתח ב-Excel / Google Sheets</div></div>
     </button>
     <button class="abtn" onclick="doJSON()">
-      <span style="font-size:22px">💾</span>
-      <div><div style="font-weight:700">ייצא כ-JSON</div><div style="font-size:11px;color:#ffffff35;margin-top:1px">גיבוי מלא של כל הנתונים</div></div>
+      <span style="font-size:24px">💾</span>
+      <div><div style="font-weight:900;font-size:15px">ייצא כ-JSON</div><div style="font-size:12px;color:#6666aa;margin-top:2px">גיבוי מלא של כל הנתונים</div></div>
     </button>
-    <div id="expmsg" style="display:none;text-align:center;color:#3de8a0;font-weight:700;padding:8px"></div>
-    <div style="border-top:1px solid #1a1a2e;padding-top:12px">
-      <span class="lbl">שיתוף יום בודד</span>
-      <div id="sharelist"></div>
-    </div>
-    <div class="card" style="background:#0a0a14">
+    <div id="expmsg" style="display:none;text-align:center;color:#00ff88;font-weight:900;padding:10px;font-size:16px"></div>
+    <div class="divider"></div>
+    <span class="lbl">שיתוף יום בודד</span>
+    <div id="sharelist"></div>
+    <div class="card" style="background:#0d0d20">
       <span class="lbl">📌 אחסון</span>
-      <div id="storinfo" style="font-size:13px;color:#ffffff40;line-height:1.8"></div>
+      <div id="storinfo" style="font-size:14px;color:#8888cc;line-height:1.8;font-weight:600"></div>
     </div>
   </div>
 </div>
 
+<!-- NAV -->
 <nav class="nav">
   <div class="nav-in">
     <button class="nb on" onclick="goTo('today',this)"><span>✍️</span>היום</button>
@@ -230,32 +268,33 @@ textarea:focus,input[type=text]:focus{border-color:#3de8a033}
   </div>
 </nav>
 
+<!-- MODAL -->
 <div class="mbg" id="modal" style="display:none" onclick="closeM()">
   <div class="mbox" onclick="event.stopPropagation()">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
       <div>
-        <div id="mdate" style="font-size:11px;color:#ffffff35;margin-bottom:3px"></div>
-        <div id="mscore" style="font-size:46px;font-weight:900;line-height:1"></div>
-        <div id="mlabel" style="font-size:14px;margin-top:2px"></div>
+        <div id="mdate" style="font-size:12px;color:#8888cc;margin-bottom:4px;font-weight:700"></div>
+        <div id="mscore" style="font-size:50px;font-weight:900;line-height:1"></div>
+        <div id="mlabel" style="font-size:16px;margin-top:4px;font-weight:700"></div>
       </div>
-      <button onclick="closeM()" style="background:#1a1a2e;border:none;color:#666;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px;line-height:30px;text-align:center">✕</button>
+      <button onclick="closeM()" style="background:#1a1a35;border:none;color:#aaaacc;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:900;line-height:32px;text-align:center">✕</button>
     </div>
-    <div id="mloc" style="font-size:13px;color:#ffffff35;margin-bottom:12px;display:none"></div>
-    <div id="mmedia" style="border-radius:11px;overflow:hidden;margin-bottom:14px;display:none"></div>
-    <div id="mspecial" style="background:#07070f;border-radius:11px;padding:13px;border:1px solid #1a1a2e;display:none">
-      <div style="font-size:10px;color:#ffffff30;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">מה היה מיוחד</div>
-      <div id="mtext" style="font-size:14px;line-height:1.8"></div>
+    <div id="mloc" style="font-size:14px;color:#8888cc;margin-bottom:14px;display:none;font-weight:700"></div>
+    <div id="mmedia" style="border-radius:12px;overflow:hidden;margin-bottom:16px;display:none"></div>
+    <div id="mspecial" style="background:#0d0d20;border-radius:12px;padding:14px;border:2px solid #2a2a4a;display:none">
+      <div style="font-size:11px;color:#6666aa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700">מה היה מיוחד</div>
+      <div id="mtext" style="font-size:15px;line-height:1.8;font-weight:600"></div>
     </div>
   </div>
 </div>
 
 <script>
-var SK='whi-v2',G=68,GTOT=142839;
+var SK='whi-v3',G=68,GTOT=142839;
 var GW=[62,65,71,68,74,70,68];
 var WL=['ב','ג','ד','ה','ו','ש','א'];
 var CITIES=[
-  {n:'Tel Aviv',f:'🇮🇱',s:74,p:4102},{n:'Auckland',f:'🇳🇿',s:79,p:1243},
-  {n:'Copenhagen',f:'🇩🇰',s:77,p:2891},{n:'Amsterdam',f:'🇳🇱',s:73,p:3340},
+  {n:'Auckland',f:'🇳🇿',s:79,p:1243},{n:'Copenhagen',f:'🇩🇰',s:77,p:2891},
+  {n:'Tel Aviv',f:'🇮🇱',s:74,p:4102},{n:'Amsterdam',f:'🇳🇱',s:73,p:3340},
   {n:'Tokyo',f:'🇯🇵',s:72,p:8821},{n:'Berlin',f:'🇩🇪',s:71,p:5210},
   {n:'Haifa',f:'🇮🇱',s:70,p:1890},{n:'Melbourne',f:'🇦🇺',s:69,p:3102},
   {n:'Toronto',f:'🇨🇦',s:68,p:4500},{n:'Sao Paulo',f:'🇧🇷',s:63,p:9200}
@@ -270,22 +309,19 @@ var COUNTRIES=[
 ];
 var MAPC=[
   {n:'USA',s:65,x:18,y:38,r:7},{n:'Canada',s:72,x:18,y:25,r:6},
-  {n:'Brazil',s:63,x:28,y:62,r:6},{n:'Argentina',s:61,x:26,y:72,r:4},
-  {n:'Mexico',s:62,x:15,y:44,r:3},{n:'UK',s:69,x:45,y:28,r:2.5},
+  {n:'Brazil',s:63,x:28,y:62,r:6},{n:'UK',s:69,x:45,y:28,r:2.5},
   {n:'France',s:67,x:47,y:32,r:2.5},{n:'Germany',s:68,x:49,y:29,r:2.5},
   {n:'Sweden',s:70,x:50,y:22,r:2.5},{n:'Finland',s:78,x:52,y:19,r:2.5},
   {n:'Russia',s:54,x:62,y:24,r:9},{n:'Israel',s:72,x:55,y:38,r:2},
-  {n:'Egypt',s:55,x:54,y:42,r:3},{n:'Nigeria',s:52,x:48,y:50,r:3},
-  {n:'S.Africa',s:57,x:52,y:65,r:3.5},{n:'India',s:58,x:65,y:43,r:5},
+  {n:'Egypt',s:55,x:54,y:42,r:3},{n:'India',s:58,x:65,y:43,r:5},
   {n:'China',s:61,x:72,y:37,r:7},{n:'Japan',s:67,x:80,y:34,r:2.5},
-  {n:'Indonesia',s:64,x:75,y:52,r:4},{n:'Australia',s:69,x:77,y:62,r:6},
-  {n:'NZ',s:79,x:84,y:68,r:2}
+  {n:'Australia',s:69,x:77,y:62,r:6},{n:'NZ',s:79,x:84,y:68,r:2}
 ];
 
 var entries={},curScore=70,curMedia=null,curMediaType=null;
 
-function gc(s){if(s<=20)return'#ff3b5c';if(s<=40)return'#ff7c2a';if(s<=60)return'#f5c842';if(s<=80)return'#3de8a0';return'#00d4ff';}
-function gg(s){if(s<=20)return'linear-gradient(135deg,#ff3b5c,#9b0000)';if(s<=40)return'linear-gradient(135deg,#ff7c2a,#8b3000)';if(s<=60)return'linear-gradient(135deg,#f5c842,#8b7000)';if(s<=80)return'linear-gradient(135deg,#3de8a0,#007a50)';return'linear-gradient(135deg,#00d4ff,#005a8b)';}
+function gc(s){if(s<=20)return'#ff2d55';if(s<=40)return'#ff7c2a';if(s<=60)return'#ffd700';if(s<=80)return'#00ff88';return'#00d4ff';}
+function gg(s){if(s<=20)return'linear-gradient(135deg,#ff2d55,#cc0033)';if(s<=40)return'linear-gradient(135deg,#ff7c2a,#cc4400)';if(s<=60)return'linear-gradient(135deg,#ffd700,#aa8800)';if(s<=80)return'linear-gradient(135deg,#00ff88,#00aa55)';return'linear-gradient(135deg,#00d4ff,#0088cc)';}
 function ge(s){if(s<=20)return'😞';if(s<=40)return'😕';if(s<=60)return'😐';if(s<=80)return'🙂';return'😄';}
 function gl(s){if(s<=20)return'יום קשה';if(s<=40)return'לא קל';if(s<=60)return'סבבה';if(s<=80)return'יום טוב!';return'יום מעולה!';}
 function tod(){return new Date().toISOString().slice(0,10);}
@@ -320,12 +356,14 @@ function updateUI(s){
   document.getElementById('slabel').textContent=gl(s);
   document.getElementById('slabel').style.color=c;
   document.getElementById('savebtn').style.background=gg(s);
-  var r=40,circ=2*Math.PI*r,dash=(s/100)*circ;
+  document.getElementById('savebtn').style.color=s>=60?'#000':'#fff';
+  var r=42,circ=2*Math.PI*r,dash=(s/100)*circ;
   var arc=document.getElementById('rarc');
   arc.setAttribute('stroke',c);
   arc.setAttribute('stroke-dasharray',dash+' '+(circ-dash));
+  arc.style.filter='drop-shadow(0 0 8px '+c+')';
   var rng=document.getElementById('srange');
-  rng.style.background='linear-gradient(to right,'+c+' '+s+'%,#1a1a2e '+s+'%)';
+  rng.style.background='linear-gradient(to right,'+c+' '+s+'%,#1a1a35 '+s+'%)';
   rng.style.setProperty('--rc',c);
 }
 
@@ -352,16 +390,4 @@ function onFile(inp){
 }
 
 function showPreview(){
-  var html='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" onclick="clearMedia()">✕</button></div>';
-  document.getElementById('uarea').innerHTML=html;
-}
-
-function clearMedia(){
-  curMedia=null;curMediaType=null;
-  document.getElementById('uarea').innerHTML='<div class="uzone" onclick="document.getElementById(\'finput\').click()"><div style="font-size:26px;margin-bottom:5px">📷</div><div style="font-size:13px;color:#ffffff35">לחץ להעלאת תמונה או סרטון</div><div style="font-size:11px;color:#ffffff18;margin-top:3px">JPG · PNG · MP4</div></div>';
-  document.getElementById('finput').value='';
-}
-
-function saveEntry(){
-  var t=tod();
-  entries[t]={score:curScore,city:document.getElementById('city').value,country:documen
+  var html='<div cl
