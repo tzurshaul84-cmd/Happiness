@@ -2,110 +2,68 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>מדד האושר העולמי</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow-x:hidden}
-body{background:#0a0a14;font-family:Heebo,sans-serif;color:#ffffff;font-weight:600}
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:2px}
-
-.wrap{max-width:480px;margin:0 auto;padding:0 0 80px;position:relative;z-index:1}
-
-/* HEADER */
-.hdr{padding:20px 16px 0;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-.htitle{font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px}
-.hsub{font-size:12px;color:#aaaacc;margin-top:3px;font-weight:600}
+body{background:#0a0a14;font-family:Heebo,sans-serif;color:#fff;font-weight:600;padding-bottom:80px}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px}
+.hdr{padding:20px 0 16px;display:flex;justify-content:space-between;align-items:flex-start}
+.htitle{font-size:24px;font-weight:900}
+.hsub{font-size:12px;color:#aac;margin-top:3px}
 .badge{background:linear-gradient(135deg,#ff6b2b,#ff2d55);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:900;color:#fff;display:inline-block}
-
-/* SCREENS */
-.screen{padding:0 16px;display:none;flex-direction:column;gap:14px}
-.screen.on{display:flex;animation:fu .3s ease}
-@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* CARDS */
-.card{background:#13132a;border:1px solid #2a2a4a;border-radius:16px;padding:18px}
-.lbl{font-size:11px;color:#8888bb;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;display:block;font-weight:700}
-
-/* RANGE */
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;border:none;display:block;margin:8px 0}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #0a0a14;box-shadow:0 0 0 3px var(--rc,#00ff88),0 0 20px var(--rc,#00ff88)}
-.rmarks{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#6666aa;direction:ltr;font-weight:700}
-
-/* INPUTS */
-textarea,input[type=text]{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;color:#ffffff;font-family:Heebo,sans-serif;font-size:15px;line-height:1.6;padding:12px 14px;width:100%;outline:none;resize:none;display:block;font-weight:600}
-textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a;font-weight:500}
-textarea:focus,input[type=text]:focus{border-color:#4444aa}
+.screen{display:none;flex-direction:column;gap:14px}
+.screen.on{display:flex}
+.card{background:#13132a;border:1px solid #2a2a4a;border-radius:16px;padding:18px;margin-bottom:0}
+.lbl{font-size:11px;color:#88b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block;font-weight:700}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;border:none;display:block;margin:8px 0;background:linear-gradient(to right,#00ff88 70%,#1a1a35 70%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #0a0a14;box-shadow:0 0 0 3px #00ff88}
+.rmarks{display:flex;justify-content:space-between;font-size:11px;color:#66a;direction:ltr}
+textarea,input[type=text]{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;color:#fff;font-family:Heebo,sans-serif;font-size:15px;padding:12px 14px;width:100%;outline:none;resize:none;display:block;font-weight:600}
+textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 .row2{display:flex;gap:10px}
 .row2>div{flex:1}
-
-/* UPLOAD */
-.uzone{border:2px dashed #2a2a5a;border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:#0d0d20;transition:all .2s}
-.uzone:active{background:#13132a}
+.uzone{border:2px dashed #2a2a5a;border-radius:12px;padding:22px;text-align:center;background:#0d0d20}
 .mprev{position:relative;border-radius:12px;overflow:hidden}
 .mprev img,.mprev video{width:100%;max-height:200px;object-fit:cover;display:block}
-.mrem{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.85);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:28px;text-align:center}
-
-/* BUTTONS */
-.sbtn{width:100%;border:none;border-radius:13px;font-family:Heebo,sans-serif;font-size:17px;font-weight:900;padding:16px;cursor:pointer;color:#000;display:block;letter-spacing:0.3px}
-.abtn{border:2px solid #2a2a4a;border-radius:12px;padding:14px 16px;background:#13132a;color:#ffffff;font-family:Heebo,sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%}
-.abtn:active{background:#1a1a35}
-
-/* TABS */
-.stabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
-.stab{background:#13132a;border:2px solid #2a2a4a;cursor:pointer;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;color:#8888bb;white-space:nowrap;transition:all .2s}
-.stab.on{color:#ffffff;background:#2a2a5a;border-color:#4444aa}
-
-/* RING */
+.mrem{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.85);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;line-height:28px;text-align:center}
+.sbtn{width:100%;border:none;border-radius:13px;font-family:Heebo,sans-serif;font-size:17px;font-weight:900;padding:16px;cursor:pointer;color:#000;display:block}
+.abtn{border:2px solid #2a2a4a;border-radius:12px;padding:14px;background:#13132a;color:#fff;font-family:Heebo,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:10px}
+.stabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.stab{background:#13132a;border:2px solid #2a2a4a;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;color:#88b;white-space:nowrap}
+.stab.on{color:#fff;background:#2a2a5a;border-color:#4444aa}
 .rring{position:relative;width:100px;height:100px;flex-shrink:0}
 .rring svg{position:absolute;inset:0;transform:rotate(-90deg)}
 .rring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-
-/* LIST ROWS */
-.erow{background:#13132a;border:2px solid #2a2a4a;border-radius:13px;padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:10px}
-.erow:active{background:#1a1a35}
-.lrow{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#13132a;border-radius:12px;border:2px solid #2a2a4a}
-
-/* STATS */
-.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.erow{background:#13132a;border:2px solid #2a2a4a;border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.lrow{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#13132a;border-radius:12px;border:2px solid #2a2a4a;margin-bottom:8px}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .sbox{background:#0d0d20;border:2px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center}
-
-/* MODAL */
-.mbg{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.mbox{background:#13132a;border:2px solid #2a2a4a;border-radius:18px;padding:24px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto}
-
-/* BARS */
-.wbar{height:5px;border-radius:3px;background:#1a1a35;overflow:hidden}
+.wbar{height:5px;border-radius:3px;background:#1a1a35;overflow:hidden;margin:4px 0}
 .wbar-fill{height:100%;border-radius:3px}
-.wchart{display:flex;align-items:flex-end;gap:5px;height:64px}
-.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-.wbbar{width:100%;border-radius:4px 4px 0 0;min-height:3px}
-.wblbl{font-size:9px;color:#5555aa;font-weight:700}
-
-/* MAP */
-.mapwrap{background:#080818;border-radius:10px;overflow:hidden;border:2px solid #1a1a35}
-
-/* MISC */
-.err{color:#ff4466;font-size:13px;margin-top:6px;font-weight:700}
-.anote{font-size:11px;color:#4444aa;text-align:center;margin-top:-6px;font-weight:600}
-.empty{text-align:center;color:#4444aa;padding:50px 0;font-weight:700}
-.divider{border-top:2px solid #1a1a35;margin:6px 0}
-
-/* NAV */
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#080818;border-top:2px solid #2a2a4a;padding:8px 8px 16px}
+.wchart{display:flex;align-items:flex-end;gap:4px;height:60px}
+.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.wbbar{width:100%;border-radius:3px 3px 0 0;min-height:3px}
+.wblbl{font-size:9px;color:#55a}
+.err{color:#ff4466;font-size:13px;margin-top:6px}
+.empty{text-align:center;color:#446;padding:50px 0}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#080818;border-top:2px solid #2a2a4a;padding:8px 8px 16px;z-index:999}
 .nav-in{max-width:480px;margin:0 auto;display:flex;gap:4px}
-.nb{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:11px;font-weight:900;color:#4444aa;padding:6px 4px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;transition:all .2s}
-.nb.on{color:#ffffff;background:#1a1a35}
+.nb{background:none;border:none;font-family:Heebo,sans-serif;font-size:11px;font-weight:900;color:#446;padding:8px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;-webkit-tap-highlight-color:transparent}
+.nb.on{color:#fff;background:#1a1a35}
 .nb span{font-size:20px}
-
-/* STARS */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.mbg.on{display:flex}
+.mbox{background:#13132a;border:2px solid #2a2a4a;border-radius:18px;padding:24px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto}
+.mapwrap{background:#06060f;border-radius:10px;overflow:hidden}
 .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.content{position:relative;z-index:1}
 </style>
 </head>
 <body>
 <div class="stars" id="stars"></div>
+<div class="content">
 <div class="wrap">
   <div class="hdr">
     <div>
@@ -118,26 +76,25 @@ textarea:focus,input[type=text]:focus{border-color:#4444aa}
     </div>
   </div>
 
-  <!-- TODAY -->
   <div class="screen on" id="s-today">
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <div>
           <span class="lbl">ציון היום</span>
-          <div id="slabel" style="font-size:18px;font-weight:900;margin-top:2px"></div>
+          <div id="slabel" style="font-size:18px;font-weight:900;color:#00ff88">יום טוב!</div>
         </div>
         <div class="rring">
           <svg width="100" height="100">
             <circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a35" stroke-width="8"/>
-            <circle id="rarc" cx="50" cy="50" r="42" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 264"/>
+            <circle id="rarc" cx="50" cy="50" r="42" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round"/>
           </svg>
           <div class="rring-c">
-            <div id="snum" style="font-size:32px;font-weight:900;line-height:1;color:#00ff88"></div>
-            <div id="semoji" style="font-size:20px"></div>
+            <div id="snum" style="font-size:32px;font-weight:900;line-height:1;color:#00ff88">70</div>
+            <div id="semoji" style="font-size:20px">🙂</div>
           </div>
         </div>
       </div>
-      <input type="range" id="srange" min="0" max="100" value="70" dir="ltr" oninput="onRange(this.value)">
+      <input type="range" id="srange" min="0" max="100" value="70" dir="ltr">
       <div class="rmarks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
     </div>
 
@@ -147,7 +104,7 @@ textarea:focus,input[type=text]:focus{border-color:#4444aa}
         <div><input type="text" id="city" placeholder="עיר"></div>
         <div><input type="text" id="country" placeholder="מדינה"></div>
       </div>
-      <div class="anote" style="margin-top:6px">📍 אנונימי — אין שמות, אין זיהוי</div>
+      <div style="font-size:11px;color:#446;text-align:center;margin-top:6px">📍 אנונימי — אין שמות</div>
     </div>
 
     <div>
@@ -158,17 +115,17 @@ textarea:focus,input[type=text]:focus{border-color:#4444aa}
     <div>
       <span class="lbl">תמונה / סרטון (עד 10 שניות)</span>
       <div id="uarea">
-        <div class="uzone" onclick="document.getElementById('finput').click()">
+        <div class="uzone" id="uzone-btn">
           <div style="font-size:28px;margin-bottom:6px">📷</div>
-          <div style="font-size:14px;color:#8888cc;font-weight:700">לחץ להעלאת תמונה או סרטון</div>
-          <div style="font-size:12px;color:#4444aa;margin-top:4px">JPG · PNG · MP4</div>
+          <div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div>
+          <div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div>
         </div>
       </div>
       <div class="err" id="verr" style="display:none"></div>
-      <input type="file" id="finput" accept="image/*,video/*" style="display:none" onchange="onFile(this)">
+      <input type="file" id="finput" accept="image/*,video/*" style="display:none">
     </div>
 
-    <button class="sbtn" id="savebtn" onclick="saveEntry()">💾 שמור את היום</button>
+    <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55);color:#000">💾 שמור את היום</button>
 
     <div class="card" id="weekcard" style="display:none">
       <span class="lbl">השבוע שלי</span>
@@ -178,118 +135,108 @@ textarea:focus,input[type=text]:focus{border-color:#4444aa}
     <div class="card" id="vscard" style="display:none">
       <span class="lbl">אתה מול העולם</span>
       <div id="vsrows"></div>
-      <div id="vsdiff" style="text-align:center;margin-top:12px;font-size:14px;color:#8888cc;font-weight:700"></div>
+      <div id="vsdiff" style="text-align:center;margin-top:10px;font-size:14px;color:#88c"></div>
     </div>
   </div>
 
-  <!-- WORLD -->
   <div class="screen" id="s-world">
     <div style="text-align:center;padding:8px 0">
       <div style="position:relative;width:160px;height:160px;margin:0 auto">
         <svg id="globesvg" viewBox="0 0 200 200" width="160" height="160"></svg>
         <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div id="gnum" style="font-size:48px;font-weight:900;line-height:1"></div>
-          <div style="font-size:13px;color:#8888cc;font-weight:700">ציון גלובלי</div>
+          <div id="gnum" style="font-size:48px;font-weight:900;line-height:1;color:#00ff88">68</div>
+          <div style="font-size:13px;color:#88c;font-weight:700">ציון גלובלי</div>
         </div>
       </div>
-      <div id="gtotal" style="font-size:13px;color:#6666aa;margin-top:10px;font-weight:700"></div>
+      <div id="gtotal" style="font-size:13px;color:#66a;margin-top:10px;font-weight:700"></div>
     </div>
-
     <div class="card">
       <span class="lbl">מגמה עולמית — 7 ימים</span>
       <div class="wchart" id="worldchart"></div>
     </div>
-
     <div class="stabs" id="wtabs">
-      <button class="stab on" onclick="wTab('cities',this)">🏙️ ערים</button>
-      <button class="stab" onclick="wTab('countries',this)">🌐 מדינות</button>
-      <button class="stab" onclick="wTab('map',this)">🗺️ מפה</button>
+      <button class="stab on" data-tab="cities">🏙️ ערים</button>
+      <button class="stab" data-tab="countries">🌐 מדינות</button>
+      <button class="stab" data-tab="map">🗺️ מפה</button>
     </div>
-
-    <div id="wcities" style="display:flex;flex-direction:column;gap:8px"></div>
-    <div id="wcountries" style="display:none;flex-direction:column;gap:8px"></div>
+    <div id="wcities" style="display:block"></div>
+    <div id="wcountries" style="display:none"></div>
     <div id="wmap" style="display:none">
-      <div class="card" style="padding:14px">
-        <span class="lbl" style="margin-bottom:10px;display:block">מפה עולמית — ציון אושר לפי מדינה</span>
+      <div class="card" style="padding:12px">
+        <span class="lbl" style="margin-bottom:8px">מפה עולמית — ציון אושר</span>
         <div class="mapwrap" id="mapwrap"></div>
-        <div style="display:flex;gap:10px;margin-top:10px;align-items:center;justify-content:center;font-size:12px;color:#6666aa;font-weight:700">
-          <div style="width:10px;height:10px;border-radius:2px;background:#ff3b5c"></div>נמוך
-          <div style="width:10px;height:10px;border-radius:2px;background:#f5c842;margin-right:6px"></div>בינוני
-          <div style="width:10px;height:10px;border-radius:2px;background:#00ff88;margin-right:6px"></div>גבוה
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- HISTORY -->
   <div class="screen" id="s-history">
-    <div class="stabs">
-      <button class="stab on" onclick="hTab('list',this)">📋 רשימה</button>
-      <button class="stab" onclick="hTab('month',this)">📆 חודש</button>
-      <button class="stab" onclick="hTab('stats',this)">📊 סטטס</button>
+    <div class="stabs" id="htabs">
+      <button class="stab on" data-tab="list">📋 רשימה</button>
+      <button class="stab" data-tab="month">📆 חודש</button>
+      <button class="stab" data-tab="stats">📊 סטטס</button>
     </div>
-    <div id="hlist" style="display:flex;flex-direction:column;gap:8px"></div>
-    <div id="hmonth" style="display:none;flex-direction:column;gap:12px"></div>
-    <div id="hstats" style="display:none;flex-direction:column;gap:10px"></div>
+    <div id="hlist"></div>
+    <div id="hmonth" style="display:none"></div>
+    <div id="hstats" style="display:none"></div>
   </div>
 
-  <!-- EXPORT -->
   <div class="screen" id="s-export">
     <div class="card">
-      <div style="font-size:17px;font-weight:900;color:#ffffff;margin-bottom:6px">💾 ייצוא הנתונים שלך</div>
-      <div id="expinfo" style="font-size:14px;color:#8888cc;line-height:1.7;font-weight:600"></div>
+      <div style="font-size:17px;font-weight:900;margin-bottom:6px">💾 ייצוא הנתונים</div>
+      <div id="expinfo" style="font-size:14px;color:#88c;line-height:1.7"></div>
     </div>
-    <button class="abtn" onclick="doCSV()">
+    <button class="abtn" id="btn-csv">
       <span style="font-size:24px">📊</span>
-      <div><div style="font-weight:900;font-size:15px">ייצא כ-CSV</div><div style="font-size:12px;color:#6666aa;margin-top:2px">נפתח ב-Excel / Google Sheets</div></div>
+      <div><div style="font-weight:900">ייצא כ-CSV</div><div style="font-size:12px;color:#66a">נפתח ב-Excel</div></div>
     </button>
-    <button class="abtn" onclick="doJSON()">
+    <button class="abtn" id="btn-json">
       <span style="font-size:24px">💾</span>
-      <div><div style="font-weight:900;font-size:15px">ייצא כ-JSON</div><div style="font-size:12px;color:#6666aa;margin-top:2px">גיבוי מלא של כל הנתונים</div></div>
+      <div><div style="font-weight:900">ייצא כ-JSON</div><div style="font-size:12px;color:#66a">גיבוי מלא</div></div>
     </button>
     <div id="expmsg" style="display:none;text-align:center;color:#00ff88;font-weight:900;padding:10px;font-size:16px"></div>
-    <div class="divider"></div>
-    <span class="lbl">שיתוף יום בודד</span>
-    <div id="sharelist"></div>
-    <div class="card" style="background:#0d0d20">
+    <div style="border-top:2px solid #1a1a35;padding-top:12px;margin-top:4px">
+      <span class="lbl">שיתוף יום בודד</span>
+      <div id="sharelist"></div>
+    </div>
+    <div class="card" style="background:#0d0d20;margin-top:4px">
       <span class="lbl">📌 אחסון</span>
-      <div id="storinfo" style="font-size:14px;color:#8888cc;line-height:1.8;font-weight:600"></div>
+      <div id="storinfo" style="font-size:14px;color:#88c;line-height:1.8"></div>
     </div>
   </div>
 </div>
+</div>
 
-<!-- NAV -->
 <nav class="nav">
   <div class="nav-in">
-    <button class="nb on" onclick="goTo('today',this)"><span>✍️</span>היום</button>
-    <button class="nb" onclick="goTo('world',this)"><span>🌍</span>עולם</button>
-    <button class="nb" onclick="goTo('history',this)"><span>📅</span>ארכיון</button>
-    <button class="nb" onclick="goTo('export',this)"><span>💾</span>ייצוא</button>
+    <button class="nb on" data-screen="today"><span>✍️</span>היום</button>
+    <button class="nb" data-screen="world"><span>🌍</span>עולם</button>
+    <button class="nb" data-screen="history"><span>📅</span>ארכיון</button>
+    <button class="nb" data-screen="export"><span>💾</span>ייצוא</button>
   </div>
 </nav>
 
-<!-- MODAL -->
-<div class="mbg" id="modal" style="display:none" onclick="closeM()">
-  <div class="mbox" onclick="event.stopPropagation()">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+<div class="mbg" id="modal">
+  <div class="mbox">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
       <div>
-        <div id="mdate" style="font-size:12px;color:#8888cc;margin-bottom:4px;font-weight:700"></div>
+        <div id="mdate" style="font-size:12px;color:#88c;margin-bottom:4px"></div>
         <div id="mscore" style="font-size:50px;font-weight:900;line-height:1"></div>
         <div id="mlabel" style="font-size:16px;margin-top:4px;font-weight:700"></div>
       </div>
-      <button onclick="closeM()" style="background:#1a1a35;border:none;color:#aaaacc;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:900;line-height:32px;text-align:center">✕</button>
+      <button id="modal-close" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:32px;height:32px;font-size:16px;line-height:32px;text-align:center">✕</button>
     </div>
-    <div id="mloc" style="font-size:14px;color:#8888cc;margin-bottom:14px;display:none;font-weight:700"></div>
-    <div id="mmedia" style="border-radius:12px;overflow:hidden;margin-bottom:16px;display:none"></div>
+    <div id="mloc" style="font-size:14px;color:#88c;margin-bottom:12px;display:none"></div>
+    <div id="mmedia" style="border-radius:12px;overflow:hidden;margin-bottom:14px;display:none"></div>
     <div id="mspecial" style="background:#0d0d20;border-radius:12px;padding:14px;border:2px solid #2a2a4a;display:none">
-      <div style="font-size:11px;color:#6666aa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700">מה היה מיוחד</div>
-      <div id="mtext" style="font-size:15px;line-height:1.8;font-weight:600"></div>
+      <div style="font-size:10px;color:#66a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">מה היה מיוחד</div>
+      <div id="mtext" style="font-size:15px;line-height:1.8"></div>
     </div>
   </div>
 </div>
 
 <script>
-var SK='whi-v3',G=68,GTOT=142839;
+(function(){
+var SK='whi-v4',G=68,GTOT=142839;
 var GW=[62,65,71,68,74,70,68];
 var WL=['ב','ג','ד','ה','ו','ש','א'];
 var CITIES=[
@@ -310,10 +257,9 @@ var COUNTRIES=[
 var MAPC=[
   {n:'USA',s:65,x:18,y:38,r:7},{n:'Canada',s:72,x:18,y:25,r:6},
   {n:'Brazil',s:63,x:28,y:62,r:6},{n:'UK',s:69,x:45,y:28,r:2.5},
-  {n:'France',s:67,x:47,y:32,r:2.5},{n:'Germany',s:68,x:49,y:29,r:2.5},
-  {n:'Sweden',s:70,x:50,y:22,r:2.5},{n:'Finland',s:78,x:52,y:19,r:2.5},
-  {n:'Russia',s:54,x:62,y:24,r:9},{n:'Israel',s:72,x:55,y:38,r:2},
-  {n:'Egypt',s:55,x:54,y:42,r:3},{n:'India',s:58,x:65,y:43,r:5},
+  {n:'Germany',s:68,x:49,y:29,r:2.5},{n:'Sweden',s:70,x:50,y:22,r:2.5},
+  {n:'Finland',s:78,x:52,y:19,r:2.5},{n:'Russia',s:54,x:62,y:24,r:9},
+  {n:'Israel',s:72,x:55,y:38,r:2},{n:'India',s:58,x:65,y:43,r:5},
   {n:'China',s:61,x:72,y:37,r:7},{n:'Japan',s:67,x:80,y:34,r:2.5},
   {n:'Australia',s:69,x:77,y:62,r:6},{n:'NZ',s:79,x:84,y:68,r:2}
 ];
@@ -329,65 +275,95 @@ function fs(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'short',da
 function fl(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function fm(d){return new Date(d+'-01').toLocaleDateString('he-IL',{month:'long',year:'numeric'});}
 function allE(){return Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});}
-
-function init(){
-  try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(e){}
-  makestars();
-  document.getElementById('hdate').textContent=fl(tod());
-  updateUI(curScore);
-  loadToday();
-  renderHeader();
-  renderGlobe();
-  renderWChart('worldchart',GW,WL);
-  renderLeaders();
-  renderMap();
-  renderWeekCard();
-  renderVsCard();
-}
-
 function saveSt(){localStorage.setItem(SK,JSON.stringify(entries));}
 
 function updateUI(s){
-  curScore=s;
-  var c=gc(s);
-  document.getElementById('snum').textContent=s;
-  document.getElementById('snum').style.color=c;
-  document.getElementById('semoji').textContent=ge(s);
-  document.getElementById('slabel').textContent=gl(s);
-  document.getElementById('slabel').style.color=c;
-  document.getElementById('savebtn').style.background=gg(s);
-  document.getElementById('savebtn').style.color=s>=60?'#000':'#fff';
-  var r=42,circ=2*Math.PI*r,dash=(s/100)*circ;
+  curScore=parseInt(s);
+  var c=gc(curScore);
+  var el=document.getElementById('snum'); if(el){el.textContent=curScore;el.style.color=c;}
+  var ee=document.getElementById('semoji'); if(ee)ee.textContent=ge(curScore);
+  var sl=document.getElementById('slabel'); if(sl){sl.textContent=gl(curScore);sl.style.color=c;}
+  var sb=document.getElementById('savebtn'); if(sb){sb.style.background=gg(curScore);sb.style.color=curScore>=60?'#000':'#fff';}
   var arc=document.getElementById('rarc');
-  arc.setAttribute('stroke',c);
-  arc.setAttribute('stroke-dasharray',dash+' '+(circ-dash));
-  arc.style.filter='drop-shadow(0 0 8px '+c+')';
+  if(arc){
+    var r=42,circ=2*Math.PI*r,dash=(curScore/100)*circ;
+    arc.setAttribute('stroke',c);
+    arc.setAttribute('stroke-dasharray',dash+' '+(circ-dash));
+  }
   var rng=document.getElementById('srange');
-  rng.style.background='linear-gradient(to right,'+c+' '+s+'%,#1a1a35 '+s+'%)';
-  rng.style.setProperty('--rc',c);
+  if(rng)rng.style.background='linear-gradient(to right,'+c+' '+curScore+'%,#1a1a35 '+curScore+'%)';
 }
 
-function onRange(v){updateUI(parseInt(v));}
+function goTo(name){
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+  var nb=document.querySelector('.nb[data-screen="'+name+'"]');
+  if(nb)nb.classList.add('on');
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');s.style.display='none';});
+  var sc=document.getElementById('s-'+name);
+  if(sc){sc.classList.add('on');sc.style.display='flex';}
+  if(name==='history')renderHistory();
+  if(name==='export')renderExport();
+}
 
-function onFile(inp){
-  var file=inp.files[0];if(!file)return;
-  document.getElementById('verr').style.display='none';
-  if(file.type.startsWith('video/')){
-    var url=URL.createObjectURL(file);
-    var v=document.createElement('video');v.src=url;
-    v.onloadedmetadata=function(){
-      URL.revokeObjectURL(url);
-      if(v.duration>10){document.getElementById('verr').textContent='הסרטון ארוך מ-10 שניות';document.getElementById('verr').style.display='block';return;}
-      var fr=new FileReader();
-      fr.onload=function(e){curMedia=e.target.result;curMediaType='video';showPreview();};
-      fr.readAsDataURL(file);
-    };
-  } else if(file.type.startsWith('image/')){
-    var fr=new FileReader();
-    fr.onload=function(e){curMedia=e.target.result;curMediaType='image';showPreview();};
-    fr.readAsDataURL(file);
-  }
+function saveEntry(){
+  var t=tod();
+  entries[t]={score:curScore,city:document.getElementById('city').value,country:document.getElementById('country').value,special:document.getElementById('special').value,mediaPreview:curMedia,mediaType:curMediaType,date:t};
+  saveSt();
+  var b=document.getElementById('savebtn');
+  if(b){b.textContent='✓ נשמר!';setTimeout(function(){b.textContent='💾 שמור את היום';},2000);}
+  renderHeader();renderWeekCard();renderVsCard();
+}
+
+function renderHeader(){
+  var e=allE();
+  var hd=document.getElementById('hdays'); if(hd)hd.textContent=e.length+' ימים';
+  var s=0,d=new Date();
+  while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
+  var b=document.getElementById('streak');
+  if(b){if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';}
+}
+
+function loadToday(){
+  var e=entries[tod()];if(!e)return;
+  curScore=e.score;
+  var rng=document.getElementById('srange'); if(rng)rng.value=e.score;
+  var ci=document.getElementById('city'); if(ci)ci.value=e.city||'';
+  var co=document.getElementById('country'); if(co)co.value=e.country||'';
+  var sp=document.getElementById('special'); if(sp)sp.value=e.special||'';
+  if(e.mediaPreview){curMedia=e.mediaPreview;curMediaType=e.mediaType;showPreview();}
+  updateUI(e.score);
 }
 
 function showPreview(){
-  var html='<div cl
+  var a=document.getElementById('uarea');if(!a)return;
+  a.innerHTML='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" id="mrem-btn">✕</button></div>';
+  var rb=document.getElementById('mrem-btn');
+  if(rb)rb.addEventListener('click',clearMedia);
+}
+
+function clearMedia(){
+  curMedia=null;curMediaType=null;
+  var a=document.getElementById('uarea');
+  if(a)a.innerHTML='<div class="uzone" id="uzone-btn"><div style="font-size:28px;margin-bottom:6px">📷</div><div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div><div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div></div>';
+  var fi=document.getElementById('finput'); if(fi)fi.value='';
+  var uz=document.getElementById('uzone-btn');
+  if(uz)uz.addEventListener('click',function(){var fi=document.getElementById('finput');if(fi)fi.click();});
+}
+
+function renderWChart(id,data,labels){
+  var el=document.getElementById(id);if(!el)return;
+  var html='';
+  for(var i=0;i<data.length;i++){
+    var v=data[i]||0,isL=i===data.length-1,c=gc(v||G),h=Math.max((v/100)*52,3);
+    html+='<div class="wb"><div class="wbbar" style="height:'+h+'px;background:'+c+';opacity:'+(isL?1:0.5)+'"></div><div class="wblbl">'+labels[i]+'</div></div>';
+  }
+  el.innerHTML=html;
+}
+
+function renderWeekCard(){
+  var e=allE();
+  var wc=document.getElementById('weekcard');
+  if(e.length<2){if(wc)wc.style.display='none';return;}
+  if(wc)wc.style.display='block';
+  var arr=[];
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);arr.push(entries[d.toISOString().slice(0,10)]?en
