@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>מדד האושר העולמי</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0a14;font-family:Heebo,sans-serif;color:#fff;font-weight:600;padding-bottom:80px}
@@ -15,28 +16,28 @@ body{background:#0a0a14;font-family:Heebo,sans-serif;color:#fff;font-weight:600;
 .badge{background:linear-gradient(135deg,#ff6b2b,#ff2d55);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:900;color:#fff;display:inline-block}
 .screen{display:none;flex-direction:column;gap:14px}
 .screen.on{display:flex}
-.card{background:#13132a;border:1px solid #2a2a4a;border-radius:16px;padding:18px;margin-bottom:0}
+.card{background:#13132a;border:1px solid #2a2a4a;border-radius:16px;padding:18px}
 .lbl{font-size:11px;color:#88b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block;font-weight:700}
-input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;border:none;display:block;margin:8px 0;background:linear-gradient(to right,#00ff88 70%,#1a1a35 70%)}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;border:none;display:block;margin:8px 0}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #0a0a14;box-shadow:0 0 0 3px #00ff88}
 .rmarks{display:flex;justify-content:space-between;font-size:11px;color:#66a;direction:ltr}
 textarea,input[type=text]{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;color:#fff;font-family:Heebo,sans-serif;font-size:15px;padding:12px 14px;width:100%;outline:none;resize:none;display:block;font-weight:600}
 textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 .row2{display:flex;gap:10px}
 .row2>div{flex:1}
-.uzone{border:2px dashed #2a2a5a;border-radius:12px;padding:22px;text-align:center;background:#0d0d20}
+.uzone{border:2px dashed #2a2a5a;border-radius:12px;padding:22px;text-align:center;background:#0d0d20;cursor:pointer}
 .mprev{position:relative;border-radius:12px;overflow:hidden}
 .mprev img,.mprev video{width:100%;max-height:200px;object-fit:cover;display:block}
-.mrem{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.85);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;line-height:28px;text-align:center}
+.mrem{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.85);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;line-height:28px;text-align:center;cursor:pointer}
 .sbtn{width:100%;border:none;border-radius:13px;font-family:Heebo,sans-serif;font-size:17px;font-weight:900;padding:16px;cursor:pointer;color:#000;display:block}
-.abtn{border:2px solid #2a2a4a;border-radius:12px;padding:14px;background:#13132a;color:#fff;font-family:Heebo,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:10px}
-.stabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
-.stab{background:#13132a;border:2px solid #2a2a4a;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;color:#88b;white-space:nowrap}
+.abtn{border:2px solid #2a2a4a;border-radius:12px;padding:14px;background:#13132a;color:#fff;font-family:Heebo,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:10px;cursor:pointer}
+.stabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.stab{background:#13132a;border:2px solid #2a2a4a;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;color:#88b;cursor:pointer}
 .stab.on{color:#fff;background:#2a2a5a;border-color:#4444aa}
 .rring{position:relative;width:100px;height:100px;flex-shrink:0}
 .rring svg{position:absolute;inset:0;transform:rotate(-90deg)}
 .rring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.erow{background:#13132a;border:2px solid #2a2a4a;border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.erow{background:#13132a;border:2px solid #2a2a4a;border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer}
 .lrow{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#13132a;border-radius:12px;border:2px solid #2a2a4a;margin-bottom:8px}
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .sbox{background:#0d0d20;border:2px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center}
@@ -50,7 +51,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 .empty{text-align:center;color:#446;padding:50px 0}
 .nav{position:fixed;bottom:0;left:0;right:0;background:#080818;border-top:2px solid #2a2a4a;padding:8px 8px 16px;z-index:999}
 .nav-in{max-width:480px;margin:0 auto;display:flex;gap:4px}
-.nb{background:none;border:none;font-family:Heebo,sans-serif;font-size:11px;font-weight:900;color:#446;padding:8px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;-webkit-tap-highlight-color:transparent}
+.nb{background:none;border:none;font-family:Heebo,sans-serif;font-size:11px;font-weight:900;color:#446;padding:8px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .nb.on{color:#fff;background:#1a1a35}
 .nb span{font-size:20px}
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
@@ -59,15 +60,19 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 .mapwrap{background:#06060f;border-radius:10px;overflow:hidden}
 .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .content{position:relative;z-index:1}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00ff88;color:#000;font-family:Heebo,sans-serif;font-size:14px;font-weight:900;padding:12px 24px;border-radius:30px;z-index:2000;display:none;white-space:nowrap}
+.online-dot{width:8px;height:8px;border-radius:50%;background:#00ff88;display:inline-block;margin-left:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 </style>
 </head>
 <body>
 <div class="stars" id="stars"></div>
+<div class="toast" id="toast"></div>
 <div class="content">
 <div class="wrap">
   <div class="hdr">
     <div>
-      <div class="htitle">מדד האושר 🌍</div>
+      <div class="htitle">מדד האושר 🌍<span class="online-dot" id="onlinedot" style="display:none"></span></div>
       <div class="hsub" id="hdate"></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
@@ -76,6 +81,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
     </div>
   </div>
 
+  <!-- TODAY -->
   <div class="screen on" id="s-today">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -104,7 +110,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
         <div><input type="text" id="city" placeholder="עיר"></div>
         <div><input type="text" id="country" placeholder="מדינה"></div>
       </div>
-      <div style="font-size:11px;color:#446;text-align:center;margin-top:6px">📍 אנונימי — אין שמות</div>
+      <div style="font-size:11px;color:#446;text-align:center;margin-top:6px">📍 אנונימי — אין שמות, אין זיהוי</div>
     </div>
 
     <div>
@@ -125,7 +131,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
       <input type="file" id="finput" accept="image/*,video/*" style="display:none">
     </div>
 
-    <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55);color:#000">💾 שמור את היום</button>
+    <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55)">💾 שמור את היום</button>
 
     <div class="card" id="weekcard" style="display:none">
       <span class="lbl">השבוע שלי</span>
@@ -139,36 +145,40 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
     </div>
   </div>
 
+  <!-- WORLD -->
   <div class="screen" id="s-world">
     <div style="text-align:center;padding:8px 0">
       <div style="position:relative;width:160px;height:160px;margin:0 auto">
         <svg id="globesvg" viewBox="0 0 200 200" width="160" height="160"></svg>
         <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div id="gnum" style="font-size:48px;font-weight:900;line-height:1;color:#00ff88">68</div>
-          <div style="font-size:13px;color:#88c;font-weight:700">ציון גלובלי</div>
+          <div id="gnum" style="font-size:48px;font-weight:900;line-height:1;color:#00ff88">--</div>
+          <div style="font-size:13px;color:#88c;font-weight:700">ציון גלובלי היום</div>
         </div>
       </div>
-      <div id="gtotal" style="font-size:13px;color:#66a;margin-top:10px;font-weight:700"></div>
+      <div id="gtotal" style="font-size:13px;color:#66a;margin-top:10px;font-weight:700">טוען נתונים...</div>
     </div>
+
     <div class="card">
       <span class="lbl">מגמה עולמית — 7 ימים</span>
       <div class="wchart" id="worldchart"></div>
     </div>
+
     <div class="stabs" id="wtabs">
       <button class="stab on" data-tab="cities">🏙️ ערים</button>
       <button class="stab" data-tab="countries">🌐 מדינות</button>
       <button class="stab" data-tab="map">🗺️ מפה</button>
     </div>
-    <div id="wcities" style="display:block"></div>
+    <div id="wcities"></div>
     <div id="wcountries" style="display:none"></div>
     <div id="wmap" style="display:none">
       <div class="card" style="padding:12px">
-        <span class="lbl" style="margin-bottom:8px">מפה עולמית — ציון אושר</span>
+        <span class="lbl" style="margin-bottom:8px">מפה עולמית</span>
         <div class="mapwrap" id="mapwrap"></div>
       </div>
     </div>
   </div>
 
+  <!-- HISTORY -->
   <div class="screen" id="s-history">
     <div class="stabs" id="htabs">
       <button class="stab on" data-tab="list">📋 רשימה</button>
@@ -180,6 +190,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
     <div id="hstats" style="display:none"></div>
   </div>
 
+  <!-- EXPORT -->
   <div class="screen" id="s-export">
     <div class="card">
       <div style="font-size:17px;font-weight:900;margin-bottom:6px">💾 ייצוא הנתונים</div>
@@ -223,7 +234,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
         <div id="mscore" style="font-size:50px;font-weight:900;line-height:1"></div>
         <div id="mlabel" style="font-size:16px;margin-top:4px;font-weight:700"></div>
       </div>
-      <button id="modal-close" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:32px;height:32px;font-size:16px;line-height:32px;text-align:center">✕</button>
+      <button id="modal-close" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:32px;height:32px;font-size:16px;line-height:32px;text-align:center;cursor:pointer">✕</button>
     </div>
     <div id="mloc" style="font-size:14px;color:#88c;margin-bottom:12px;display:none"></div>
     <div id="mmedia" style="border-radius:12px;overflow:hidden;margin-bottom:14px;display:none"></div>
@@ -236,25 +247,25 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 
 <script>
 (function(){
-var SK='whi-v4',G=68,GTOT=142839;
-var GW=[62,65,71,68,74,70,68];
-var WL=['ב','ג','ד','ה','ו','ש','א'];
-var CITIES=[
-  {n:'Auckland',f:'🇳🇿',s:79,p:1243},{n:'Copenhagen',f:'🇩🇰',s:77,p:2891},
-  {n:'Tel Aviv',f:'🇮🇱',s:74,p:4102},{n:'Amsterdam',f:'🇳🇱',s:73,p:3340},
-  {n:'Tokyo',f:'🇯🇵',s:72,p:8821},{n:'Berlin',f:'🇩🇪',s:71,p:5210},
-  {n:'Haifa',f:'🇮🇱',s:70,p:1890},{n:'Melbourne',f:'🇦🇺',s:69,p:3102},
-  {n:'Toronto',f:'🇨🇦',s:68,p:4500},{n:'Sao Paulo',f:'🇧🇷',s:63,p:9200}
-];
-var COUNTRIES=[
-  {n:'Finland',f:'🇫🇮',s:78,p:18200},{n:'Denmark',f:'🇩🇰',s:77,p:15400},
-  {n:'Iceland',f:'🇮🇸',s:76,p:4200},{n:'Israel',f:'🇮🇱',s:72,p:28900},
-  {n:'Netherlands',f:'🇳🇱',s:71,p:22100},{n:'Sweden',f:'🇸🇪',s:70,p:19800},
-  {n:'Germany',f:'🇩🇪',s:68,p:41200},{n:'Japan',f:'🇯🇵',s:67,p:38900},
-  {n:'USA',f:'🇺🇸',s:65,p:89400},{n:'Brazil',f:'🇧🇷',s:63,p:34100},
-  {n:'India',f:'🇮🇳',s:58,p:71000},{n:'Egypt',f:'🇪🇬',s:55,p:22000}
-];
-var MAPC=[
+
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+var SUPA_URL = 'https://ngtgxpmzksdtoegezrfp.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ndGd4cG16a3NkdG9lZ2V6cmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNTQ5OTksImV4cCI6MjA5MjgzMDk5OX0.ohzQUhio626yt-MC5PPM9Yw1R_--MgrrKItHvzzaZ_g';
+var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── DEVICE ID ─────────────────────────────────────────────────────────────────
+var SK = 'whi-v4';
+var did = localStorage.getItem('device_id');
+if(!did){ did = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('device_id', did); }
+
+// ── LOCAL DATA ────────────────────────────────────────────────────────────────
+var entries = {};
+var curScore = 70, curMedia = null, curMediaType = null;
+
+// ── MOCK WORLD DATA ───────────────────────────────────────────────────────────
+var GW = [62,65,71,68,74,70,68];
+var WL = ['ב','ג','ד','ה','ו','ש','א'];
+var MAPC = [
   {n:'USA',s:65,x:18,y:38,r:7},{n:'Canada',s:72,x:18,y:25,r:6},
   {n:'Brazil',s:63,x:28,y:62,r:6},{n:'UK',s:69,x:45,y:28,r:2.5},
   {n:'Germany',s:68,x:49,y:29,r:2.5},{n:'Sweden',s:70,x:50,y:22,r:2.5},
@@ -264,8 +275,7 @@ var MAPC=[
   {n:'Australia',s:69,x:77,y:62,r:6},{n:'NZ',s:79,x:84,y:68,r:2}
 ];
 
-var entries={},curScore=70,curMedia=null,curMediaType=null;
-
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 function gc(s){if(s<=20)return'#ff2d55';if(s<=40)return'#ff7c2a';if(s<=60)return'#ffd700';if(s<=80)return'#00ff88';return'#00d4ff';}
 function gg(s){if(s<=20)return'linear-gradient(135deg,#ff2d55,#cc0033)';if(s<=40)return'linear-gradient(135deg,#ff7c2a,#cc4400)';if(s<=60)return'linear-gradient(135deg,#ffd700,#aa8800)';if(s<=80)return'linear-gradient(135deg,#00ff88,#00aa55)';return'linear-gradient(135deg,#00d4ff,#0088cc)';}
 function ge(s){if(s<=20)return'😞';if(s<=40)return'😕';if(s<=60)return'😐';if(s<=80)return'🙂';return'😄';}
@@ -276,139 +286,153 @@ function fl(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'long',day
 function fm(d){return new Date(d+'-01').toLocaleDateString('he-IL',{month:'long',year:'numeric'});}
 function allE(){return Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});}
 function saveSt(){localStorage.setItem(SK,JSON.stringify(entries));}
+function showToast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
+function el(id){return document.getElementById(id);}
 
+// ── UI ────────────────────────────────────────────────────────────────────────
 function updateUI(s){
-  curScore=parseInt(s);
-  var c=gc(curScore);
-  var el=document.getElementById('snum'); if(el){el.textContent=curScore;el.style.color=c;}
-  var ee=document.getElementById('semoji'); if(ee)ee.textContent=ge(curScore);
-  var sl=document.getElementById('slabel'); if(sl){sl.textContent=gl(curScore);sl.style.color=c;}
-  var sb=document.getElementById('savebtn'); if(sb){sb.style.background=gg(curScore);sb.style.color=curScore>=60?'#000':'#fff';}
-  var arc=document.getElementById('rarc');
-  if(arc){
-    var r=42,circ=2*Math.PI*r,dash=(curScore/100)*circ;
-    arc.setAttribute('stroke',c);
-    arc.setAttribute('stroke-dasharray',dash+' '+(circ-dash));
-  }
-  var rng=document.getElementById('srange');
-  if(rng)rng.style.background='linear-gradient(to right,'+c+' '+curScore+'%,#1a1a35 '+curScore+'%)';
+  curScore = parseInt(s);
+  var c = gc(curScore);
+  el('snum').textContent = curScore; el('snum').style.color = c;
+  el('semoji').textContent = ge(curScore);
+  el('slabel').textContent = gl(curScore); el('slabel').style.color = c;
+  el('savebtn').style.background = gg(curScore); el('savebtn').style.color = curScore>=60?'#000':'#fff';
+  var r=42,circ=2*Math.PI*r,dash=(curScore/100)*circ;
+  el('rarc').setAttribute('stroke',c);
+  el('rarc').setAttribute('stroke-dasharray',dash+' '+(circ-dash));
+  el('srange').style.background = 'linear-gradient(to right,'+c+' '+curScore+'%,#1a1a35 '+curScore+'%)';
 }
 
 function goTo(name){
   document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
-  var nb=document.querySelector('.nb[data-screen="'+name+'"]');
-  if(nb)nb.classList.add('on');
+  var nb = document.querySelector('.nb[data-screen="'+name+'"]');
+  if(nb) nb.classList.add('on');
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');s.style.display='none';});
-  var sc=document.getElementById('s-'+name);
+  var sc = el('s-'+name);
   if(sc){sc.classList.add('on');sc.style.display='flex';}
-  if(name==='history')renderHistory();
-  if(name==='export')renderExport();
+  if(name==='history') renderHistory();
+  if(name==='export') renderExport();
+  if(name==='world') loadWorldData();
 }
 
+// ── SAVE ──────────────────────────────────────────────────────────────────────
 function saveEntry(){
-  var t=tod();
-  entries[t]={score:curScore,city:document.getElementById('city').value,country:document.getElementById('country').value,special:document.getElementById('special').value,mediaPreview:curMedia,mediaType:curMediaType,date:t};
+  var t = tod();
+  var entry = {score:curScore, city:el('city').value, country:el('country').value, special:el('special').value, mediaPreview:curMedia, mediaType:curMediaType, date:t};
+  entries[t] = entry;
   saveSt();
-  var b=document.getElementById('savebtn');
-  if(b){b.textContent='✓ נשמר!';setTimeout(function(){b.textContent='💾 שמור את היום';},2000);}
-  renderHeader();renderWeekCard();renderVsCard();
+
+  // Save to Supabase
+  sb.from('entries').upsert({
+    date: t,
+    score: curScore,
+    city: el('city').value || null,
+    country: el('country').value || null,
+    special: el('special').value || null,
+    device_id: did
+  }, {onConflict: 'date,device_id'}).then(function(res){
+    if(res.error){
+      showToast('נשמר מקומית בלבד');
+    } else {
+      showToast('✓ נשמר בהצלחה!');
+      el('onlinedot').style.display='inline-block';
+    }
+  });
+
+  // Reset form
+  el('srange').value = 70;
+  el('city').value = '';
+  el('country').value = '';
+  el('special').value = '';
+  curMedia = null; curMediaType = null;
+  resetUpload();
+  updateUI(70);
+
+  renderHeader();
+  renderWeekCard();
+  renderVsCard();
 }
 
-function renderHeader(){
-  var e=allE();
-  var hd=document.getElementById('hdays'); if(hd)hd.textContent=e.length+' ימים';
-  var s=0,d=new Date();
-  while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
-  var b=document.getElementById('streak');
-  if(b){if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';}
+// ── WORLD DATA FROM SUPABASE ──────────────────────────────────────────────────
+function loadWorldData(){
+  var today = tod();
+  sb.from('entries').select('score,city,country').gte('created_at', today+'T00:00:00').then(function(res){
+    if(res.error || !res.data || !res.data.length){
+      el('gnum').textContent = '--';
+      el('gtotal').textContent = 'אין נתונים להיום עדיין';
+      renderLeadersMock();
+      renderMap();
+      return;
+    }
+    var data = res.data;
+    var avg = Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
+    el('gnum').textContent = avg;
+    el('gnum').style.color = gc(avg);
+    el('gnum').style.textShadow = '0 0 20px '+gc(avg);
+    el('gtotal').textContent = data.length + ' ' + ge(avg) + ' כניסות היום';
+    el('onlinedot').style.display='inline-block';
+
+    // Cities leaderboard from real data
+    var cityMap = {};
+    data.forEach(function(d){
+      if(d.city){
+        if(!cityMap[d.city]) cityMap[d.city]={total:0,count:0};
+        cityMap[d.city].total += d.score;
+        cityMap[d.city].count++;
+      }
+    });
+    var cities = Object.keys(cityMap).map(function(n){
+     return {n:n, s:Math.round(cityMap[n].total/cityMap[n].count), p:cityMap[n].count};
+    }).sort(function(a,b){return b.s-a.s;}).slice(0,10);
+
+    var countryMap = {};
+    data.forEach(function(d){
+      if(d.country){
+        if(!countryMap[d.country]) countryMap[d.country]={total:0,count:0};
+        countryMap[d.country].total += d.score;
+        countryMap[d.country].count++;
+      }
+    });
+    var countries = Object.keys(countryMap).map(function(n){
+      return {n:n, s:Math.round(countryMap[n].total/countryMap[n].count), p:countryMap[n].count};
+    }).sort(function(a,b){return b.s-a.s;}).slice(0,10);
+
+    renderGlobe(avg);
+    renderLeadersReal(cities, countries);
+    renderMap();
+  });
 }
 
-function loadToday(){
-  var e=entries[tod()];if(!e)return;
-  curScore=e.score;
-  var rng=document.getElementById('srange'); if(rng)rng.value=e.score;
-  var ci=document.getElementById('city'); if(ci)ci.value=e.city||'';
-  var co=document.getElementById('country'); if(co)co.value=e.country||'';
-  var sp=document.getElementById('special'); if(sp)sp.value=e.special||'';
-  if(e.mediaPreview){curMedia=e.mediaPreview;curMediaType=e.mediaType;showPreview();}
-  updateUI(e.score);
+function renderLeadersMock(){
+  var CITIES = [{n:'Tel Aviv',f:'🇮🇱',s:74,p:4102},{n:'Auckland',f:'🇳🇿',s:79,p:1243},{n:'Copenhagen',f:'🇩🇰',s:77,p:2891},{n:'Amsterdam',f:'🇳🇱',s:73,p:3340},{n:'Tokyo',f:'🇯🇵',s:72,p:8821},{n:'Berlin',f:'🇩🇪',s:71,p:5210}];
+  var COUNTRIES = [{n:'Finland',f:'🇫🇮',s:78,p:18200},{n:'Denmark',f:'🇩🇰',s:77,p:15400},{n:'Israel',f:'🇮🇱',s:72,p:28900},{n:'Netherlands',f:'🇳🇱',s:71,p:22100},{n:'Sweden',f:'🇸🇪',s:70,p:19800}];
+  var ch='';
+  CITIES.forEach(function(c,i){var col=gc(c.s);ch+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="font-size:20px">'+c.f+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p.toLocaleString()+' אנשים</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
+  el('wcities').innerHTML = ch + '<div style="font-size:11px;color:#446;text-align:center;padding:8px">* נתונים לדוגמה — ימלאו כשיהיו משתמשים</div>';
+  var cn='';
+  COUNTRIES.forEach(function(c,i){var col=gc(c.s);cn+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="font-size:20px">'+c.f+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p.toLocaleString()+' אנשים</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
+  el('wcountries').innerHTML = cn;
 }
 
-function showPreview(){
-  var a=document.getElementById('uarea');if(!a)return;
-  a.innerHTML='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" id="mrem-btn">✕</button></div>';
-  var rb=document.getElementById('mrem-btn');
-  if(rb)rb.addEventListener('click',clearMedia);
-}
-
-function clearMedia(){
-  curMedia=null;curMediaType=null;
-  var a=document.getElementById('uarea');
-  if(a)a.innerHTML='<div class="uzone" id="uzone-btn"><div style="font-size:28px;margin-bottom:6px">📷</div><div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div><div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div></div>';
-  var fi=document.getElementById('finput'); if(fi)fi.value='';
-  var uz=document.getElementById('uzone-btn');
-  if(uz)uz.addEventListener('click',function(){var fi=document.getElementById('finput');if(fi)fi.click();});
-}
-
-function renderWChart(id,data,labels){
-  var el=document.getElementById(id);if(!el)return;
-  var html='';
-  for(var i=0;i<data.length;i++){
-    var v=data[i]||0,isL=i===data.length-1,c=gc(v||G),h=Math.max((v/100)*52,3);
-    html+='<div class="wb"><div class="wbbar" style="height:'+h+'px;background:'+c+';opacity:'+(isL?1:0.5)+'"></div><div class="wblbl">'+labels[i]+'</div></div>';
+function renderLeadersReal(cities, countries){
+  var ch = '';
+  if(!cities.length){ ch = '<div style="color:#446;text-align:center;padding:20px;font-size:14px">אין נתוני ערים עדיין להיום</div>'; }
+  else {
+    cities.forEach(function(c,i){var col=gc(c.s);ch+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' כניסות</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
   }
-  el.innerHTML=html;
+  el('wcities').innerHTML = ch;
+  var cn = '';
+  if(!countries.length){ cn = '<div style="color:#446;text-align:center;padding:20px;font-size:14px">אין נתוני מדינות עדיין להיום</div>'; }
+  else {
+    countries.forEach(function(c,i){var col=gc(c.s);cn+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' כניסות</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
+  }
+  el('wcountries').innerHTML = cn;
 }
 
-function renderWeekCard(){
-  var e=allE();
-  var wc=document.getElementById('weekcard');
-  if(e.length<2){if(wc)wc.style.display='none';return;}
-  if(wc)wc.style.display='block';
-  var arr=[];
-  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);arr.push(entries[d.toISOString().slice(0,10)]?entries[d.toISOString().slice(0,10)].score:0);}
-                                                                           renderWChart('mywchart',arr,WL);
-}
-
-function renderVsCard(){
-  var e=entries[tod()];
-  var vc=document.getElementById('vscard');
-  if(!e){if(vc)vc.style.display='none';return;}
-  if(vc)vc.style.display='block';
-  var rows=[{l:'הציון שלך',v:e.score},{l:'ממוצע עולמי',v:G}];
-  var html='';
-  rows.forEach(function(r){
-    var c=gc(r.v);
-    html+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px;font-weight:700"><span style="color:#aac">'+r.l+'</span><span style="color:'+c+'">'+r.v+'</span></div><div class="wbar"><div class="wbar-fill" style="width:'+r.v+'%;background:'+c+'"></div></div></div>';
-  });
-  var vr=document.getElementById('vsrows'); if(vr)vr.innerHTML=html;
-  var vd=document.getElementById('vsdiff');
-  if(vd){var d=e.score-G;vd.textContent=d>0?'+'+d+' מעל הממוצע':d<0?d+' מתחת לממוצע':'בדיוק בממוצע';}
-}
-
-function renderGlobe(){
-  var c=gc(G),svg=document.getElementById('globesvg');if(!svg)return;
-  svg.style.filter='drop-shadow(0 0 25px '+c+'66)';
-  svg.innerHTML='<defs><radialGradient id="rg1" cx="38%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient><radialGradient id="rg2" cx="50%" cy="50%"><stop offset="0%" stop-color="'+c+'" stop-opacity="0.6"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0.1"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="78"/></clipPath></defs><circle cx="100" cy="100" r="88" fill="'+c+'" fill-opacity="0.06"/><circle cx="100" cy="100" r="78" fill="#080818"/><circle cx="100" cy="100" r="78" fill="url(#rg2)"/><g clip-path="url(#gc)" fill="none" stroke="'+c+'" stroke-opacity="0.2" stroke-width="1"><ellipse cx="100" cy="100" rx="78" ry="18"/><ellipse cx="100" cy="100" rx="78" ry="40"/><ellipse cx="100" cy="100" rx="78" ry="62"/><line x1="22" y1="100" x2="178" y2="100"/><line x1="100" y1="22" x2="100" y2="178"/></g><circle cx="100" cy="100" r="78" fill="url(#rg1)"/><circle cx="100" cy="100" r="78" fill="none" stroke="'+c+'" stroke-opacity="0.5" stroke-width="2"/>';
-  var el=document.getElementById('gnum');if(el){el.style.color=c;el.style.textShadow='0 0 20px '+c;}
-  var gt=document.getElementById('gtotal');if(gt)gt.textContent=GTOT.toLocaleString()+' '+ge(G)+' כניסות היום';
-  var start=Date.now();
-  function tick(){var p=Math.min((Date.now()-start)/1100,1),e2=1-Math.pow(1-p,3);if(el)el.textContent=Math.round(G*e2);if(p<1)requestAnimationFrame(tick);}
-  requestAnimationFrame(tick);
-}
-
-function renderLeaders(){
-  var ch='',cn='';
-  CITIES.forEach(function(c,i){
-    var col=gc(c.s);
-    ch+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="font-size:20px">'+c.f+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p.toLocaleString()+' אנשים</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';
-  });
-  COUNTRIES.forEach(function(c,i){
-    var col=gc(c.s);
-    cn+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="font-size:20px">'+c.f+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p.toLocaleString()+' אנשים</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';
-  });
-  var wc=document.getElementById('wcities');if(wc)wc.innerHTML=ch;
-  var wco=document.getElementById('wcountries');if(wco)wco.innerHTML=cn;
+function renderGlobe(score){
+  var c = gc(score), svg = el('globesvg');
+  svg.style.filter = 'drop-shadow(0 0 25px '+c+'66)';
+  svg.innerHTML = '<defs><radialGradient id="rg1" cx="38%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient><radialGradient id="rg2" cx="50%" cy="50%"><stop offset="0%" stop-color="'+c+'" stop-opacity="0.6"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0.1"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="78"/></clipPath></defs><circle cx="100" cy="100" r="88" fill="'+c+'" fill-opacity="0.06"/><circle cx="100" cy="100" r="78" fill="#080818"/><circle cx="100" cy="100" r="78" fill="url(#rg2)"/><g clip-path="url(#gc)" fill="none" stroke="'+c+'" stroke-opacity="0.2" stroke-width="1"><ellipse cx="100" cy="100" rx="78" ry="18"/><ellipse cx="100" cy="100" rx="78" ry="40"/><ellipse cx="100" cy="100" rx="78" ry="62"/><line x1="22" y1="100" x2="178" y2="100"/><line x1="100" y1="22" x2="100" y2="178"/></g><circle cx="100" cy="100" r="78" fill="url(#rg1)"/><circle cx="100" cy="100" r="78" fill="none" stroke="'+c+'" stroke-opacity="0.5" stroke-width="2"/>';
 }
 
 function renderMap(){
@@ -417,244 +441,193 @@ function renderMap(){
   for(var x=0;x<=W;x+=60)html+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'"/>';
   for(var y=0;y<=H;y+=45)html+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'"/>';
   html+='</g>';
-  MAPC.forEach(function(c){
-    var col=gc(c.s),cx=c.x/100*W,cy=c.y/100*H,r=c.r*3;
-    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="0.25" stroke="'+col+'" stroke-width="1"/>';
-    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.35+1)+'" fill="'+col+'"/>';
-    if(r>8)html+='<text x="'+cx+'" y="'+(cy+r+7)+'" text-anchor="middle" fill="'+col+'" font-size="5.5" font-family="Heebo,sans-serif">'+c.n+'</text>';
-  });
+  MAPC.forEach(function(c){var col=gc(c.s),cx=c.x/100*W,cy=c.y/100*H,r=c.r*3;html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="0.25" stroke="'+col+'" stroke-width="1"/><circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.35+1)+'" fill="'+col+'"/>';if(r>8)html+='<text x="'+cx+'" y="'+(cy+r+7)+'" text-anchor="middle" fill="'+col+'" font-size="5.5" font-family="Heebo,sans-serif">'+c.n+'</text>';});
   html+='</svg>';
-  var mw=document.getElementById('mapwrap');if(mw)mw.innerHTML=html;
+  el('mapwrap').innerHTML = html;
+  }
+  function renderWeekCard(){
+  var e=allE();var wc=el('weekcard');
+  if(e.length<2){if(wc)wc.style.display='none';return;}
+  if(wc)wc.style.display='block';
+  var arr=[];for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);arr.push(entries[d.toISOString().slice(0,10)]?entries[d.toISOString().slice(0,10)].score:0);}
+  renderWChart('mywchart',arr,WL);
 }
+
+function renderVsCard(){
+  var e=entries[tod()];var vc=el('vscard');
+  if(!e){if(vc)vc.style.display='none';return;}
+  if(vc)vc.style.display='block';
+  var rows=[{l:'הציון שלך',v:e.score},{l:'ממוצע עולמי',v:68}];
+  var html='';
+  rows.forEach(function(r){var c=gc(r.v);html+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px;font-weight:700"><span style="color:#aac">'+r.l+'</span><span style="color:'+c+'">'+r.v+'</span></div><div class="wbar"><div class="wbar-fill" style="width:'+r.v+'%;background:'+c+'"></div></div></div>';});
+  el('vsrows').innerHTML=html;
+  var d=e.score-68;
+  el('vsdiff').textContent=d>0?'+'+d+' מעל הממוצע':d<0?d+' מתחת לממוצע':'בדיוק בממוצע';
+}
+
+function renderHeader(){
+  var e=allE();el('hdays').textContent=e.length+' ימים';
+  var s=0,d=new Date();while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
+  var b=el('streak');if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';
+}
+
+function loadToday(){
+  var e=entries[tod()];if(!e)return;
+  curScore=e.score;el('srange').value=e.score;
+  el('city').value=e.city||'';el('country').value=e.country||'';el('special').value=e.special||'';
+  if(e.mediaPreview){curMedia=e.mediaPreview;curMediaType=e.mediaType;showPreview();}
+  updateUI(e.score);
+}
+
+function showPreview(){
+  el('uarea').innerHTML='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" id="mrem-btn">✕</button></div>';
+  var rb=el('mrem-btn');if(rb)rb.addEventListener('click',clearMedia);
+}
+
+function resetUpload(){
+  el('uarea').innerHTML='<div class="uzone" id="uzone-btn"><div style="font-size:28px;margin-bottom:6px">📷</div><div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div><div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div></div>';
+  var uz=el('uzone-btn');if(uz)uz.addEventListener('click',function(){el('finput').click();});
+  el('finput').value='';
+}
+
+function clearMedia(){curMedia=null;curMediaType=null;resetUpload();}
 
 function renderHistory(){
   var e=allE();
-  var hl=document.getElementById('hlist');
-  if(!e.length){if(hl)hl.innerHTML='<div class="empty"><div style="font-size:36px;margin-bottom:10px">📭</div>עדיין אין ימים</div>';return;}
+  if(!e.length){el('hlist').innerHTML='<div class="empty"><div style="font-size:36px;margin-bottom:10px">📭</div>עדיין אין ימים שנשמרו</div>';return;}
   var html='';
-  e.forEach(function(en){
-    var c=gc(en.score);
-    html+='<div class="erow" data-date="'+en.date+'" style="cursor:pointer">';
-    html+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>';
-    if(en.special)html+='<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>';
-    if(en.city)html+='<div style="font-size:11px;color:#66a;margin-top:2px">📍 '+en.city+(en.country?', '+en.country:'')+'</div>';
-    html+='</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';
-  });
-  if(hl){
-    hl.innerHTML=html;
-    hl.querySelectorAll('.erow').forEach(function(row){
-      row.addEventListener('click',function(){openM(this.getAttribute('data-date'));});
-    });
-  }
-
-  // Month view
-  var byM={};
-  e.forEach(function(en){var m=en.date.slice(0,7);if(!byM[m])byM[m]=[];byM[m].push(en);});
-  var months=Object.keys(byM).sort(function(a,b){return b.localeCompare(a);});
-  var mh='<div class="stabs" id="mtabs">';
+  e.forEach(function(en){var c=gc(en.score);html+='<div class="erow" data-date="'+en.date+'"><div style="flex:1;min-width:0"><div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'+(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+(en.city?'<div style="font-size:11px;color:#66a;margin-top:2px">📍 '+en.city+(en.country?', '+en.country:'')+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';});
+  el('hlist').innerHTML=html;
+  el('hlist').querySelectorAll('.erow').forEach(function(r){r.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
+ 
   months.forEach(function(m,i){mh+='<button class="stab'+(i===0?' on':'')+'" data-month="'+m+'">'+fm(m)+'</button>';});
   mh+='</div>';
   months.forEach(function(m,i){
     mh+='<div id="mo-'+m+'" style="display:'+(i===0?'block':'none')+'">';
-    byM[m].forEach(function(en){
-      var c=gc(en.score),day=new Date(en.date).getDate(),wd=new Date(en.date).toLocaleDateString('he-IL',{weekday:'short'});
-      mh+='<div class="erow" data-date="'+en.date+'" style="cursor:pointer"><div style="width:42px;height:42px;border-radius:9px;background:'+c+'22;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0"><div style="font-size:15px;font-weight:900;color:'+c+'">'+day+'</div><div style="font-size:9px;color:#66a">'+wd+'</div></div><div style="flex:1;min-width:0">'+(en.special?'<div style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+(en.city?'<div style="font-size:11px;color:#66a">📍 '+en.city+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';
-    });
+    byM[m].forEach(function(en){var c=gc(en.score),day=new Date(en.date).getDate(),wd=new Date(en.date).toLocaleDateString('he-IL',{weekday:'short'});mh+='<div class="erow" data-date="'+en.date+'"><div style="width:42px;height:42px;border-radius:9px;background:'+c+'22;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0"><div style="font-size:15px;font-weight:900;color:'+c+'">'+day+'</div><div style="font-size:9px;color:#66a">'+wd+'</div></div><div style="flex:1;min-width:0">'+(en.special?'<div style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+(en.city?'<div style="font-size:11px;color:#66a">📍 '+en.city+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';});
     mh+='</div>';
   });
-  var hm=document.getElementById('hmonth');
-  if(hm){
-    hm.innerHTML=mh;
-    hm.querySelectorAll('.erow').forEach(function(row){row.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
-    hm.querySelectorAll('[data-month]').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        var m=this.getAttribute('data-month');
-        hm.querySelectorAll('[data-month]').forEach(function(b){b.classList.remove('on');});
-        this.classList.add('on');
-        hm.querySelectorAll('[id^="mo-"]').forEach(function(el){el.style.display='none';});
-        var mo=document.getElementById('mo-'+m);if(mo)mo.style.display='block';
-      });
-    });
-  }
+  el('hmonth').innerHTML=mh;
+  el('hmonth').querySelectorAll('.erow').forEach(function(r){r.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
+  el('hmonth').querySelectorAll('[data-month]').forEach(function(btn){btn.addEventListener('click',function(){var m=this.getAttribute('data-month');el('hmonth').querySelectorAll('[data-month]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('hmonth').querySelectorAll('[id^="mo-"]').forEach(function(e2){e2.style.display='none';});var mo=el('mo-'+m);if(mo)mo.style.display='block';});});
 
-  // Stats
   if(!e.length)return;
   var avg=Math.round(e.reduce(function(a,b){return a+b.score;},0)/e.length);
   var best=Math.max.apply(null,e.map(function(x){return x.score;}));
   var worst=Math.min.apply(null,e.map(function(x){return x.score;}));
   var bestDay=e.find(function(x){return x.score===best;});
   var sh='<div class="sgrid">';
-  [{l:'ממוצע',v:avg,e:ge(avg)},{l:'ימים',v:e.length,e:'📅'},{l:'הכי גבוה',v:best,e:'🏆'},{l:'הכי נמוך',v:worst,e:'💪'}].forEach(function(x){
-    var c=gc(x.l!=='ימים'?x.v:avg);
-    sh+='<div class="sbox"><div style="font-size:10px;color:#66a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:4px">'+x.e+'</div></div>';
-  });
+  [{l:'ממוצע',v:avg,e:ge(avg)},{l:'ימים',v:e.length,e:'📅'},{l:'הכי גבוה',v:best,e:'🏆'},{l:'הכי נמוך',v:worst,e:'💪'}].forEach(function(x){var c=gc(x.l!=='ימים'?x.v:avg);sh+='<div class="sbox"><div style="font-size:10px;color:#66a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:4px">'+x.e+'</div></div>';});
   sh+='</div>';
   if(bestDay){var bc=gc(best);sh+='<div class="card" style="background:'+bc+'12;border-color:'+bc+'33"><div style="font-size:12px;color:'+bc+';font-weight:900;margin-bottom:4px">🏆 היום הכי טוב</div><div style="font-size:13px;color:#aac">'+fl(bestDay.date)+'</div>'+(bestDay.special?'<div style="font-size:13px;margin-top:4px">'+bestDay.special+'</div>':'')+'</div>';}
   sh+='<div class="card"><span class="lbl">התפלגות</span>';
-  [{l:'מעולה 81-100',mn:81,mx:100,c:'#00d4ff'},{l:'טוב 61-80',mn:61,mx:80,c:'#00ff88'},{l:'סבבה 41-60',mn:41,mx:60,c:'#ffd700'},{l:'קשה 21-40',mn:21,mx:40,c:'#ff7c2a'},{l:'קשה מאוד 0-20',mn:0,mx:20,c:'#ff2d55'}].forEach(function(b){
-    var cnt=e.filter(function(x){return x.score>=b.mn&&x.score<=b.mx;}).length;
-    var pct=Math.round(cnt/e.length*100);
-    sh+='<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;color:#aac">'+b.l+'</span><span style="font-size:12px;font-weight:900;color:'+b.c+'">'+cnt+' ('+pct+'%)</span></div><div class="wbar"><div class="wbar-fill" style="width:'+pct+'%;background:'+b.c+'"></div></div></div>';
-  });
+  [{l:'מעולה 81-100',mn:81,mx:100,c:'#00d4ff'},{l:'טוב 61-80',mn:61,mx:80,c:'#00ff88'},{l:'סבבה 41-60',mn:41,mx:60,c:'#ffd700'},{l:'קשה 21-40',mn:21,mx:40,c:'#ff7c2a'},{l:'קשה מאוד 0-20',mn:0,mx:20,c:'#ff2d55'}].forEach(function(b){var cnt=e.filter(function(x){return x.score>=b.mn&&x.score<=b.mx;}).length;var pct=Math.round(cnt/e.length*100);sh+='<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;color:#aac">'+b.l+'</span><span style="font-size:12px;font-weight:900;color:'+b.c+'">'+cnt+' ('+pct+'%)</span></div><div class="wbar"><div class="wbar-fill" style="width:'+pct+'%;background:'+b.c+'"></div></div></div>';});
   sh+='</div>';
-  var hs=document.getElementById('hstats');if(hs)hs.innerHTML=sh;
+  el('hstats').innerHTML=sh;
 }
 
 function renderExport(){
   var e=allE();
-  var ei=document.getElementById('expinfo');if(ei)ei.textContent=e.length+' ימים נרשמו.';
-  var si=document.getElementById('storinfo');if(si)si.innerHTML=e.length+' ימים · '+Math.round(JSON.stringify(entries).length/1024)+' KB';
+  el('expinfo').textContent=e.length+' ימים נרשמו.';
+  el('storinfo').innerHTML=e.length+' ימים · '+Math.round(JSON.stringify(entries).length/1024)+' KB';
   var html='';
-  e.slice(0,5).forEach(function(en){
-    var c=gc(en.score);
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;margin-bottom:8px"><div><div style="font-size:12px;color:#88c">'+fs(en.date)+'</div><div style="font-size:16px;font-weight:900;color:'+c+'">'+en.score+' '+ge(en.score)+'</div></div><button class="share-day-btn" data-date="'+en.date+'" style="background:#1a1a35;border:2px solid #2a2a4a;color:#aac;border-radius:8px;padding:7px 13px;font-family:Heebo,sans-serif;font-size:13px;font-weight:700">📤 שתף</button></div>';
-  });
+  e.slice(0,5).forEach(function(en){var c=gc(en.score);html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;margin-bottom:8px"><div><div style="font-size:12px;color:#88c">'+fs(en.date)+'</div><div style="font-size:16px;font-weight:900;color:'+c+'">'+en.score+' '+ge(en.score)+'</div></div><button class="share-btn" data-date="'+en.date+'" style="background:#1a1a35;border:2px solid #2a2a4a;color:#aac;border-radius:8px;padding:7px 13px;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;cursor:pointer">📤 שתף</button></div>';});
   if(!e.length)html='<div style="color:#44a;font-size:14px;text-align:center;padding:20px">אין ימים עדיין</div>';
-  var sl=document.getElementById('sharelist');
-  if(sl){
-    sl.innerHTML=html;
-    sl.querySelectorAll('.share-day-btn').forEach(function(btn){
-      btn.addEventListener('click',function(){shareDay(this.getAttribute('data-date'));});
-    });
-  }
+  el('sharelist').innerHTML=html;
+  el('sharelist').querySelectorAll('.share-btn').forEach(function(btn){btn.addEventListener('click',function(){shareDay(this.getAttribute('data-date'));});});
 }
 
-function shareDay(date){
-  var e=entries[date];if(!e)return;
-  var t='מדד האושר שלי ב-'+fs(date)+': '+e.score+'/100 '+ge(e.score)+(e.special?' — '+e.special:'');
-  if(navigator.share)navigator.share({text:t});
-  else if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){showExpMsg('הועתק!');});
-}
-
-function doCSV(){
-  var e=allE(),rows=[['תאריך','ציון','עיר','מדינה','מיוחד']];
-  e.forEach(function(en){rows.push([en.date,en.score,en.city||'',en.country||'',(en.special||'').replace(/,/g,' ')]);});
-  var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();
-  showExpMsg('✓ CSV הורד!');
-}
-
-function doJSON(){
-  var blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.json';a.click();
-  showExpMsg('✓ JSON הורד!');
-}
-
-function showExpMsg(m){
-  var el=document.getElementById('expmsg');
-  if(el){el.textContent=m;el.style.display='block';setTimeout(function(){el.style.display='none';},2500);}
-}
+function shareDay(date){var e=entries[date];if(!e)return;var t='מדד האושר שלי ב-'+fs(date)+': '+e.score+'/100 '+ge(e.score)+(e.special?' — '+e.special:'');if(navigator.share)navigator.share({text:t});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){showToast('הועתק!');});}
+function doCSV(){var e=allE(),rows=[['תאריך','ציון','עיר','מדינה','מיוחד']];e.forEach(function(en){rows.push([en.date,en.score,en.city||'',en.country||'',(en.special||'').replace(/,/g,' ')]);});var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();showToast('✓ CSV הורד!');}
+function doJSON(){var blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.json';a.click();showToast('✓ JSON הורד!');}
 
 function openM(date){
   var e=entries[date];if(!e)return;
   var c=gc(e.score);
-  var md=document.getElementById('mdate');if(md)md.textContent=fl(date);
-  var ms=document.getElementById('mscore');if(ms){ms.textContent=e.score;ms.style.color=c;}
-  var ml=document.getElementById('mlabel');if(ml){ml.textContent=gl(e.score)+' '+ge(e.score);ml.style.color=c;}
-  var lo=document.getElementById('mloc');
-  if(lo){if(e.city){lo.textContent='📍 '+e.city+(e.country?', '+e.country:'');lo.style.display='block';}else lo.style.display='none';}
-  var mm=document.getElementById('mmedia');
-  if(mm){if(e.mediaPreview){mm.innerHTML=e.mediaType==='image'?'<img src="'+e.mediaPreview+'" style="width:100%;max-height:240px;object-fit:cover;display:block">':'<video src="'+e.mediaPreview+'" controls style="width:100%;display:block">';mm.style.display='block';}else mm.style.display='none';}
-  var msp=document.getElementById('mspecial');
-  if(msp){if(e.special){var mt=document.getElementById('mtext');if(mt)mt.textContent=e.special;msp.style.display='block';}else msp.style.display='none';}
-  var modal=document.getElementById('modal');if(modal)modal.classList.add('on');
+  el('mdate').textContent=fl(date);
+  el('mscore').textContent=e.score;el('mscore').style.color=c;
+  el('mlabel').textContent=gl(e.score)+' '+ge(e.score);el('mlabel').style.color=c;
+  var lo=el('mloc');if(e.city){lo.textContent='📍 '+e.city+(e.country?', '+e.country:'');lo.style.display='block';}else lo.style.display='none';
+  var mm=el('mmedia');if(e.mediaPreview){mm.innerHTML=e.mediaType==='image'?'<img src="'+e.mediaPreview+'" style="width:100%;max-height:240px;object-fit:cover;display:block">':'<video src="'+e.mediaPreview+'" controls style="width:100%;display:block">';mm.style.display='block';}else mm.style.display='none';
+  var ms=el('mspecial');if(e.special){el('mtext').textContent=e.special;ms.style.display='block';}else ms.style.display='none';
+  el('modal').classList.add('on');
 }
+function closeM(){el('modal').classList.remove('on');}
 
-function closeM(){var modal=document.getElementById('modal');if(modal)modal.classList.remove('on');}
-
-function makestars(){
-  var html='';
-  for(var i=0;i<50;i++){var x=((i*137.5)%100),y=((i*97.3)%100),sz=(i%3)+1,op=0.04+(i%5)*0.025;html+='<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:#fff;opacity:'+op+'"></div>';}
-  var st=document.getElementById('stars');if(st)st.innerHTML=html;
-}
+function makestars(){var html='';for(var i=0;i<50;i++){var x=((i*137.5)%100),y=((i*97.3)%100),sz=(i%3)+1,op=0.04+(i%5)*0.025;html+='<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:#fff;opacity:'+op+'"></div>';}el('stars').innerHTML=html;}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',function(){
+window.addEventListener('DOMContentLoaded', function(){
   try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(err){}
-
   makestars();
-  var hdate=document.getElementById('hdate');if(hdate)hdate.textContent=fl(tod());
+  el('hdate').textContent = fl(tod());
   updateUI(70);
   loadToday();
   renderHeader();
-  renderGlobe();
-  renderWChart('worldchart',GW,WL);
-  renderLeaders();
+  renderGlobe(68);
+  renderWChart('worldchart', GW, WL);
+  renderLeadersMock();
   renderMap();
   renderWeekCard();
   renderVsCard();
-
-  // NAV
+ // NAV
   document.querySelectorAll('.nb').forEach(function(btn){
-    btn.addEventListener('click',function(){goTo(this.getAttribute('data-screen'));});
+    btn.addEventListener('click', function(){goTo(this.getAttribute('data-screen'));});
   });
 
   // RANGE
-  var rng=document.getElementById('srange');
-  if(rng){
-    rng.addEventListener('input',function(){updateUI(this.value);});
-    rng.addEventListener('change',function(){updateUI(this.value);});
-  }
+  el('srange').addEventListener('input', function(){updateUI(this.value);});
+  el('srange').addEventListener('change', function(){updateUI(this.value);});
 
   // SAVE
-  var sb=document.getElementById('savebtn');
-  if(sb)sb.addEventListener('click',saveEntry);
+  el('savebtn').addEventListener('click', saveEntry);
 
   // UPLOAD
-  var uz=document.getElementById('uzone-btn');
-  if(uz)uz.addEventListener('click',function(){var fi=document.getElementById('finput');if(fi)fi.click();});
-  var fi=document.getElementById('finput');
-  if(fi)fi.addEventListener('change',function(){
+  el('uzone-btn').addEventListener('click', function(){el('finput').click();});
+  el('finput').addEventListener('change', function(){
     var file=this.files[0];if(!file)return;
-    var verr=document.getElementById('verr');if(verr)verr.style.display='none';
+    el('verr').style.display='none';
     if(file.type.startsWith('video/')){
-      var url=URL.createObjectURL(file);
-      var v=document.createElement('video');v.src=url;
-      v.onloadedmetadata=function(){
-        URL.revokeObjectURL(url);
-        if(v.duration>10){if(verr){verr.textContent='הסרטון ארוך מ-10 שניות';verr.style.display='block';}return;}
-        var fr=new FileReader();fr.onload=function(e){curMedia=e.target.result;curMediaType='video';showPreview();};fr.readAsDataURL(file);
-      };
+      var url=URL.createObjectURL(file);var v=document.createElement('video');v.src=url;
+      v.onloadedmetadata=function(){URL.revokeObjectURL(url);if(v.duration>10){el('verr').textContent='הסרטון ארוך מ-10 שניות';el('verr').style.display='block';return;}var fr=new FileReader();fr.onload=function(e){curMedia=e.target.result;curMediaType='video';showPreview();};fr.readAsDataURL(file);};
     } else if(file.type.startsWith('image/')){
       var fr=new FileReader();fr.onload=function(e){curMedia=e.target.result;curMediaType='image';showPreview();};fr.readAsDataURL(file);
     }
   });
 
-  // MODAL CLOSE
-  var mc=document.getElementById('modal-close');if(mc)mc.addEventListener('click',closeM);
-  var modal=document.getElementById('modal');if(modal)modal.addEventListener('click',function(e){if(e.target===this)closeM();});
+  // MODAL
+  el('modal-close').addEventListener('click', closeM);
+  el('modal').addEventListener('click', function(e){if(e.target===this)closeM();});
 
   // WORLD TABS
-  var wtabs=document.getElementById('wtabs');
-  if(wtabs)wtabs.querySelectorAll('.stab').forEach(function(btn){
-    btn.addEventListener('click',function(){
+  el('wtabs').querySelectorAll('.stab').forEach(function(btn){
+    btn.addEventListener('click', function(){
       var t=this.getAttribute('data-tab');
-      wtabs.querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});
+      el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});
       this.classList.add('on');
-      document.getElementById('wcities').style.display=t==='cities'?'block':'none';
-      document.getElementById('wcountries').style.display=t==='countries'?'block':'none';
-      document.getElementById('wmap').style.display=t==='map'?'block':'none';
+      el('wcities').style.display=t==='cities'?'block':'none';
+      el('wcountries').style.display=t==='countries'?'block':'none';
+      el('wmap').style.display=t==='map'?'block':'none';
     });
   });
 
   // HISTORY TABS
-  var htabs=document.getElementById('htabs');
-  if(htabs)htabs.querySelectorAll('.stab').forEach(function(btn){
-    btn.addEventListener('click',function(){
+  el('htabs').querySelectorAll('.stab').forEach(function(btn){
+    btn.addEventListener('click', function(){
       var t=this.getAttribute('data-tab');
-      htabs.querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});
+      el('htabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});
       this.classList.add('on');
-      document.getElementById('hlist').style.display=t==='list'?'block':'none';
-      document.getElementById('hmonth').style.display=t==='month'?'block':'none';
-      document.getElementById('hstats').style.display=t==='stats'?'block':'none';
+      el('hlist').style.display=t==='list'?'block':'none';
+      el('hmonth').style.display=t==='month'?'block':'none';
+      el('hstats').style.display=t==='stats'?'block':'none';
     });
   });
 
-  // EXPORT BUTTONS
-  var bc=document.getElementById('btn-csv');if(bc)bc.addEventListener('click',doCSV);
-  var bj=document.getElementById('btn-json');if(bj)bj.addEventListener('click',doJSON);
+  // EXPORT
+  el('btn-csv').addEventListener('click', doCSV);
+  el('btn-json').addEventListener('click', doJSON);
 });
 })();
 </script>
 </body>
-</html>
+</html> 
