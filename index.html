@@ -21,8 +21,8 @@ body{background:#0a0a14;font-family:Heebo,sans-serif;color:#ffffff;font-weight:6
 .badge{background:linear-gradient(135deg,#ff6b2b,#ff2d55);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:900;color:#fff;display:inline-block}
 
 /* SCREENS */
-.screen{padding:0 16px;display:none;flex-direction:column;gap:14px}
-.screen.on{display:flex;animation:fu .3s ease}
+.screen{padding:0 16px;display:none!important;flex-direction:column;gap:14px}
+.screen.on{display:flex!important;animation:fu .3s ease}
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* CARDS */
@@ -94,9 +94,9 @@ textarea:focus,input[type=text]:focus{border-color:#4444aa}
 .divider{border-top:2px solid #1a1a35;margin:6px 0}
 
 /* NAV */
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#080818;border-top:2px solid #2a2a4a;padding:8px 8px 16px}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#080818;border-top:2px solid #2a2a4a;padding:8px 8px 16px}
 .nav-in{max-width:480px;margin:0 auto;display:flex;gap:4px}
-.nb{background:none;border:none;cursor:pointer;font-family:Heebo,sans-serif;font-size:11px;font-weight:900;color:#4444aa;padding:6px 4px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;transition:all .2s}
+.nb{background:none;border:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;font-family:Heebo,sans-serif;font-size:11px;font-weight:900;color:#4444aa;padding:6px 4px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;transition:all .2s}
 .nb.on{color:#ffffff;background:#1a1a35}
 .nb span{font-size:20px}
 
@@ -129,7 +129,7 @@ textarea:focus,input[type=text]:focus{border-color:#4444aa}
         <div class="rring">
           <svg width="100" height="100">
             <circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a35" stroke-width="8"/>
-            <circle id="rarc" cx="50" cy="50" r="42" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 264"/>
+            <circle id="rarc" cx="50" cy="50" r="42" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round" stroke-dasharray="184.7 79.2"/>
           </svg>
           <div class="rring-c">
             <div id="snum" style="font-size:32px;font-weight:900;line-height:1;color:#00ff88"></div>
@@ -384,10 +384,4 @@ function onFile(inp){
     };
   } else if(file.type.startsWith('image/')){
     var fr=new FileReader();
-    fr.onload=function(e){curMedia=e.target.result;curMediaType='image';showPreview();};
-    fr.readAsDataURL(file);
-  }
-}
-
-function showPreview(){
-  var html='<div cl
+    fr.onload=function(e){curMedia=e.target.result;curMediaType='image';sho
