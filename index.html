@@ -382,7 +382,7 @@ function loadWorldData(){
       }
     });
     var cities = Object.keys(cityMap).map(function(n){
-     return {n:n, s:Math.round(cityMap[n].total/cityMap[n].count), p:cityMap[n].count};
+    return {n:n, s:Math.round(cityMap[n].total/cityMap[n].count), p:cityMap[n].count};
     }).sort(function(a,b){return b.s-a.s;}).slice(0,10);
 
     var countryMap = {};
@@ -427,9 +427,8 @@ function renderLeadersReal(cities, countries){
     countries.forEach(function(c,i){var col=gc(c.s);cn+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' כניסות</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
   }
   el('wcountries').innerHTML = cn;
-}
-
-function renderGlobe(score){
+  }
+  function renderGlobe(score){
   var c = gc(score), svg = el('globesvg');
   svg.style.filter = 'drop-shadow(0 0 25px '+c+'66)';
   svg.innerHTML = '<defs><radialGradient id="rg1" cx="38%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient><radialGradient id="rg2" cx="50%" cy="50%"><stop offset="0%" stop-color="'+c+'" stop-opacity="0.6"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0.1"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="78"/></clipPath></defs><circle cx="100" cy="100" r="88" fill="'+c+'" fill-opacity="0.06"/><circle cx="100" cy="100" r="78" fill="#080818"/><circle cx="100" cy="100" r="78" fill="url(#rg2)"/><g clip-path="url(#gc)" fill="none" stroke="'+c+'" stroke-opacity="0.2" stroke-width="1"><ellipse cx="100" cy="100" rx="78" ry="18"/><ellipse cx="100" cy="100" rx="78" ry="40"/><ellipse cx="100" cy="100" rx="78" ry="62"/><line x1="22" y1="100" x2="178" y2="100"/><line x1="100" y1="22" x2="100" y2="178"/></g><circle cx="100" cy="100" r="78" fill="url(#rg1)"/><circle cx="100" cy="100" r="78" fill="none" stroke="'+c+'" stroke-opacity="0.5" stroke-width="2"/>';
@@ -444,8 +443,16 @@ function renderMap(){
   MAPC.forEach(function(c){var col=gc(c.s),cx=c.x/100*W,cy=c.y/100*H,r=c.r*3;html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="0.25" stroke="'+col+'" stroke-width="1"/><circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.35+1)+'" fill="'+col+'"/>';if(r>8)html+='<text x="'+cx+'" y="'+(cy+r+7)+'" text-anchor="middle" fill="'+col+'" font-size="5.5" font-family="Heebo,sans-serif">'+c.n+'</text>';});
   html+='</svg>';
   el('mapwrap').innerHTML = html;
-  }
-  function renderWeekCard(){
+}
+
+function renderWChart(id,data,labels){
+  var e = el(id); if(!e)return;
+  var html='';
+  for(var i=0;i<data.length;i++){var v=data[i]||0,isL=i===data.length-1,c=gc(v||68),h=Math.max((v/100)*52,3);html+='<div class="wb"><div class="wbbar" style="height:'+h+'px;background:'+c+';opacity:'+(isL?1:0.5)+'"></div><div class="wblbl">'+labels[i]+'</div></div>';}
+  e.innerHTML=html;
+}
+
+function renderWeekCard(){
   var e=allE();var wc=el('weekcard');
   if(e.length<2){if(wc)wc.style.display='none';return;}
   if(wc)wc.style.display='block';
@@ -470,7 +477,6 @@ function renderHeader(){
   var s=0,d=new Date();while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
   var b=el('streak');if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';
 }
-
 function loadToday(){
   var e=entries[tod()];if(!e)return;
   curScore=e.score;el('srange').value=e.score;
@@ -499,7 +505,10 @@ function renderHistory(){
   e.forEach(function(en){var c=gc(en.score);html+='<div class="erow" data-date="'+en.date+'"><div style="flex:1;min-width:0"><div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'+(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+(en.city?'<div style="font-size:11px;color:#66a;margin-top:2px">📍 '+en.city+(en.country?', '+en.country:'')+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';});
   el('hlist').innerHTML=html;
   el('hlist').querySelectorAll('.erow').forEach(function(r){r.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
- 
+
+  var byM={};e.forEach(function(en){var m=en.date.slice(0,7);if(!byM[m])byM[m]=[];byM[m].push(en);});
+  var months=Object.keys(byM).sort(function(a,b){return b.localeCompare(a);});
+  var mh='<div class="stabs" id="mtabs">';
   months.forEach(function(m,i){mh+='<button class="stab'+(i===0?' on':'')+'" data-month="'+m+'">'+fm(m)+'</button>';});
   mh+='</div>';
   months.forEach(function(m,i){
@@ -511,7 +520,7 @@ function renderHistory(){
   el('hmonth').querySelectorAll('.erow').forEach(function(r){r.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
   el('hmonth').querySelectorAll('[data-month]').forEach(function(btn){btn.addEventListener('click',function(){var m=this.getAttribute('data-month');el('hmonth').querySelectorAll('[data-month]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('hmonth').querySelectorAll('[id^="mo-"]').forEach(function(e2){e2.style.display='none';});var mo=el('mo-'+m);if(mo)mo.style.display='block';});});
 
-  if(!e.length)return;
+if(!e.length)return;
   var avg=Math.round(e.reduce(function(a,b){return a+b.score;},0)/e.length);
   var best=Math.max.apply(null,e.map(function(x){return x.score;}));
   var worst=Math.min.apply(null,e.map(function(x){return x.score;}));
@@ -554,7 +563,7 @@ function openM(date){
 }
 function closeM(){el('modal').classList.remove('on');}
 
-function makestars(){var html='';for(var i=0;i<50;i++){var x=((i*137.5)%100),y=((i*97.3)%100),sz=(i%3)+1,op=0.04+(i%5)*0.025;html+='<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:#fff;opacity:'+op+'"></div>';}el('stars').innerHTML=html;}
+ function makestars(){var html='';for(var i=0;i<50;i++){var x=((i*137.5)%100),y=((i*97.3)%100),sz=(i%3)+1,op=0.04+(i%5)*0.025;html+='<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:#fff;opacity:'+op+'"></div>';}el('stars').innerHTML=html;}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function(){
@@ -570,7 +579,8 @@ window.addEventListener('DOMContentLoaded', function(){
   renderMap();
   renderWeekCard();
   renderVsCard();
- // NAV
+
+  // NAV
   document.querySelectorAll('.nb').forEach(function(btn){
     btn.addEventListener('click', function(){goTo(this.getAttribute('data-screen'));});
   });
@@ -595,7 +605,7 @@ window.addEventListener('DOMContentLoaded', function(){
     }
   });
 
-  // MODAL
+    // MODAL
   el('modal-close').addEventListener('click', closeM);
   el('modal').addEventListener('click', function(e){if(e.target===this)closeM();});
 
@@ -630,4 +640,4 @@ window.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 </body>
-</html> 
+</html>
