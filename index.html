@@ -80,7 +80,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
       <div class="hsub" id="hdays"></div>
     </div>
   </div>
-
+  
   <!-- TODAY -->
   <div class="screen on" id="s-today">
     <div class="card">
@@ -131,7 +131,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
       <input type="file" id="finput" accept="image/*,video/*" style="display:none">
     </div>
 
-        <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55)">💾 שמור את היום</button>
+    <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55)">💾 שמור את היום</button>
 
     <div class="card" id="weekcard" style="display:none">
       <span class="lbl">השבוע שלי</span>
@@ -144,7 +144,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
       <div id="vsdiff" style="text-align:center;margin-top:10px;font-size:14px;color:#88c"></div>
     </div>
   </div>
-
+  
   <!-- WORLD -->
   <div class="screen" id="s-world">
     <div style="text-align:center;padding:8px 0">
@@ -289,7 +289,7 @@ function saveSt(){localStorage.setItem(SK,JSON.stringify(entries));}
 function showToast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
 function el(id){return document.getElementById(id);}
 
-// ── UI ────────────────────────────────────────────────────────────────────────
+ // ── UI ────────────────────────────────────────────────────────────────────────
 function updateUI(s){
   curScore = parseInt(s);
   var c = gc(curScore);
@@ -303,8 +303,8 @@ function updateUI(s){
   el('srange').style.background = 'linear-gradient(to right,'+c+' '+curScore+'%,#1a1a35 '+curScore+'%)';
 }
 
-function goTo(name){  
- document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+function goTo(name){
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
   var nb = document.querySelector('.nb[data-screen="'+name+'"]');
   if(nb) nb.classList.add('on');
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');s.style.display='none';});
@@ -351,8 +351,7 @@ function saveEntry(){
   renderHeader();
   renderWeekCard();
   renderVsCard();
-  } 
-
+}
 
 // ── WORLD DATA FROM SUPABASE ──────────────────────────────────────────────────
 function loadWorldData(){
@@ -428,9 +427,9 @@ function renderLeadersReal(cities, countries){
     countries.forEach(function(c,i){var col=gc(c.s);cn+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' כניסות</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
   }
   el('wcountries').innerHTML = cn;
-  }
+}
 
- function renderGlobe(score){
+function renderGlobe(score){
   var c = gc(score), svg = el('globesvg');
   svg.style.filter = 'drop-shadow(0 0 25px '+c+'66)';
   svg.innerHTML = '<defs><radialGradient id="rg1" cx="38%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient><radialGradient id="rg2" cx="50%" cy="50%"><stop offset="0%" stop-color="'+c+'" stop-opacity="0.6"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0.1"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="78"/></clipPath></defs><circle cx="100" cy="100" r="88" fill="'+c+'" fill-opacity="0.06"/><circle cx="100" cy="100" r="78" fill="#080818"/><circle cx="100" cy="100" r="78" fill="url(#rg2)"/><g clip-path="url(#gc)" fill="none" stroke="'+c+'" stroke-opacity="0.2" stroke-width="1"><ellipse cx="100" cy="100" rx="78" ry="18"/><ellipse cx="100" cy="100" rx="78" ry="40"/><ellipse cx="100" cy="100" rx="78" ry="62"/><line x1="22" y1="100" x2="178" y2="100"/><line x1="100" y1="22" x2="100" y2="178"/></g><circle cx="100" cy="100" r="78" fill="url(#rg1)"/><circle cx="100" cy="100" r="78" fill="none" stroke="'+c+'" stroke-opacity="0.5" stroke-width="2"/>';
@@ -474,7 +473,7 @@ function renderVsCard(){
   el('vsdiff').textContent=d>0?'+'+d+' מעל הממוצע':d<0?d+' מתחת לממוצע':'בדיוק בממוצע';
 }
 
-function renderHeader(){
+ function renderHeader(){
   var e=allE();el('hdays').textContent=e.length+' ימים';
   var s=0,d=new Date();while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
   var b=el('streak');if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';
@@ -583,7 +582,7 @@ window.addEventListener('DOMContentLoaded', function(){
   renderWeekCard();
   renderVsCard();
 
-    // NAV
+  // NAV
   document.querySelectorAll('.nb').forEach(function(btn){
     btn.addEventListener('click', function(){goTo(this.getAttribute('data-screen'));});
   });
@@ -643,5 +642,4 @@ window.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 </body>
-</html>
-  
+</html> 
