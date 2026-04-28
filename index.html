@@ -80,7 +80,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
       <div class="hsub" id="hdays"></div>
     </div>
   </div>
-  
+
   <!-- TODAY -->
   <div class="screen on" id="s-today">
     <div class="card">
@@ -110,7 +110,11 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
         <div><input type="text" id="city" placeholder="עיר"></div>
         <div><input type="text" id="country" placeholder="מדינה"></div>
       </div>
-      <div style="font-size:11px;color:#446;text-align:center;margin-top:6px">📍 אנונימי — אין שמות, אין זיהוי</div>
+      <button id="loc-btn" style="width:100%;margin-top:8px;border:2px solid #2a2a4a;border-radius:10px;background:#0d0d20;color:#88c;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span id="loc-icon">📍</span>
+        <span id="loc-text">זהה מיקום אוטומטית</span>
+      </button>
+      <div style="font-size:11px;color:#446;text-align:center;margin-top:6px">אנונימי — עיר ומדינה בלבד, ללא כתובת מדויקת</div>
     </div>
 
     <div>
@@ -144,7 +148,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
       <div id="vsdiff" style="text-align:center;margin-top:10px;font-size:14px;color:#88c"></div>
     </div>
   </div>
-  
+
   <!-- WORLD -->
   <div class="screen" id="s-world">
     <div style="text-align:center;padding:8px 0">
@@ -289,7 +293,7 @@ function saveSt(){localStorage.setItem(SK,JSON.stringify(entries));}
 function showToast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
 function el(id){return document.getElementById(id);}
 
- // ── UI ────────────────────────────────────────────────────────────────────────
+// ── UI ────────────────────────────────────────────────────────────────────────
 function updateUI(s){
   curScore = parseInt(s);
   var c = gc(curScore);
@@ -359,9 +363,9 @@ function loadWorldData(){
   sb.from('entries').select('score,city,country').gte('created_at', today+'T00:00:00').then(function(res){
     if(res.error || !res.data || !res.data.length){
       el('gnum').textContent = '--';
-      el('gtotal').textContent = 'אין נתונים להיום עדיין';
+      el('gtotal').textContent = 'אין נתונים להיום — היה הראשון!';
       renderLeadersMock();
-      renderMap();
+      renderMapEmpty();
       return;
     }
     var data = res.data;
@@ -399,19 +403,14 @@ function loadWorldData(){
 
     renderGlobe(avg);
     renderLeadersReal(cities, countries);
-    renderMap();
+    renderMapReal(countryMap);
   });
 }
 
 function renderLeadersMock(){
-  var CITIES = [{n:'Tel Aviv',f:'🇮🇱',s:74,p:4102},{n:'Auckland',f:'🇳🇿',s:79,p:1243},{n:'Copenhagen',f:'🇩🇰',s:77,p:2891},{n:'Amsterdam',f:'🇳🇱',s:73,p:3340},{n:'Tokyo',f:'🇯🇵',s:72,p:8821},{n:'Berlin',f:'🇩🇪',s:71,p:5210}];
-  var COUNTRIES = [{n:'Finland',f:'🇫🇮',s:78,p:18200},{n:'Denmark',f:'🇩🇰',s:77,p:15400},{n:'Israel',f:'🇮🇱',s:72,p:28900},{n:'Netherlands',f:'🇳🇱',s:71,p:22100},{n:'Sweden',f:'🇸🇪',s:70,p:19800}];
-  var ch='';
-  CITIES.forEach(function(c,i){var col=gc(c.s);ch+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="font-size:20px">'+c.f+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p.toLocaleString()+' אנשים</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
-  el('wcities').innerHTML = ch + '<div style="font-size:11px;color:#446;text-align:center;padding:8px">* נתונים לדוגמה — ימלאו כשיהיו משתמשים</div>';
-  var cn='';
-  COUNTRIES.forEach(function(c,i){var col=gc(c.s);cn+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="font-size:20px">'+c.f+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p.toLocaleString()+' אנשים</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
-  el('wcountries').innerHTML = cn;
+  var empty = '<div class="empty"><div style="font-size:36px;margin-bottom:10px">🌍</div><div style="font-size:14px;color:#446">אין נתונים עדיין להיום<br>היה הראשון לשמור!</div></div>';
+  el('wcities').innerHTML = empty;
+  el('wcountries').innerHTML = empty;
 }
 
 function renderLeadersReal(cities, countries){
@@ -435,15 +434,39 @@ function renderGlobe(score){
   svg.innerHTML = '<defs><radialGradient id="rg1" cx="38%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient><radialGradient id="rg2" cx="50%" cy="50%"><stop offset="0%" stop-color="'+c+'" stop-opacity="0.6"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0.1"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="78"/></clipPath></defs><circle cx="100" cy="100" r="88" fill="'+c+'" fill-opacity="0.06"/><circle cx="100" cy="100" r="78" fill="#080818"/><circle cx="100" cy="100" r="78" fill="url(#rg2)"/><g clip-path="url(#gc)" fill="none" stroke="'+c+'" stroke-opacity="0.2" stroke-width="1"><ellipse cx="100" cy="100" rx="78" ry="18"/><ellipse cx="100" cy="100" rx="78" ry="40"/><ellipse cx="100" cy="100" rx="78" ry="62"/><line x1="22" y1="100" x2="178" y2="100"/><line x1="100" y1="22" x2="100" y2="178"/></g><circle cx="100" cy="100" r="78" fill="url(#rg1)"/><circle cx="100" cy="100" r="78" fill="none" stroke="'+c+'" stroke-opacity="0.5" stroke-width="2"/>';
 }
 
-function renderMap(){
+function renderMapEmpty(){
   var W=360,H=180,html='<svg viewBox="0 0 '+W+' '+H+'" style="background:#05050e;display:block;width:100%">';
   html+='<g stroke="#1a1a35" stroke-width="0.5">';
   for(var x=0;x<=W;x+=60)html+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'"/>';
   for(var y=0;y<=H;y+=45)html+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'"/>';
   html+='</g>';
-  MAPC.forEach(function(c){var col=gc(c.s),cx=c.x/100*W,cy=c.y/100*H,r=c.r*3;html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="0.25" stroke="'+col+'" stroke-width="1"/><circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.35+1)+'" fill="'+col+'"/>';if(r>8)html+='<text x="'+cx+'" y="'+(cy+r+7)+'" text-anchor="middle" fill="'+col+'" font-size="5.5" font-family="Heebo,sans-serif">'+c.n+'</text>';});
+  html+='<text x="180" y="95" text-anchor="middle" fill="#2a2a5a" font-size="12" font-family="Heebo,sans-serif">אין נתונים עדיין — שמור את הציון שלך!</text>';
   html+='</svg>';
   el('mapwrap').innerHTML = html;
+}
+
+function renderMapReal(countryMap){
+  var W=360,H=180,html='<svg viewBox="0 0 '+W+' '+H+'" style="background:#05050e;display:block;width:100%">';
+  html+='<g stroke="#1a1a35" stroke-width="0.5">';
+  for(var x=0;x<=W;x+=60)html+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'"/>';
+  for(var y=0;y<=H;y+=45)html+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'"/>';
+  html+='</g>';
+  MAPC.forEach(function(c){
+    var score = countryMap[c.n] ? Math.round(countryMap[c.n].total/countryMap[c.n].count) : null;
+    var col = score ? gc(score) : '#2a2a4a';
+    var op = score ? '0.35' : '0.1';
+    var cx=c.x/100*W,cy=c.y/100*H,r=c.r*3;
+    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="'+op+'" stroke="'+col+'" stroke-width="1" stroke-opacity="'+(score?'0.7':'0.2')+'"/>';
+    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.35+1)+'" fill="'+col+'" fill-opacity="'+(score?'1':'0.2')+'"/>';
+    if(r>8 && score)html+='<text x="'+cx+'" y="'+(cy+2)+'" text-anchor="middle" fill="#fff" font-size="6" font-family="Heebo,sans-serif" font-weight="bold">'+score+'</text>';
+    if(r>8)html+='<text x="'+cx+'" y="'+(cy+r+7)+'" text-anchor="middle" fill="'+col+'" font-size="5.5" font-family="Heebo,sans-serif" opacity="'+(score?'0.8':'0.3')+'">'+c.n+'</text>';
+  });
+  html+='</svg>';
+  el('mapwrap').innerHTML = html;
+}
+
+function renderMap(){
+  renderMapEmpty();
 }
 
 function renderWChart(id,data,labels){
@@ -473,7 +496,7 @@ function renderVsCard(){
   el('vsdiff').textContent=d>0?'+'+d+' מעל הממוצע':d<0?d+' מתחת לממוצע':'בדיוק בממוצע';
 }
 
- function renderHeader(){
+function renderHeader(){
   var e=allE();el('hdays').textContent=e.length+' ימים';
   var s=0,d=new Date();while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
   var b=el('streak');if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';
@@ -567,6 +590,59 @@ function closeM(){el('modal').classList.remove('on');}
 
 function makestars(){var html='';for(var i=0;i<50;i++){var x=((i*137.5)%100),y=((i*97.3)%100),sz=(i%3)+1,op=0.04+(i%5)*0.025;html+='<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:#fff;opacity:'+op+'"></div>';}el('stars').innerHTML=html;}
 
+// ── LOCATION ─────────────────────────────────────────────────────────────────
+function detectLocation(){
+  var btn = el('loc-btn');
+  var icon = el('loc-icon');
+  var txt = el('loc-text');
+  if(!navigator.geolocation){
+    txt.textContent = 'מיקום לא נתמך בדפדפן זה';
+    return;
+  }
+  icon.textContent = '⏳';
+  txt.textContent = 'מזהה מיקום...';
+  btn.style.opacity = '0.7';
+  btn.disabled = true;
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      var lat = pos.coords.latitude;
+      var lng = pos.coords.longitude;
+      // Use reverse geocoding via free API
+      fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&accept-language=he')
+        .then(function(r){return r.json();})
+        .then(function(data){
+          var addr = data.address || {};
+          var city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
+          var country = addr.country || '';
+          if(city) el('city').value = city;
+          if(country) el('country').value = country;
+          icon.textContent = '✅';
+          txt.textContent = city ? (city + (country ? ', ' + country : '')) : 'זוהה!';
+          btn.style.background = '#00ff8822';
+          btn.style.borderColor = '#00ff88';
+          btn.style.color = '#00ff88';
+          btn.disabled = false;
+        })
+        .catch(function(){
+          // Fallback - just show coordinates area
+          icon.textContent = '📍';
+          txt.textContent = 'לא הצלחנו לזהות — הזן ידנית';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        });
+    },
+    function(err){
+      icon.textContent = '❌';
+      if(err.code === 1) txt.textContent = 'אישור מיקום נדחה';
+      else txt.textContent = 'שגיאה בזיהוי מיקום';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    },
+    {timeout: 10000, enableHighAccuracy: false}
+  );
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function(){
   try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(err){}
@@ -578,7 +654,7 @@ window.addEventListener('DOMContentLoaded', function(){
   renderGlobe(68);
   renderWChart('worldchart', GW, WL);
   renderLeadersMock();
-  renderMap();
+  renderMapEmpty();
   renderWeekCard();
   renderVsCard();
 
@@ -593,6 +669,9 @@ window.addEventListener('DOMContentLoaded', function(){
 
   // SAVE
   el('savebtn').addEventListener('click', saveEntry);
+
+  // LOCATION
+  el('loc-btn').addEventListener('click', detectLocation);
 
   // UPLOAD
   el('uzone-btn').addEventListener('click', function(){el('finput').click();});
@@ -642,4 +721,4 @@ window.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 </body>
-</html> 
+</html>
