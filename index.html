@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a14;font-family:Heebo,sans-serif;color:#fff;font-weight:600;padding-bottom:80px}
+body{background:#0a0a14;font-family:Heebo,sans-serif;color:#fff;font-weight:600;padding-bottom:80px;min-height:100vh}
 .wrap{max-width:480px;margin:0 auto;padding:0 16px}
 .hdr{padding:20px 0 16px;display:flex;justify-content:space-between;align-items:flex-start}
 .htitle{font-size:24px;font-weight:900}
@@ -21,18 +21,20 @@ body{background:#0a0a14;font-family:Heebo,sans-serif;color:#fff;font-weight:600;
 input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;border:none;display:block;margin:8px 0}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;cursor:pointer;border:3px solid #0a0a14;box-shadow:0 0 0 3px #00ff88}
 .rmarks{display:flex;justify-content:space-between;font-size:11px;color:#66a;direction:ltr}
-textarea,input[type=text]{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;color:#fff;font-family:Heebo,sans-serif;font-size:15px;padding:12px 14px;width:100%;outline:none;resize:none;display:block;font-weight:600}
-textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
+textarea,input[type=text],input[type=search],select{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;color:#fff;font-family:Heebo,sans-serif;font-size:15px;padding:12px 14px;width:100%;outline:none;resize:none;display:block;font-weight:600}
+textarea::placeholder,input::placeholder{color:#3a3a6a}
+input:focus,textarea:focus,select:focus{border-color:#4444aa}
+select option{background:#0d0d20;color:#fff}
 .row2{display:flex;gap:10px}
 .row2>div{flex:1}
 .uzone{border:2px dashed #2a2a5a;border-radius:12px;padding:22px;text-align:center;background:#0d0d20;cursor:pointer}
 .mprev{position:relative;border-radius:12px;overflow:hidden}
 .mprev img,.mprev video{width:100%;max-height:200px;object-fit:cover;display:block}
 .mrem{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.85);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;line-height:28px;text-align:center;cursor:pointer}
-.sbtn{width:100%;border:none;border-radius:13px;font-family:Heebo,sans-serif;font-size:17px;font-weight:900;padding:16px;cursor:pointer;color:#000;display:block}
-.abtn{border:2px solid #2a2a4a;border-radius:12px;padding:14px;background:#13132a;color:#fff;font-family:Heebo,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:10px;cursor:pointer}
+.sbtn{width:100%;border:none;border-radius:13px;font-family:Heebo,sans-serif;font-size:17px;font-weight:900;padding:16px;cursor:pointer;display:block}
+.obtn{border:2px solid #2a2a4a;border-radius:12px;padding:14px;background:#13132a;color:#fff;font-family:Heebo,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:10px;cursor:pointer}
 .stabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.stab{background:#13132a;border:2px solid #2a2a4a;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;color:#88b;cursor:pointer}
+.stab{background:#13132a;border:2px solid #2a2a4a;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:8px 14px;border-radius:20px;color:#88b;cursor:pointer;white-space:nowrap}
 .stab.on{color:#fff;background:#2a2a5a;border-color:#4444aa}
 .rring{position:relative;width:100px;height:100px;flex-shrink:0}
 .rring svg{position:absolute;inset:0;transform:rotate(-90deg)}
@@ -48,7 +50,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 .wbbar{width:100%;border-radius:3px 3px 0 0;min-height:3px}
 .wblbl{font-size:9px;color:#55a}
 .err{color:#ff4466;font-size:13px;margin-top:6px}
-.empty{text-align:center;color:#446;padding:50px 0}
+.empty{text-align:center;color:#446;padding:40px 0;font-size:14px}
 .nav{position:fixed;bottom:0;left:0;right:0;background:#080818;border-top:2px solid #2a2a4a;padding:8px 8px 16px;z-index:999}
 .nav-in{max-width:480px;margin:0 auto;display:flex;gap:4px}
 .nb{background:none;border:none;font-family:Heebo,sans-serif;font-size:11px;font-weight:900;color:#446;padding:8px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -60,9 +62,23 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 .mapwrap{background:#06060f;border-radius:10px;overflow:hidden}
 .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .content{position:relative;z-index:1}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00ff88;color:#000;font-family:Heebo,sans-serif;font-size:14px;font-weight:900;padding:12px 24px;border-radius:30px;z-index:2000;display:none;white-space:nowrap}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00ff88;color:#000;font-family:Heebo,sans-serif;font-size:14px;font-weight:900;padding:12px 24px;border-radius:30px;z-index:2000;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,255,136,.4)}
 .online-dot{width:8px;height:8px;border-radius:50%;background:#00ff88;display:inline-block;margin-left:6px;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.autocomplete-wrap{position:relative}
+.autocomplete-list{position:absolute;top:100%;right:0;left:0;background:#13132a;border:2px solid #4444aa;border-radius:10px;z-index:100;max-height:200px;overflow-y:auto;display:none}
+.autocomplete-item{padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #1a1a2e}
+.autocomplete-item:hover{background:#1a1a35}
+.autocomplete-item:last-child{border-bottom:none}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.status-opt{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#88b}
+.status-opt.on{border-color:#00ff88;color:#00ff88;background:#00ff8811}
+.chart-wrap{width:100%;overflow-x:auto}
+.chart-svg{display:block}
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;gap:20px}
+.google-btn{background:#fff;color:#333;border:none;border-radius:12px;font-family:Heebo,sans-serif;font-size:16px;font-weight:700;padding:14px 24px;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;justify-content:center}
+.profile-screen{display:flex;flex-direction:column;gap:16px;padding:20px 0}
+.user-chip{background:#13132a;border:1px solid #2a2a4a;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;color:#88c;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -70,158 +86,195 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 <div class="toast" id="toast"></div>
 <div class="content">
 <div class="wrap">
-  <div class="hdr">
-    <div>
-      <div class="htitle">מדד האושר 🌍<span class="online-dot" id="onlinedot" style="display:none"></span></div>
-      <div class="hsub" id="hdate"></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
-      <div class="badge" id="streak" style="display:none"></div>
-      <div class="hsub" id="hdays"></div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="s-login" style="display:none">
+    <div class="login-screen">
+      <div style="font-size:60px">🌍</div>
+      <div style="font-size:26px;font-weight:900">מדד האושר העולמי</div>
+      <div style="font-size:14px;color:#88c;line-height:1.7">כל יום · כל אחד · כל העולם<br>אנונימי לחלוטין</div>
+      <button class="google-btn" id="google-login-btn">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        כניסה עם Google
+      </button>
+      <div style="font-size:11px;color:#446">המידע שלך מאובטח ואנונימי לחלוטין</div>
     </div>
   </div>
 
-  <!-- TODAY -->
-  <div class="screen on" id="s-today">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div>
-          <span class="lbl">ציון היום</span>
-          <div id="slabel" style="font-size:18px;font-weight:900;color:#00ff88">יום טוב!</div>
+  <!-- PROFILE SETUP SCREEN -->
+  <div id="s-profile" style="display:none">
+    <div class="profile-screen">
+      <div style="font-size:22px;font-weight:900;text-align:center">ברוך הבא! 👋</div>
+      <div style="font-size:14px;color:#88c;text-align:center">מלא פעם אחת — הכל אנונימי</div>
+
+      <div>
+        <span class="lbl">מדינת מגורים</span>
+        <div class="autocomplete-wrap">
+          <input type="search" id="profile-country" placeholder="הקלד שם מדינה..." autocomplete="off">
+          <div class="autocomplete-list" id="country-list"></div>
         </div>
-        <div class="rring">
-          <svg width="100" height="100">
-            <circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a35" stroke-width="8"/>
-            <circle id="rarc" cx="50" cy="50" r="42" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round"/>
-          </svg>
-          <div class="rring-c">
-            <div id="snum" style="font-size:32px;font-weight:900;line-height:1;color:#00ff88">70</div>
-            <div id="semoji" style="font-size:20px">🙂</div>
+      </div>
+
+      <div>
+        <span class="lbl">עיר מגורים</span>
+        <div class="autocomplete-wrap">
+          <input type="search" id="profile-city" placeholder="הקלד שם עיר..." autocomplete="off">
+          <div class="autocomplete-list" id="city-list"></div>
+        </div>
+      </div>
+
+      <div>
+        <span class="lbl">מה אתה עושה בחיים?</span>
+        <div class="status-grid" id="status-grid">
+          <div class="status-opt" data-val="student">🎓 סטודנט</div>
+          <div class="status-opt" data-val="employed">💼 עובד/ת</div>
+          <div class="status-opt" data-val="self">🚀 עצמאי/ת</div>
+          <div class="status-opt" data-val="retired">🌴 גמלאי/ת</div>
+          <div class="status-opt" data-val="unemployed">🔍 מחפש/ת עבודה</div>
+          <div class="status-opt" data-val="other">✨ אחר</div>
+        </div>
+      </div>
+
+      <button class="sbtn" id="save-profile-btn" style="background:linear-gradient(135deg,#00ff88,#00aa55);color:#000">המשך ←</button>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="s-app" style="display:none">
+    <div class="hdr">
+      <div>
+        <div class="htitle">מדד האושר 🌍<span class="online-dot" id="onlinedot" style="display:none"></span></div>
+        <div class="hsub" id="hdate"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+        <div class="badge" id="streak" style="display:none"></div>
+        <div class="user-chip" id="user-chip" style="display:none">
+          <span>👤</span>
+          <span id="user-city-label"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TODAY -->
+    <div class="screen on" id="s-today">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div>
+            <span class="lbl">ציון היום</span>
+            <div id="slabel" style="font-size:18px;font-weight:900;color:#00ff88">יום טוב!</div>
+          </div>
+          <div class="rring">
+            <svg width="100" height="100">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#1a1a35" stroke-width="8"/>
+              <circle id="rarc" cx="50" cy="50" r="42" fill="none" stroke="#00ff88" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+            <div class="rring-c">
+              <div id="snum" style="font-size:32px;font-weight:900;line-height:1;color:#00ff88">70</div>
+              <div id="semoji" style="font-size:20px">🙂</div>
+            </div>
           </div>
         </div>
+        <input type="range" id="srange" min="0" max="100" value="70" dir="ltr">
+        <div class="rmarks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
       </div>
-      <input type="range" id="srange" min="0" max="100" value="70" dir="ltr">
-      <div class="rmarks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+
+      <div>
+        <span class="lbl">מה היה מיוחד?</span>
+        <textarea id="special" rows="3" placeholder="רגע אחד מהיום..."></textarea>
+      </div>
+
+      <div>
+        <span class="lbl">תמונה / סרטון (עד 10 שניות)</span>
+        <div id="uarea">
+          <div class="uzone" id="uzone-btn">
+            <div style="font-size:28px;margin-bottom:6px">📷</div>
+            <div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div>
+            <div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div>
+          </div>
+        </div>
+        <div class="err" id="verr" style="display:none"></div>
+        <input type="file" id="finput" accept="image/*,video/*" style="display:none">
+      </div>
+
+      <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55);color:#000">💾 שמור את היום</button>
+
+      <div class="card" id="weekcard" style="display:none">
+        <span class="lbl">השבוע שלי</span>
+        <div class="wchart" id="mywchart"></div>
+      </div>
+
+      <div class="card" id="vscard" style="display:none">
+        <span class="lbl">אתה מול העולם</span>
+        <div id="vsrows"></div>
+        <div id="vsdiff" style="text-align:center;margin-top:10px;font-size:14px;color:#88c"></div>
+      </div>
     </div>
 
-    <div>
-      <span class="lbl">מיקום (אנונימי)</span>
-      <div class="row2">
-        <div><input type="text" id="city" placeholder="עיר"></div>
-        <div><input type="text" id="country" placeholder="מדינה"></div>
+    <!-- WORLD -->
+    <div class="screen" id="s-world">
+      <div style="text-align:center;padding:8px 0">
+        <div style="position:relative;width:160px;height:160px;margin:0 auto">
+          <svg id="globesvg" viewBox="0 0 200 200" width="160" height="160"></svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div id="gnum" style="font-size:48px;font-weight:900;line-height:1;color:#00ff88">--</div>
+            <div style="font-size:13px;color:#88c;font-weight:700">ציון גלובלי היום</div>
+          </div>
+        </div>
+        <div id="gtotal" style="font-size:13px;color:#66a;margin-top:10px;font-weight:700">טוען...</div>
       </div>
-      <button id="loc-btn" style="width:100%;margin-top:8px;border:2px solid #2a2a4a;border-radius:10px;background:#0d0d20;color:#88c;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;padding:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-        <span id="loc-icon">📍</span>
-        <span id="loc-text">זהה מיקום אוטומטית</span>
+      <div class="stabs" id="wtabs">
+        <button class="stab on" data-tab="cities">🏙️ ערים</button>
+        <button class="stab" data-tab="countries">🌐 מדינות</button>
+        <button class="stab" data-tab="map">🗺️ מפה</button>
+      </div>
+      <div id="wcities"></div>
+      <div id="wcountries" style="display:none"></div>
+      <div id="wmap" style="display:none">
+        <div class="card" style="padding:12px">
+          <span class="lbl" style="margin-bottom:8px">מפה עולמית</span>
+          <div class="mapwrap" id="mapwrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="screen" id="s-history">
+      <div class="stabs" id="htabs">
+        <button class="stab on" data-tab="mine">📋 שלי</button>
+        <button class="stab" data-tab="world">🌍 עולמי</button>
+        <button class="stab" data-tab="stats">📊 סטטס</button>
+      </div>
+      <div id="h-mine"></div>
+      <div id="h-world" style="display:none"></div>
+      <div id="h-stats" style="display:none"></div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="screen" id="s-export">
+      <div class="card">
+        <div style="font-size:17px;font-weight:900;margin-bottom:6px">💾 ייצוא הנתונים</div>
+        <div id="expinfo" style="font-size:14px;color:#88c;line-height:1.7"></div>
+      </div>
+      <button class="obtn" id="btn-csv">
+        <span style="font-size:24px">📊</span>
+        <div><div style="font-weight:900">ייצא כ-CSV</div><div style="font-size:12px;color:#66a">נפתח ב-Excel</div></div>
       </button>
-      <div style="font-size:11px;color:#446;text-align:center;margin-top:6px">אנונימי — עיר ומדינה בלבד, ללא כתובת מדויקת</div>
-    </div>
-
-    <div>
-      <span class="lbl">מה היה מיוחד?</span>
-      <textarea id="special" rows="3" placeholder="רגע אחד מהיום..."></textarea>
-    </div>
-
-    <div>
-      <span class="lbl">תמונה / סרטון (עד 10 שניות)</span>
-      <div id="uarea">
-        <div class="uzone" id="uzone-btn">
-          <div style="font-size:28px;margin-bottom:6px">📷</div>
-          <div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div>
-          <div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div>
-        </div>
-      </div>
-      <div class="err" id="verr" style="display:none"></div>
-      <input type="file" id="finput" accept="image/*,video/*" style="display:none">
-    </div>
-
-    <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55)">💾 שמור את היום</button>
-
-    <div class="card" id="weekcard" style="display:none">
-      <span class="lbl">השבוע שלי</span>
-      <div class="wchart" id="mywchart"></div>
-    </div>
-
-    <div class="card" id="vscard" style="display:none">
-      <span class="lbl">אתה מול העולם</span>
-      <div id="vsrows"></div>
-      <div id="vsdiff" style="text-align:center;margin-top:10px;font-size:14px;color:#88c"></div>
+      <button class="obtn" id="btn-json">
+        <span style="font-size:24px">💾</span>
+        <div><div style="font-weight:900">ייצא כ-JSON</div><div style="font-size:12px;color:#66a">גיבוי מלא</div></div>
+      </button>
+      <div id="expmsg" style="display:none;text-align:center;color:#00ff88;font-weight:900;padding:10px;font-size:16px"></div>
+      <button class="obtn" id="btn-logout" style="border-color:#ff4466;color:#ff4466;margin-top:8px">
+        <span style="font-size:24px">🚪</span>
+        <div><div style="font-weight:900">התנתק</div></div>
+      </button>
     </div>
   </div>
 
-  <!-- WORLD -->
-  <div class="screen" id="s-world">
-    <div style="text-align:center;padding:8px 0">
-      <div style="position:relative;width:160px;height:160px;margin:0 auto">
-        <svg id="globesvg" viewBox="0 0 200 200" width="160" height="160"></svg>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div id="gnum" style="font-size:48px;font-weight:900;line-height:1;color:#00ff88">--</div>
-          <div style="font-size:13px;color:#88c;font-weight:700">ציון גלובלי היום</div>
-        </div>
-      </div>
-      <div id="gtotal" style="font-size:13px;color:#66a;margin-top:10px;font-weight:700">טוען נתונים...</div>
-    </div>
-
-    <div class="card">
-      <span class="lbl">מגמה עולמית — 7 ימים</span>
-      <div class="wchart" id="worldchart"></div>
-    </div>
-
-    <div class="stabs" id="wtabs">
-      <button class="stab on" data-tab="cities">🏙️ ערים</button>
-      <button class="stab" data-tab="countries">🌐 מדינות</button>
-      <button class="stab" data-tab="map">🗺️ מפה</button>
-    </div>
-    <div id="wcities"></div>
-    <div id="wcountries" style="display:none"></div>
-    <div id="wmap" style="display:none">
-      <div class="card" style="padding:12px">
-        <span class="lbl" style="margin-bottom:8px">מפה עולמית</span>
-        <div class="mapwrap" id="mapwrap"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="screen" id="s-history">
-    <div class="stabs" id="htabs">
-      <button class="stab on" data-tab="list">📋 רשימה</button>
-      <button class="stab" data-tab="month">📆 חודש</button>
-      <button class="stab" data-tab="stats">📊 סטטס</button>
-    </div>
-    <div id="hlist"></div>
-    <div id="hmonth" style="display:none"></div>
-    <div id="hstats" style="display:none"></div>
-  </div>
-
-  <!-- EXPORT -->
-  <div class="screen" id="s-export">
-    <div class="card">
-      <div style="font-size:17px;font-weight:900;margin-bottom:6px">💾 ייצוא הנתונים</div>
-      <div id="expinfo" style="font-size:14px;color:#88c;line-height:1.7"></div>
-    </div>
-    <button class="abtn" id="btn-csv">
-      <span style="font-size:24px">📊</span>
-      <div><div style="font-weight:900">ייצא כ-CSV</div><div style="font-size:12px;color:#66a">נפתח ב-Excel</div></div>
-    </button>
-    <button class="abtn" id="btn-json">
-      <span style="font-size:24px">💾</span>
-      <div><div style="font-weight:900">ייצא כ-JSON</div><div style="font-size:12px;color:#66a">גיבוי מלא</div></div>
-    </button>
-    <div id="expmsg" style="display:none;text-align:center;color:#00ff88;font-weight:900;padding:10px;font-size:16px"></div>
-    <div style="border-top:2px solid #1a1a35;padding-top:12px;margin-top:4px">
-      <span class="lbl">שיתוף יום בודד</span>
-      <div id="sharelist"></div>
-    </div>
-    <div class="card" style="background:#0d0d20;margin-top:4px">
-      <span class="lbl">📌 אחסון</span>
-      <div id="storinfo" style="font-size:14px;color:#88c;line-height:1.8"></div>
-    </div>
-  </div>
 </div>
 </div>
 
-<nav class="nav">
+<nav class="nav" id="main-nav" style="display:none">
   <div class="nav-in">
     <button class="nb on" data-screen="today"><span>✍️</span>היום</button>
     <button class="nb" data-screen="world"><span>🌍</span>עולם</button>
@@ -230,6 +283,7 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
   </div>
 </nav>
 
+<!-- ENTRY MODAL -->
 <div class="mbg" id="modal">
   <div class="mbox">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
@@ -251,237 +305,322 @@ textarea::placeholder,input[type=text]::placeholder{color:#3a3a6a}
 
 <script>
 (function(){
+var SUPA_URL='https://ngtgxpmzksdtoegezrfp.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ndGd4cG16a3NkdG9lZ2V6cmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNTQ5OTksImV4cCI6MjA5MjgzMDk5OX0.ohzQUhio626yt-MC5PPM9Yw1R_--MgrrKItHvzzaZ_g';
+var sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+var SK='whi-v5';
+var entries={},curScore=70,curMedia=null,curMediaType=null;
+var currentUser=null,userProfile=null;
+var selectedStatus='';
+var GW=[62,65,71,68,74,70,68];
+var WL=['ב','ג','ד','ה','ו','ש','א'];
+var MAPC=[{n:'USA',s:0,x:18,y:38,r:7},{n:'Canada',s:0,x:18,y:25,r:6},{n:'Brazil',s:0,x:28,y:62,r:6},{n:'UK',s:0,x:45,y:28,r:2.5},{n:'Germany',s:0,x:49,y:29,r:2.5},{n:'Sweden',s:0,x:50,y:22,r:2.5},{n:'Finland',s:0,x:52,y:19,r:2.5},{n:'Russia',s:0,x:62,y:24,r:9},{n:'Israel',s:0,x:55,y:38,r:2},{n:'India',s:0,x:65,y:43,r:5},{n:'China',s:0,x:72,y:37,r:7},{n:'Japan',s:0,x:80,y:34,r:2.5},{n:'Australia',s:0,x:77,y:62,r:6},{n:'NZ',s:0,x:84,y:68,r:2}];
 
-// ── SUPABASE ──────────────────────────────────────────────────────────────────
-var SUPA_URL = 'https://ngtgxpmzksdtoegezrfp.supabase.co';
-var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ndGd4cG16a3NkdG9lZ2V6cmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNTQ5OTksImV4cCI6MjA5MjgzMDk5OX0.ohzQUhio626yt-MC5PPM9Yw1R_--MgrrKItHvzzaZ_g';
-var sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+// Countries list
+var COUNTRIES=['Afghanistan','Albania','Algeria','Argentina','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia','Brazil','Bulgaria','Cambodia','Canada','Chile','China','Colombia','Croatia','Cuba','Czech Republic','Denmark','Ecuador','Egypt','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mexico','Morocco','Netherlands','New Zealand','Nigeria','Norway','Pakistan','Palestine','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Saudi Arabia','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Thailand','Tunisia','Turkey','UAE','UK','USA','Ukraine','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen'];
 
-// ── DEVICE ID ─────────────────────────────────────────────────────────────────
-var SK = 'whi-v4';
-var did = localStorage.getItem('device_id');
-if(!did){ did = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('device_id', did); }
-
-// ── LOCAL DATA ────────────────────────────────────────────────────────────────
-var entries = {};
-var curScore = 70, curMedia = null, curMediaType = null;
-
-// ── MOCK WORLD DATA ───────────────────────────────────────────────────────────
-var GW = [62,65,71,68,74,70,68];
-var WL = ['ב','ג','ד','ה','ו','ש','א'];
-var MAPC = [
-  {n:'USA',s:65,x:18,y:38,r:7},{n:'Canada',s:72,x:18,y:25,r:6},
-  {n:'Brazil',s:63,x:28,y:62,r:6},{n:'UK',s:69,x:45,y:28,r:2.5},
-  {n:'Germany',s:68,x:49,y:29,r:2.5},{n:'Sweden',s:70,x:50,y:22,r:2.5},
-  {n:'Finland',s:78,x:52,y:19,r:2.5},{n:'Russia',s:54,x:62,y:24,r:9},
-  {n:'Israel',s:72,x:55,y:38,r:2},{n:'India',s:58,x:65,y:43,r:5},
-  {n:'China',s:61,x:72,y:37,r:7},{n:'Japan',s:67,x:80,y:34,r:2.5},
-  {n:'Australia',s:69,x:77,y:62,r:6},{n:'NZ',s:79,x:84,y:68,r:2}
-];
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-function gc(s){if(s<=20)return'#ff2d55';if(s<=40)return'#ff7c2a';if(s<=60)return'#ffd700';if(s<=80)return'#00ff88';return'#00d4ff';}
+function gc(s){if(!s)return'#2a2a4a';if(s<=20)return'#ff2d55';if(s<=40)return'#ff7c2a';if(s<=60)return'#ffd700';if(s<=80)return'#00ff88';return'#00d4ff';}
 function gg(s){if(s<=20)return'linear-gradient(135deg,#ff2d55,#cc0033)';if(s<=40)return'linear-gradient(135deg,#ff7c2a,#cc4400)';if(s<=60)return'linear-gradient(135deg,#ffd700,#aa8800)';if(s<=80)return'linear-gradient(135deg,#00ff88,#00aa55)';return'linear-gradient(135deg,#00d4ff,#0088cc)';}
 function ge(s){if(s<=20)return'😞';if(s<=40)return'😕';if(s<=60)return'😐';if(s<=80)return'🙂';return'😄';}
 function gl(s){if(s<=20)return'יום קשה';if(s<=40)return'לא קל';if(s<=60)return'סבבה';if(s<=80)return'יום טוב!';return'יום מעולה!';}
 function tod(){return new Date().toISOString().slice(0,10);}
 function fs(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'short',day:'numeric',month:'short'});}
 function fl(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
-function fm(d){return new Date(d+'-01').toLocaleDateString('he-IL',{month:'long',year:'numeric'});}
 function allE(){return Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});}
 function saveSt(){localStorage.setItem(SK,JSON.stringify(entries));}
-function showToast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
 function el(id){return document.getElementById(id);}
+function showToast(msg,err){var t=el('toast');t.textContent=msg;t.style.background=err?'#ff2d55':'#00ff88';t.style.color=err?'#fff':'#000';t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function showLogin(){el('s-login').style.display='block';el('s-profile').style.display='none';el('s-app').style.display='none';el('main-nav').style.display='none';}
+function showProfile(){el('s-login').style.display='none';el('s-profile').style.display='block';el('s-app').style.display='none';el('main-nav').style.display='none';}
+function showApp(){el('s-login').style.display='none';el('s-profile').style.display='none';el('s-app').style.display='block';el('main-nav').style.display='block';initApp();}
+
+el('google-login-btn').addEventListener('click',function(){
+  sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
+});
+
+el('btn-logout').addEventListener('click',function(){
+  sb.auth.signOut().then(function(){currentUser=null;userProfile=null;showLogin();});
+});
+
+// ── PROFILE ───────────────────────────────────────────────────────────────────
+function setupAutocomplete(inputId,listId,items){
+  var inp=el(inputId),list=el(listId);
+  inp.addEventListener('input',function(){
+    var val=this.value.trim().toLowerCase();
+    if(val.length<2){list.style.display='none';return;}
+    var matches=items.filter(function(i){return i.toLowerCase().startsWith(val);}).slice(0,8);
+    if(!matches.length){list.style.display='none';return;}
+    list.innerHTML=matches.map(function(m){return'<div class="autocomplete-item">'+m+'</div>';}).join('');
+    list.style.display='block';
+    list.querySelectorAll('.autocomplete-item').forEach(function(item){
+      item.addEventListener('click',function(){inp.value=this.textContent;list.style.display='none';});
+    });
+  });
+  document.addEventListener('click',function(e){if(!inp.contains(e.target)&&!list.contains(e.target))list.style.display='none';});
+}
+
+el('status-grid').querySelectorAll('.status-opt').forEach(function(opt){
+  opt.addEventListener('click',function(){
+    el('status-grid').querySelectorAll('.status-opt').forEach(function(o){o.classList.remove('on');});
+    this.classList.add('on');
+    selectedStatus=this.getAttribute('data-val');
+  });
+});
+
+el('save-profile-btn').addEventListener('click',function(){
+  var country=el('profile-country').value.trim();
+  var city=el('profile-city').value.trim();
+  if(!country||!city||!selectedStatus){showToast('אנא מלא את כל השדות',true);return;}
+  sb.from('profiles').upsert({user_id:currentUser.id,country:country,city:city,status:selectedStatus},{onConflict:'user_id'}).then(function(res){
+    if(res.error){showToast('שגיאה בשמירה',true);return;}
+    userProfile={country:country,city:city,status:selectedStatus};
+    showApp();
+  });
+});
+
+// ── LOAD PROFILE ─────────────────────────────────────────────────────────────
+function loadProfile(){
+  sb.from('profiles').select('*').eq('user_id',currentUser.id).single().then(function(res){
+    if(res.data){
+      userProfile=res.data;
+      showApp();
+    } else {
+      showProfile();
+    }
+  });
+}
 
 // ── UI ────────────────────────────────────────────────────────────────────────
 function updateUI(s){
-  curScore = parseInt(s);
-  var c = gc(curScore);
-  el('snum').textContent = curScore; el('snum').style.color = c;
-  el('semoji').textContent = ge(curScore);
-  el('slabel').textContent = gl(curScore); el('slabel').style.color = c;
-  el('savebtn').style.background = gg(curScore); el('savebtn').style.color = curScore>=60?'#000':'#fff';
+  curScore=parseInt(s);var c=gc(curScore);
+  el('snum').textContent=curScore;el('snum').style.color=c;
+  el('semoji').textContent=ge(curScore);
+  el('slabel').textContent=gl(curScore);el('slabel').style.color=c;
+  el('savebtn').style.background=gg(curScore);el('savebtn').style.color=curScore>=60?'#000':'#fff';
   var r=42,circ=2*Math.PI*r,dash=(curScore/100)*circ;
-  el('rarc').setAttribute('stroke',c);
-  el('rarc').setAttribute('stroke-dasharray',dash+' '+(circ-dash));
-  el('srange').style.background = 'linear-gradient(to right,'+c+' '+curScore+'%,#1a1a35 '+curScore+'%)';
+  el('rarc').setAttribute('stroke',c);el('rarc').setAttribute('stroke-dasharray',dash+' '+(circ-dash));
+  el('srange').style.background='linear-gradient(to right,'+c+' '+curScore+'%,#1a1a35 '+curScore+'%)';
 }
 
 function goTo(name){
   document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
-  var nb = document.querySelector('.nb[data-screen="'+name+'"]');
-  if(nb) nb.classList.add('on');
+  var nb=document.querySelector('.nb[data-screen="'+name+'"]');if(nb)nb.classList.add('on');
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');s.style.display='none';});
-  var sc = el('s-'+name);
-  if(sc){sc.classList.add('on');sc.style.display='flex';}
-  if(name==='history') renderHistory();
-  if(name==='export') renderExport();
-  if(name==='world') loadWorldData();
+  var sc=el('s-'+name);if(sc){sc.classList.add('on');sc.style.display='flex';}
+  if(name==='world')loadWorldData();
+  if(name==='history')renderHistory();
+  if(name==='export')renderExport();
 }
 
 // ── SAVE ──────────────────────────────────────────────────────────────────────
 function saveEntry(){
-  var t = tod();
-  var entry = {score:curScore, city:el('city').value, country:el('country').value, special:el('special').value, mediaPreview:curMedia, mediaType:curMediaType, date:t};
-  entries[t] = entry;
+  var t=tod();
+  entries[t]={score:curScore,special:el('special').value,mediaPreview:curMedia,mediaType:curMediaType,date:t};
   saveSt();
-
-  // Save to Supabase
   sb.from('entries').upsert({
-    date: t,
-    score: curScore,
-    city: el('city').value || null,
-    country: el('country').value || null,
-    special: el('special').value || null,
-    device_id: did
-  }, {onConflict: 'date,device_id'}).then(function(res){
-    if(res.error){
-      showToast('נשמר מקומית בלבד');
-    } else {
-      showToast('✓ נשמר בהצלחה!');
-      el('onlinedot').style.display='inline-block';
-    }
+    date:t,score:curScore,
+    city:userProfile?userProfile.city:null,
+    country:userProfile?userProfile.country:null,
+    special:el('special').value||null,
+    user_id:currentUser?currentUser.id:null,
+    device_id:currentUser?currentUser.id:'anon'
+  },{onConflict:'date,device_id'}).then(function(res){
+    if(res.error){showToast('נשמר מקומית בלבד',true);}
+    else{showToast('✓ נשמר בהצלחה!');el('onlinedot').style.display='inline-block';}
   });
-
-  // Reset form
-  el('srange').value = 70;
-  el('city').value = '';
-  el('country').value = '';
-  el('special').value = '';
-  curMedia = null; curMediaType = null;
-  resetUpload();
-  updateUI(70);
-
-  renderHeader();
-  renderWeekCard();
-  renderVsCard();
+  el('special').value='';curMedia=null;curMediaType=null;resetUpload();
+  updateUI(70);el('srange').value=70;
+  renderHeader();renderWeekCard();renderVsCard();
 }
 
-// ── WORLD DATA FROM SUPABASE ──────────────────────────────────────────────────
+// ── WORLD ─────────────────────────────────────────────────────────────────────
 function loadWorldData(){
-  var today = tod();
-  sb.from('entries').select('score,city,country').gte('created_at', today+'T00:00:00').then(function(res){
-    if(res.error || !res.data || !res.data.length){
-      el('gnum').textContent = '--';
-      el('gtotal').textContent = 'אין נתונים להיום — היה הראשון!';
-      renderLeadersMock();
-      renderMapEmpty();
-      return;
+  var today=tod();
+  sb.from('entries').select('score,city,country').gte('created_at',today+'T00:00:00').then(function(res){
+    if(res.error||!res.data||!res.data.length){
+      el('gnum').textContent='--';
+      el('gtotal').textContent='אין נתונים עדיין להיום';
+      el('wcities').innerHTML='<div class="empty">🌍<br>אין נתונים עדיין<br>היה הראשון לשמור!</div>';
+      el('wcountries').innerHTML='<div class="empty">🌍<br>אין נתונים עדיין</div>';
+      renderMap({});return;
     }
-    var data = res.data;
-    var avg = Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
-    el('gnum').textContent = avg;
-    el('gnum').style.color = gc(avg);
-    el('gnum').style.textShadow = '0 0 20px '+gc(avg);
-    el('gtotal').textContent = data.length + ' ' + ge(avg) + ' כניסות היום';
+    var data=res.data;
+    var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
+    el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
+    el('gtotal').textContent=data.length+' '+ge(avg)+' כניסות היום';
     el('onlinedot').style.display='inline-block';
-
-    // Cities leaderboard from real data
-    var cityMap = {};
-    data.forEach(function(d){
-      if(d.city){
-        if(!cityMap[d.city]) cityMap[d.city]={total:0,count:0};
-        cityMap[d.city].total += d.score;
-        cityMap[d.city].count++;
-      }
-    });
-    var cities = Object.keys(cityMap).map(function(n){
-      return {n:n, s:Math.round(cityMap[n].total/cityMap[n].count), p:cityMap[n].count};
-    }).sort(function(a,b){return b.s-a.s;}).slice(0,10);
-
-    var countryMap = {};
-    data.forEach(function(d){
-      if(d.country){
-        if(!countryMap[d.country]) countryMap[d.country]={total:0,count:0};
-        countryMap[d.country].total += d.score;
-        countryMap[d.country].count++;
-      }
-    });
-    var countries = Object.keys(countryMap).map(function(n){
-      return {n:n, s:Math.round(countryMap[n].total/countryMap[n].count), p:countryMap[n].count};
-    }).sort(function(a,b){return b.s-a.s;}).slice(0,10);
-
     renderGlobe(avg);
-    renderLeadersReal(cities, countries);
-    renderMapReal(countryMap);
+    var cityMap={},countryMap={};
+    data.forEach(function(d){
+      if(d.city){if(!cityMap[d.city])cityMap[d.city]={t:0,c:0};cityMap[d.city].t+=d.score;cityMap[d.city].c++;}
+      if(d.country){if(!countryMap[d.country])countryMap[d.country]={t:0,c:0};countryMap[d.country].t+=d.score;countryMap[d.country].c++;}
+    });
+    var cities=Object.keys(cityMap).map(function(n){return{n:n,s:Math.round(cityMap[n].t/cityMap[n].c),p:cityMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
+    var countries=Object.keys(countryMap).map(function(n){return{n:n,s:Math.round(countryMap[n].t/countryMap[n].c),p:countryMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
+    renderLeaders(cities,'wcities');
+    renderLeaders(countries,'wcountries');
+    renderMap(countryMap);
   });
 }
 
-function renderLeadersMock(){
-  var empty = '<div class="empty"><div style="font-size:36px;margin-bottom:10px">🌍</div><div style="font-size:14px;color:#446">אין נתונים עדיין להיום<br>היה הראשון לשמור!</div></div>';
-  el('wcities').innerHTML = empty;
-  el('wcountries').innerHTML = empty;
-}
-
-function renderLeadersReal(cities, countries){
-  var ch = '';
-  if(!cities.length){ ch = '<div style="color:#446;text-align:center;padding:20px;font-size:14px">אין נתוני ערים עדיין להיום</div>'; }
-  else {
-    cities.forEach(function(c,i){var col=gc(c.s);ch+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' כניסות</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
-  }
-  el('wcities').innerHTML = ch;
-  var cn = '';
-  if(!countries.length){ cn = '<div style="color:#446;text-align:center;padding:20px;font-size:14px">אין נתוני מדינות עדיין להיום</div>'; }
-  else {
-    countries.forEach(function(c,i){var col=gc(c.s);cn+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' כניסות</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
-  }
-  el('wcountries').innerHTML = cn;
+function renderLeaders(items,elId){
+  if(!items.length){el(elId).innerHTML='<div class="empty">אין נתונים עדיין</div>';return;}
+  var html='';
+  items.forEach(function(c,i){var col=gc(c.s);html+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' כניסות</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
+  el(elId).innerHTML=html;
 }
 
 function renderGlobe(score){
-  var c = gc(score), svg = el('globesvg');
-  svg.style.filter = 'drop-shadow(0 0 25px '+c+'66)';
-  svg.innerHTML = '<defs><radialGradient id="rg1" cx="38%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient><radialGradient id="rg2" cx="50%" cy="50%"><stop offset="0%" stop-color="'+c+'" stop-opacity="0.6"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0.1"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="78"/></clipPath></defs><circle cx="100" cy="100" r="88" fill="'+c+'" fill-opacity="0.06"/><circle cx="100" cy="100" r="78" fill="#080818"/><circle cx="100" cy="100" r="78" fill="url(#rg2)"/><g clip-path="url(#gc)" fill="none" stroke="'+c+'" stroke-opacity="0.2" stroke-width="1"><ellipse cx="100" cy="100" rx="78" ry="18"/><ellipse cx="100" cy="100" rx="78" ry="40"/><ellipse cx="100" cy="100" rx="78" ry="62"/><line x1="22" y1="100" x2="178" y2="100"/><line x1="100" y1="22" x2="100" y2="178"/></g><circle cx="100" cy="100" r="78" fill="url(#rg1)"/><circle cx="100" cy="100" r="78" fill="none" stroke="'+c+'" stroke-opacity="0.5" stroke-width="2"/>';
+  var c=gc(score),svg=el('globesvg');
+  svg.style.filter='drop-shadow(0 0 25px '+c+'66)';
+  svg.innerHTML='<defs><radialGradient id="rg1" cx="38%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient><radialGradient id="rg2" cx="50%" cy="50%"><stop offset="0%" stop-color="'+c+'" stop-opacity="0.6"/><stop offset="100%" stop-color="'+c+'" stop-opacity="0.1"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="78"/></clipPath></defs><circle cx="100" cy="100" r="88" fill="'+c+'" fill-opacity="0.06"/><circle cx="100" cy="100" r="78" fill="#080818"/><circle cx="100" cy="100" r="78" fill="url(#rg2)"/><g clip-path="url(#gc)" fill="none" stroke="'+c+'" stroke-opacity="0.2" stroke-width="1"><ellipse cx="100" cy="100" rx="78" ry="18"/><ellipse cx="100" cy="100" rx="78" ry="40"/><ellipse cx="100" cy="100" rx="78" ry="62"/><line x1="22" y1="100" x2="178" y2="100"/><line x1="100" y1="22" x2="100" y2="178"/></g><circle cx="100" cy="100" r="78" fill="url(#rg1)"/><circle cx="100" cy="100" r="78" fill="none" stroke="'+c+'" stroke-opacity="0.5" stroke-width="2"/>';
 }
 
-function renderMapEmpty(){
-  var W=360,H=180,html='<svg viewBox="0 0 '+W+' '+H+'" style="background:#05050e;display:block;width:100%">';
-  html+='<g stroke="#1a1a35" stroke-width="0.5">';
-  for(var x=0;x<=W;x+=60)html+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'"/>';
-  for(var y=0;y<=H;y+=45)html+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'"/>';
-  html+='</g>';
-  html+='<text x="180" y="95" text-anchor="middle" fill="#2a2a5a" font-size="12" font-family="Heebo,sans-serif">אין נתונים עדיין — שמור את הציון שלך!</text>';
-  html+='</svg>';
-  el('mapwrap').innerHTML = html;
-}
-
-function renderMapReal(countryMap){
+function renderMap(countryMap){
   var W=360,H=180,html='<svg viewBox="0 0 '+W+' '+H+'" style="background:#05050e;display:block;width:100%">';
   html+='<g stroke="#1a1a35" stroke-width="0.5">';
   for(var x=0;x<=W;x+=60)html+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'"/>';
   for(var y=0;y<=H;y+=45)html+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'"/>';
   html+='</g>';
   MAPC.forEach(function(c){
-    var score = countryMap[c.n] ? Math.round(countryMap[c.n].total/countryMap[c.n].count) : null;
-    var col = score ? gc(score) : '#2a2a4a';
-    var op = score ? '0.35' : '0.1';
+    var data=countryMap[c.n];
+    var score=data?Math.round(data.t/data.c):0;
+    var col=score?gc(score):'#2a2a4a';
     var cx=c.x/100*W,cy=c.y/100*H,r=c.r*3;
-    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="'+op+'" stroke="'+col+'" stroke-width="1" stroke-opacity="'+(score?'0.7':'0.2')+'"/>';
+    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="'+(score?'0.3':'0.08')+'" stroke="'+col+'" stroke-width="1" stroke-opacity="'+(score?'0.7':'0.2')+'"/>';
     html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.35+1)+'" fill="'+col+'" fill-opacity="'+(score?'1':'0.2')+'"/>';
-    if(r>8 && score)html+='<text x="'+cx+'" y="'+(cy+2)+'" text-anchor="middle" fill="#fff" font-size="6" font-family="Heebo,sans-serif" font-weight="bold">'+score+'</text>';
-    if(r>8)html+='<text x="'+cx+'" y="'+(cy+r+7)+'" text-anchor="middle" fill="'+col+'" font-size="5.5" font-family="Heebo,sans-serif" opacity="'+(score?'0.8':'0.3')+'">'+c.n+'</text>';
+    if(r>8){if(score)html+='<text x="'+cx+'" y="'+(cy+2)+'" text-anchor="middle" fill="#fff" font-size="6" font-family="Heebo,sans-serif" font-weight="bold">'+score+'</text>';html+='<text x="'+cx+'" y="'+(cy+r+7)+'" text-anchor="middle" fill="'+col+'" font-size="5.5" font-family="Heebo,sans-serif" opacity="'+(score?'0.8':'0.3')+'">'+c.n+'</text>';}
   });
   html+='</svg>';
-  el('mapwrap').innerHTML = html;
+  el('mapwrap').innerHTML=html;
 }
 
-function renderMap(){
-  renderMapEmpty();
+// ── HISTORY ───────────────────────────────────────────────────────────────────
+function renderHistory(){
+  renderMyHistory();
+  renderWorldArchive();
+  renderStats();
 }
 
-function renderWChart(id,data,labels){
-  var e = el(id); if(!e)return;
+function renderMyHistory(){
+  var e=allE();
+  if(!e.length){el('h-mine').innerHTML='<div class="empty">📭<br>עדיין אין ימים שנשמרו</div>';return;}
   var html='';
-  for(var i=0;i<data.length;i++){var v=data[i]||0,isL=i===data.length-1,c=gc(v||68),h=Math.max((v/100)*52,3);html+='<div class="wb"><div class="wbbar" style="height:'+h+'px;background:'+c+';opacity:'+(isL?1:0.5)+'"></div><div class="wblbl">'+labels[i]+'</div></div>';}
-  e.innerHTML=html;
+  e.forEach(function(en){var c=gc(en.score);html+='<div class="erow" data-date="'+en.date+'"><div style="flex:1;min-width:0"><div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'+(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';});
+  el('h-mine').innerHTML=html;
+  el('h-mine').querySelectorAll('.erow').forEach(function(r){r.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
+}
+
+function renderWorldArchive(){
+  var hw=el('h-world');
+  hw.innerHTML='<div style="color:#88c;font-size:13px;margin-bottom:12px">טוען ארכיון עולמי...</div>';
+  sb.from('entries').select('date,score,city,country').order('date',{ascending:false}).limit(200).then(function(res){
+    if(res.error||!res.data||!res.data.length){hw.innerHTML='<div class="empty">אין נתונים עדיין</div>';return;}
+    var data=res.data;
+    // Group by date
+    var byDate={};
+    data.forEach(function(d){if(!byDate[d.date])byDate[d.date]={scores:[],cities:{},countries:{}};byDate[d.date].scores.push(d.score);if(d.city){if(!byDate[d.date].cities[d.city])byDate[d.date].cities[d.city]=[];byDate[d.date].cities[d.city].push(d.score);}if(d.country){if(!byDate[d.date].countries[d.country])byDate[d.date].countries[d.country]=[];byDate[d.date].countries[d.country].push(d.score);}});
+    var dates=Object.keys(byDate).sort(function(a,b){return b.localeCompare(a);});
+
+    // Build line chart data
+    var chartDates=dates.slice(0,14).reverse();
+    var globalAvgs=chartDates.map(function(d){var s=byDate[d].scores;return Math.round(s.reduce(function(a,b){return a+b;},0)/s.length);});
+
+    var html='<div class="card" style="margin-bottom:14px">';
+    html+='<span class="lbl">מגמה עולמית — 14 ימים</span>';
+    html+=renderLineChart(chartDates,globalAvgs,'#00ff88');
+    html+='</div>';
+
+    // Date list
+    dates.forEach(function(d){
+      var s=byDate[d].scores;
+      var avg=Math.round(s.reduce(function(a,b){return a+b;},0)/s.length);
+      var c=gc(avg);
+      var topCities=Object.keys(byDate[d].cities).map(function(n){return{n:n,s:Math.round(byDate[d].cities[n].reduce(function(a,b){return a+b;},0)/byDate[d].cities[n].length)};}).sort(function(a,b){return b.s-a.s;}).slice(0,3);
+      html+='<div class="card" style="margin-bottom:10px">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+      html+='<div><div style="font-size:13px;font-weight:700;color:#aac">'+fs(d)+'</div><div style="font-size:11px;color:#66a">'+s.length+' כניסות</div></div>';
+      html+='<div style="font-size:36px;font-weight:900;color:'+c+'">'+avg+'</div></div>';
+      if(topCities.length){html+='<div style="font-size:11px;color:#66a;margin-bottom:6px">ערים מובילות:</div><div style="display:flex;gap:6px;flex-wrap:wrap">';topCities.forEach(function(ci){var cc=gc(ci.s);html+='<div style="background:'+cc+'22;border:1px solid '+cc+'44;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:'+cc+'">'+ci.n+' '+ci.s+'</div>';});html+='</div>';}
+      html+='</div>';
+    });
+    hw.innerHTML=html;
+  });
+}
+
+function renderLineChart(labels,values,color){
+  var W=320,H=80,pad=16;
+  var min=Math.min.apply(null,values)-5,max=Math.max.apply(null,values)+5;
+  if(min===max){min-=10;max+=10;}
+  var pts=values.map(function(v,i){var x=pad+(i/(values.length-1||1))*(W-2*pad);var y=H-pad-((v-min)/(max-min))*(H-2*pad);return{x:x,y:y,v:v};});
+  var path=pts.map(function(p,i){return(i===0?'M':'L')+p.x+' '+p.y;}).join(' ');
+  var area=path+' L'+pts[pts.length-1].x+' '+H+' L'+pts[0].x+' '+H+' Z';
+  var html='<div class="chart-wrap"><svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" style="width:100%;overflow:visible">';
+  html+='<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+color+'" stop-opacity="0.3"/><stop offset="100%" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs>';
+  html+='<path d="'+area+'" fill="url(#cg)"/>';
+  html+='<path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  pts.forEach(function(p,i){
+    var isLast=i===pts.length-1;
+    html+='<circle cx="'+p.x+'" cy="'+p.y+'" r="'+(isLast?4:2.5)+'" fill="'+color+'" stroke="#0a0a14" stroke-width="1.5"/>';
+    if(i%2===0||isLast)html+='<text x="'+p.x+'" y="'+(H-1)+'" text-anchor="middle" fill="#4444aa" font-size="7" font-family="Heebo,sans-serif">'+labels[i].slice(5)+'</text>';
+    if(isLast)html+='<text x="'+p.x+'" y="'+(p.y-8)+'" text-anchor="middle" fill="'+color+'" font-size="9" font-family="Heebo,sans-serif" font-weight="bold">'+p.v+'</text>';
+  });
+  html+='</svg></div>';
+  return html;
+}
+
+function renderStats(){
+  var e=allE();
+  if(!e.length){el('h-stats').innerHTML='<div class="empty">אין נתונים עדיין</div>';return;}
+  var avg=Math.round(e.reduce(function(a,b){return a+b.score;},0)/e.length);
+  var best=Math.max.apply(null,e.map(function(x){return x.score;}));
+  var worst=Math.min.apply(null,e.map(function(x){return x.score;}));
+  var bestDay=e.find(function(x){return x.score===best;});
+  var sh='<div class="sgrid">';
+  [{l:'ממוצע',v:avg,e:ge(avg)},{l:'ימים',v:e.length,e:'📅'},{l:'הכי גבוה',v:best,e:'🏆'},{l:'הכי נמוך',v:worst,e:'💪'}].forEach(function(x){var c=gc(x.l!=='ימים'?x.v:avg);sh+='<div class="sbox"><div class="lbl" style="margin-bottom:5px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:4px">'+x.e+'</div></div>';});
+  sh+='</div>';
+
+  // Line chart of my scores
+  var chartE=e.slice(0,14).reverse();
+  var chartLabels=chartE.map(function(e2){return e2.date;});
+  var chartVals=chartE.map(function(e2){return e2.score;});
+  sh+='<div class="card"><span class="lbl">הגרף שלי</span>'+renderLineChart(chartLabels,chartVals,'#00d4ff')+'</div>';
+
+  if(bestDay){var bc=gc(best);sh+='<div class="card" style="background:'+bc+'12;border-color:'+bc+'33"><div style="font-size:12px;color:'+bc+';font-weight:900;margin-bottom:4px">🏆 היום הכי טוב</div><div style="font-size:13px;color:#aac">'+fl(bestDay.date)+'</div>'+(bestDay.special?'<div style="font-size:13px;margin-top:4px">'+bestDay.special+'</div>':'')+'</div>';}
+
+  el('h-stats').innerHTML=sh;
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function renderExport(){
+  var e=allE();
+  el('expinfo').textContent=e.length+' ימים נרשמו.';
+}
+
+function doCSV(){var e=allE(),rows=[['תאריך','ציון','מיוחד']];e.forEach(function(en){rows.push([en.date,en.score,(en.special||'').replace(/,/g,' ')]);});var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();showToast('✓ CSV הורד!');}
+function doJSON(){var blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.json';a.click();showToast('✓ JSON הורד!');}
+
+// ── MISC ──────────────────────────────────────────────────────────────────────
+function renderHeader(){
+  var e=allE();
+  el('hdate').textContent=new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});
+  if(userProfile){el('user-city-label').textContent=userProfile.city;el('user-chip').style.display='flex';}
+  var s=0,d=new Date();while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
+  var b=el('streak');if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';
 }
 
 function renderWeekCard(){
   var e=allE();var wc=el('weekcard');
   if(e.length<2){if(wc)wc.style.display='none';return;}
   if(wc)wc.style.display='block';
-  var arr=[];for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);arr.push(entries[d.toISOString().slice(0,10)]?entries[d.toISOString().slice(0,10)].score:0);}
-  renderWChart('mywchart',arr,WL);
+  var arr=[],labels=[];
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var ds=d.toISOString().slice(0,10);arr.push(entries[ds]?entries[ds].score:0);labels.push(WL[6-i]||'');}
+  el('mywchart').innerHTML='';
+  var html='';
+  arr.forEach(function(v,i){var isL=i===arr.length-1,c=gc(v||50),h=Math.max((v/100)*52,3);html+='<div class="wb"><div class="wbbar" style="height:'+h+'px;background:'+c+';opacity:'+(isL?1:0.5)+'"></div><div class="wblbl">'+WL[i]+'</div></div>';});
+  el('mywchart').innerHTML=html;
 }
 
 function renderVsCard(){
@@ -489,193 +628,59 @@ function renderVsCard(){
   if(!e){if(vc)vc.style.display='none';return;}
   if(vc)vc.style.display='block';
   var rows=[{l:'הציון שלך',v:e.score},{l:'ממוצע עולמי',v:68}];
-  var html='';
-  rows.forEach(function(r){var c=gc(r.v);html+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px;font-weight:700"><span style="color:#aac">'+r.l+'</span><span style="color:'+c+'">'+r.v+'</span></div><div class="wbar"><div class="wbar-fill" style="width:'+r.v+'%;background:'+c+'"></div></div></div>';});
+  var html='';rows.forEach(function(r){var c=gc(r.v);html+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px;font-weight:700"><span style="color:#aac">'+r.l+'</span><span style="color:'+c+'">'+r.v+'</span></div><div class="wbar"><div class="wbar-fill" style="width:'+r.v+'%;background:'+c+'"></div></div></div>';});
   el('vsrows').innerHTML=html;
-  var d=e.score-68;
-  el('vsdiff').textContent=d>0?'+'+d+' מעל הממוצע':d<0?d+' מתחת לממוצע':'בדיוק בממוצע';
+  var diff=e.score-68;el('vsdiff').textContent=diff>0?'+'+diff+' מעל הממוצע':diff<0?diff+' מתחת לממוצע':'בדיוק בממוצע';
 }
 
-function renderHeader(){
-  var e=allE();el('hdays').textContent=e.length+' ימים';
-  var s=0,d=new Date();while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
-  var b=el('streak');if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';
-}
+function showPreview(){el('uarea').innerHTML='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" id="mrem-btn">✕</button></div>';var rb=el('mrem-btn');if(rb)rb.addEventListener('click',resetUpload);}
+function resetUpload(){curMedia=null;curMediaType=null;el('uarea').innerHTML='<div class="uzone" id="uzone-btn"><div style="font-size:28px;margin-bottom:6px">📷</div><div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div><div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div></div>';var uz=el('uzone-btn');if(uz)uz.addEventListener('click',function(){el('finput').click();});el('finput').value='';}
 
-function loadToday(){
-  var e=entries[tod()];if(!e)return;
-  curScore=e.score;el('srange').value=e.score;
-  el('city').value=e.city||'';el('country').value=e.country||'';el('special').value=e.special||'';
-  if(e.mediaPreview){curMedia=e.mediaPreview;curMediaType=e.mediaType;showPreview();}
-  updateUI(e.score);
-}
-
-function showPreview(){
-  el('uarea').innerHTML='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" id="mrem-btn">✕</button></div>';
-  var rb=el('mrem-btn');if(rb)rb.addEventListener('click',clearMedia);
-}
-
-function resetUpload(){
-  el('uarea').innerHTML='<div class="uzone" id="uzone-btn"><div style="font-size:28px;margin-bottom:6px">📷</div><div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div><div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div></div>';
-  var uz=el('uzone-btn');if(uz)uz.addEventListener('click',function(){el('finput').click();});
-  el('finput').value='';
-}
-
-function clearMedia(){curMedia=null;curMediaType=null;resetUpload();}
-
-function renderHistory(){
-  var e=allE();
-  if(!e.length){el('hlist').innerHTML='<div class="empty"><div style="font-size:36px;margin-bottom:10px">📭</div>עדיין אין ימים שנשמרו</div>';return;}
-  var html='';
-  e.forEach(function(en){var c=gc(en.score);html+='<div class="erow" data-date="'+en.date+'"><div style="flex:1;min-width:0"><div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'+(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+(en.city?'<div style="font-size:11px;color:#66a;margin-top:2px">📍 '+en.city+(en.country?', '+en.country:'')+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';});
-  el('hlist').innerHTML=html;
-  el('hlist').querySelectorAll('.erow').forEach(function(r){r.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
-
-  var byM={};e.forEach(function(en){var m=en.date.slice(0,7);if(!byM[m])byM[m]=[];byM[m].push(en);});
-  var months=Object.keys(byM).sort(function(a,b){return b.localeCompare(a);});
-  var mh='<div class="stabs" id="mtabs">';
-  months.forEach(function(m,i){mh+='<button class="stab'+(i===0?' on':'')+'" data-month="'+m+'">'+fm(m)+'</button>';});
-  mh+='</div>';
-  months.forEach(function(m,i){
-    mh+='<div id="mo-'+m+'" style="display:'+(i===0?'block':'none')+'">';
-    byM[m].forEach(function(en){var c=gc(en.score),day=new Date(en.date).getDate(),wd=new Date(en.date).toLocaleDateString('he-IL',{weekday:'short'});mh+='<div class="erow" data-date="'+en.date+'"><div style="width:42px;height:42px;border-radius:9px;background:'+c+'22;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0"><div style="font-size:15px;font-weight:900;color:'+c+'">'+day+'</div><div style="font-size:9px;color:#66a">'+wd+'</div></div><div style="flex:1;min-width:0">'+(en.special?'<div style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+(en.city?'<div style="font-size:11px;color:#66a">📍 '+en.city+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';});
-    mh+='</div>';
-  });
-  el('hmonth').innerHTML=mh;
-  el('hmonth').querySelectorAll('.erow').forEach(function(r){r.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
-  el('hmonth').querySelectorAll('[data-month]').forEach(function(btn){btn.addEventListener('click',function(){var m=this.getAttribute('data-month');el('hmonth').querySelectorAll('[data-month]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('hmonth').querySelectorAll('[id^="mo-"]').forEach(function(e2){e2.style.display='none';});var mo=el('mo-'+m);if(mo)mo.style.display='block';});});
-
-  if(!e.length)return;
-  var avg=Math.round(e.reduce(function(a,b){return a+b.score;},0)/e.length);
-  var best=Math.max.apply(null,e.map(function(x){return x.score;}));
-  var worst=Math.min.apply(null,e.map(function(x){return x.score;}));
-  var bestDay=e.find(function(x){return x.score===best;});
-  var sh='<div class="sgrid">';
-  [{l:'ממוצע',v:avg,e:ge(avg)},{l:'ימים',v:e.length,e:'📅'},{l:'הכי גבוה',v:best,e:'🏆'},{l:'הכי נמוך',v:worst,e:'💪'}].forEach(function(x){var c=gc(x.l!=='ימים'?x.v:avg);sh+='<div class="sbox"><div style="font-size:10px;color:#66a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:4px">'+x.e+'</div></div>';});
-  sh+='</div>';
-  if(bestDay){var bc=gc(best);sh+='<div class="card" style="background:'+bc+'12;border-color:'+bc+'33"><div style="font-size:12px;color:'+bc+';font-weight:900;margin-bottom:4px">🏆 היום הכי טוב</div><div style="font-size:13px;color:#aac">'+fl(bestDay.date)+'</div>'+(bestDay.special?'<div style="font-size:13px;margin-top:4px">'+bestDay.special+'</div>':'')+'</div>';}
-  sh+='<div class="card"><span class="lbl">התפלגות</span>';
-  [{l:'מעולה 81-100',mn:81,mx:100,c:'#00d4ff'},{l:'טוב 61-80',mn:61,mx:80,c:'#00ff88'},{l:'סבבה 41-60',mn:41,mx:60,c:'#ffd700'},{l:'קשה 21-40',mn:21,mx:40,c:'#ff7c2a'},{l:'קשה מאוד 0-20',mn:0,mx:20,c:'#ff2d55'}].forEach(function(b){var cnt=e.filter(function(x){return x.score>=b.mn&&x.score<=b.mx;}).length;var pct=Math.round(cnt/e.length*100);sh+='<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;color:#aac">'+b.l+'</span><span style="font-size:12px;font-weight:900;color:'+b.c+'">'+cnt+' ('+pct+'%)</span></div><div class="wbar"><div class="wbar-fill" style="width:'+pct+'%;background:'+b.c+'"></div></div></div>';});
-  sh+='</div>';
-  el('hstats').innerHTML=sh;
-}
-
-function renderExport(){
-  var e=allE();
-  el('expinfo').textContent=e.length+' ימים נרשמו.';
-  el('storinfo').innerHTML=e.length+' ימים · '+Math.round(JSON.stringify(entries).length/1024)+' KB';
-  var html='';
-  e.slice(0,5).forEach(function(en){var c=gc(en.score);html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;margin-bottom:8px"><div><div style="font-size:12px;color:#88c">'+fs(en.date)+'</div><div style="font-size:16px;font-weight:900;color:'+c+'">'+en.score+' '+ge(en.score)+'</div></div><button class="share-btn" data-date="'+en.date+'" style="background:#1a1a35;border:2px solid #2a2a4a;color:#aac;border-radius:8px;padding:7px 13px;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;cursor:pointer">📤 שתף</button></div>';});
-  if(!e.length)html='<div style="color:#44a;font-size:14px;text-align:center;padding:20px">אין ימים עדיין</div>';
-  el('sharelist').innerHTML=html;
-  el('sharelist').querySelectorAll('.share-btn').forEach(function(btn){btn.addEventListener('click',function(){shareDay(this.getAttribute('data-date'));});});
-}
-
-function shareDay(date){var e=entries[date];if(!e)return;var t='מדד האושר שלי ב-'+fs(date)+': '+e.score+'/100 '+ge(e.score)+(e.special?' — '+e.special:'');if(navigator.share)navigator.share({text:t});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){showToast('הועתק!');});}
-function doCSV(){var e=allE(),rows=[['תאריך','ציון','עיר','מדינה','מיוחד']];e.forEach(function(en){rows.push([en.date,en.score,en.city||'',en.country||'',(en.special||'').replace(/,/g,' ')]);});var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();showToast('✓ CSV הורד!');}
-function doJSON(){var blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.json';a.click();showToast('✓ JSON הורד!');}
-
-function openM(date){
-  var e=entries[date];if(!e)return;
-  var c=gc(e.score);
-  el('mdate').textContent=fl(date);
-  el('mscore').textContent=e.score;el('mscore').style.color=c;
-  el('mlabel').textContent=gl(e.score)+' '+ge(e.score);el('mlabel').style.color=c;
-  var lo=el('mloc');if(e.city){lo.textContent='📍 '+e.city+(e.country?', '+e.country:'');lo.style.display='block';}else lo.style.display='none';
-  var mm=el('mmedia');if(e.mediaPreview){mm.innerHTML=e.mediaType==='image'?'<img src="'+e.mediaPreview+'" style="width:100%;max-height:240px;object-fit:cover;display:block">':'<video src="'+e.mediaPreview+'" controls style="width:100%;display:block">';mm.style.display='block';}else mm.style.display='none';
-  var ms=el('mspecial');if(e.special){el('mtext').textContent=e.special;ms.style.display='block';}else ms.style.display='none';
-  el('modal').classList.add('on');
-}
-function closeM(){el('modal').classList.remove('on');}
+function openM(date){var e=entries[date];if(!e)return;var c=gc(e.score);el('mdate').textContent=fl(date);el('mscore').textContent=e.score;el('mscore').style.color=c;el('mlabel').textContent=gl(e.score)+' '+ge(e.score);el('mlabel').style.color=c;el('mloc').style.display='none';var mm=el('mmedia');if(e.mediaPreview){mm.innerHTML=e.mediaType==='image'?'<img src="'+e.mediaPreview+'" style="width:100%;max-height:240px;object-fit:cover;display:block">':'<video src="'+e.mediaPreview+'" controls style="width:100%;display:block">';mm.style.display='block';}else mm.style.display='none';var ms=el('mspecial');if(e.special){el('mtext').textContent=e.special;ms.style.display='block';}else ms.style.display='none';el('modal').classList.add('on');}
 
 function makestars(){var html='';for(var i=0;i<50;i++){var x=((i*137.5)%100),y=((i*97.3)%100),sz=(i%3)+1,op=0.04+(i%5)*0.025;html+='<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:#fff;opacity:'+op+'"></div>';}el('stars').innerHTML=html;}
 
-// ── LOCATION ─────────────────────────────────────────────────────────────────
-function detectLocation(){
-  var btn = el('loc-btn');
-  var icon = el('loc-icon');
-  var txt = el('loc-text');
-  if(!navigator.geolocation){
-    txt.textContent = 'מיקום לא נתמך בדפדפן זה';
-    return;
-  }
-  icon.textContent = '⏳';
-  txt.textContent = 'מזהה מיקום...';
-  btn.style.opacity = '0.7';
-  btn.disabled = true;
-
-  navigator.geolocation.getCurrentPosition(
-    function(pos){
-      var lat = pos.coords.latitude;
-      var lng = pos.coords.longitude;
-      // Use reverse geocoding via free API
-      fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&accept-language=he')
-        .then(function(r){return r.json();})
-        .then(function(data){
-          var addr = data.address || {};
-          var city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
-          var country = addr.country || '';
-          if(city) el('city').value = city;
-          if(country) el('country').value = country;
-          icon.textContent = '✅';
-          txt.textContent = city ? (city + (country ? ', ' + country : '')) : 'זוהה!';
-          btn.style.background = '#00ff8822';
-          btn.style.borderColor = '#00ff88';
-          btn.style.color = '#00ff88';
-          btn.disabled = false;
-        })
-        .catch(function(){
-          // Fallback - just show coordinates area
-          icon.textContent = '📍';
-          txt.textContent = 'לא הצלחנו לזהות — הזן ידנית';
-          btn.disabled = false;
-          btn.style.opacity = '1';
-        });
-    },
-    function(err){
-      icon.textContent = '❌';
-      if(err.code === 1) txt.textContent = 'אישור מיקום נדחה';
-      else txt.textContent = 'שגיאה בזיהוי מיקום';
-      btn.disabled = false;
-      btn.style.opacity = '1';
-    },
-    {timeout: 10000, enableHighAccuracy: false}
-  );
+function initApp(){
+  try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(err){}
+  renderHeader();updateUI(70);renderWeekCard();renderVsCard();
+  renderGlobe(68);
+  setupAutocomplete('profile-country','country-list',COUNTRIES);
+  setupAutocomplete('profile-city','city-list',['תל אביב','ירושלים','חיפה','ראשון לציון','אשדוד','נתניה','באר שבע','בני ברק','חולון','רמת גן','New York','London','Paris','Berlin','Tokyo','Sydney','Dubai','Toronto','Singapore','Amsterdam']);
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', function(){
-  try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(err){}
+// ── EVENTS ────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',function(){
   makestars();
-  el('hdate').textContent = fl(tod());
-  updateUI(70);
-  loadToday();
-  renderHeader();
-  renderGlobe(68);
-  renderWChart('worldchart', GW, WL);
-  renderLeadersMock();
-  renderMapEmpty();
-  renderWeekCard();
-  renderVsCard();
+  setupAutocomplete('profile-country','country-list',COUNTRIES);
+  setupAutocomplete('profile-city','city-list',['תל אביב','ירושלים','חיפה','ראשון לציון','אשדוד','נתניה','באר שבע','New York','London','Paris','Berlin','Tokyo']);
 
-  // NAV
-  document.querySelectorAll('.nb').forEach(function(btn){
-    btn.addEventListener('click', function(){goTo(this.getAttribute('data-screen'));});
+  // Check auth
+  sb.auth.getSession().then(function(res){
+    if(res.data.session){
+      currentUser=res.data.session.user;
+      loadProfile();
+    } else {
+      showLogin();
+    }
   });
 
+  sb.auth.onAuthStateChange(function(event,session){
+    if(session){currentUser=session.user;loadProfile();}
+    else{currentUser=null;userProfile=null;showLogin();}
+  });
+
+  // NAV
+  document.querySelectorAll('.nb').forEach(function(btn){btn.addEventListener('click',function(){goTo(this.getAttribute('data-screen'));});});
+
   // RANGE
-  el('srange').addEventListener('input', function(){updateUI(this.value);});
-  el('srange').addEventListener('change', function(){updateUI(this.value);});
+  el('srange').addEventListener('input',function(){updateUI(this.value);});
 
   // SAVE
-  el('savebtn').addEventListener('click', saveEntry);
-
-  // LOCATION
-  el('loc-btn').addEventListener('click', detectLocation);
+  el('savebtn').addEventListener('click',saveEntry);
 
   // UPLOAD
-  el('uzone-btn').addEventListener('click', function(){el('finput').click();});
-  el('finput').addEventListener('change', function(){
+  el('uzone-btn').addEventListener('click',function(){el('finput').click();});
+  el('finput').addEventListener('change',function(){
     var file=this.files[0];if(!file)return;
     el('verr').style.display='none';
     if(file.type.startsWith('video/')){
@@ -686,37 +691,35 @@ window.addEventListener('DOMContentLoaded', function(){
     }
   });
 
-  // MODAL
-  el('modal-close').addEventListener('click', closeM);
-  el('modal').addEventListener('click', function(e){if(e.target===this)closeM();});
+  // HISTORY TABS
+  el('htabs').querySelectorAll('.stab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var t=this.getAttribute('data-tab');
+      el('htabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');
+      el('h-mine').style.display=t==='mine'?'block':'none';
+      el('h-world').style.display=t==='world'?'block':'none';
+      el('h-stats').style.display=t==='stats'?'block':'none';
+    });
+  });
 
   // WORLD TABS
   el('wtabs').querySelectorAll('.stab').forEach(function(btn){
-    btn.addEventListener('click', function(){
+    btn.addEventListener('click',function(){
       var t=this.getAttribute('data-tab');
-      el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});
-      this.classList.add('on');
+      el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');
       el('wcities').style.display=t==='cities'?'block':'none';
       el('wcountries').style.display=t==='countries'?'block':'none';
       el('wmap').style.display=t==='map'?'block':'none';
     });
   });
 
-  // HISTORY TABS
-  el('htabs').querySelectorAll('.stab').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var t=this.getAttribute('data-tab');
-      el('htabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});
-      this.classList.add('on');
-      el('hlist').style.display=t==='list'?'block':'none';
-      el('hmonth').style.display=t==='month'?'block':'none';
-      el('hstats').style.display=t==='stats'?'block':'none';
-    });
-  });
+  // MODAL
+  el('modal-close').addEventListener('click',function(){el('modal').classList.remove('on');});
+  el('modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 
   // EXPORT
-  el('btn-csv').addEventListener('click', doCSV);
-  el('btn-json').addEventListener('click', doJSON);
+  el('btn-csv').addEventListener('click',doCSV);
+  el('btn-json').addEventListener('click',doJSON);
 });
 })();
 </script>
