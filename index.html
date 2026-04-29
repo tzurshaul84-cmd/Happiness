@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מדד האושר העולמי</title>
+<title>מדד האושר העולמי | World Happiness Index</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -68,7 +68,7 @@ select option{background:#0d0d20;color:#fff}
 .autocomplete-wrap{position:relative}
 .autocomplete-list{position:absolute;top:100%;right:0;left:0;background:#13132a;border:2px solid #4444aa;border-radius:10px;z-index:100;max-height:200px;overflow-y:auto;display:none}
 .autocomplete-item{padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #1a1a2e}
-.autocomplete-item:hover{background:#1a1a35}
+.autocomplete-item:hover,.autocomplete-item:active{background:#1a1a35}
 .autocomplete-item:last-child{border-bottom:none}
 .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .status-opt{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#88b}
@@ -79,11 +79,91 @@ select option{background:#0d0d20;color:#fff}
 .google-btn{background:#fff;color:#333;border:none;border-radius:12px;font-family:Heebo,sans-serif;font-size:16px;font-weight:700;padding:14px 24px;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;justify-content:center}
 .profile-screen{display:flex;flex-direction:column;gap:16px;padding:20px 0}
 .user-chip{background:#13132a;border:1px solid #2a2a4a;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;color:#88c;display:flex;align-items:center;gap:6px}
+/* SETTINGS */
+.gear-btn{background:#13132a;border:2px solid #2a2a4a;border-radius:50%;width:38px;height:38px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform 0.3s}
+.gear-btn:active{transform:rotate(90deg)}
+.settings-panel{position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:1100;display:none;flex-direction:column}
+.settings-panel.on{display:flex}
+.settings-inner{max-width:480px;margin:0 auto;width:100%;padding:24px 16px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1}
+.settings-hdr{display:flex;justify-content:space-between;align-items:center;padding:20px 16px 0;max-width:480px;margin:0 auto;width:100%}
+.lang-opts{display:flex;gap:8px}
+.lang-opt{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;padding:12px 20px;font-family:Heebo,sans-serif;font-size:15px;font-weight:700;color:#88b;cursor:pointer;flex:1;text-align:center}
+.lang-opt.on{border-color:#00ff88;color:#00ff88;background:#00ff8811}
+.settings-item{background:#13132a;border:2px solid #2a2a4a;border-radius:13px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer}
+.settings-item:active{background:#1a1a35}
+.settings-item-icon{font-size:24px;width:36px;text-align:center}
+.settings-item-text{flex:1}
+.settings-item-title{font-size:15px;font-weight:900}
+.settings-item-sub{font-size:12px;color:#66a;margin-top:2px}
+/* Places loading */
+.places-loading{color:#66a;font-size:12px;padding:8px 14px}
 </style>
 </head>
 <body>
+<!-- Google Places API -->
+<script>
+  var googlePlacesReady = false;
+  function onGooglePlacesLoaded(){ googlePlacesReady = true; }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&libraries=places&callback=onGooglePlacesLoaded" async defer></script>
+
 <div class="stars" id="stars"></div>
 <div class="toast" id="toast"></div>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-hdr">
+    <div style="font-size:20px;font-weight:900" id="set-title">הגדרות</div>
+    <button id="settings-close" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer">✕</button>
+  </div>
+  <div class="settings-inner">
+    <div>
+      <span class="lbl" id="set-lbl-lang">שפה / Language</span>
+      <div class="lang-opts">
+        <div class="lang-opt on" data-lang="he">🇮🇱 עברית</div>
+        <div class="lang-opt" data-lang="en">🇬🇧 English</div>
+      </div>
+    </div>
+
+    <div class="settings-item" id="set-profile-btn">
+      <div class="settings-item-icon">✏️</div>
+      <div class="settings-item-text">
+        <div class="settings-item-title" id="set-edit-profile">ערוך פרופיל</div>
+        <div class="settings-item-sub" id="set-edit-profile-sub">מדינה, עיר, סטטוס</div>
+      </div>
+      <div style="color:#446">›</div>
+    </div>
+
+    <div class="settings-item" id="set-export-csv">
+      <div class="settings-item-icon">📊</div>
+      <div class="settings-item-text">
+        <div class="settings-item-title" id="set-csv-title">ייצוא CSV</div>
+        <div class="settings-item-sub" id="set-csv-sub">הורד את כל הנתונים שלך</div>
+      </div>
+      <div style="color:#446">›</div>
+    </div>
+
+    <div class="settings-item" id="set-export-json">
+      <div class="settings-item-icon">💾</div>
+      <div class="settings-item-text">
+        <div class="settings-item-title" id="set-json-title">ייצוא JSON</div>
+        <div class="settings-item-sub" id="set-json-sub">גיבוי מלא</div>
+      </div>
+      <div style="color:#446">›</div>
+    </div>
+
+    <div class="settings-item" id="set-logout-btn" style="border-color:#ff446633">
+      <div class="settings-item-icon">🚪</div>
+      <div class="settings-item-text">
+        <div class="settings-item-title" style="color:#ff4466" id="set-logout-title">התנתק</div>
+        <div class="settings-item-sub" id="set-logout-sub">יציאה מהחשבון</div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:#2a2a4a;text-align:center;margin-top:8px" id="set-version">v5.0</div>
+  </div>
+</div>
+
 <div class="content">
 <div class="wrap">
 
@@ -91,51 +171,53 @@ select option{background:#0d0d20;color:#fff}
   <div id="s-login" style="display:none">
     <div class="login-screen">
       <div style="font-size:60px">🌍</div>
-      <div style="font-size:26px;font-weight:900">מדד האושר העולמי</div>
-      <div style="font-size:14px;color:#88c;line-height:1.7">כל יום · כל אחד · כל העולם<br>אנונימי לחלוטין</div>
+      <div style="font-size:26px;font-weight:900" id="login-title">מדד האושר העולמי</div>
+      <div style="font-size:14px;color:#88c;line-height:1.7" id="login-sub">כל יום · כל אחד · כל העולם<br>אנונימי לחלוטין</div>
       <button class="google-btn" id="google-login-btn">
         <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        כניסה עם Google
+        <span id="login-btn-text">כניסה עם Google</span>
       </button>
-      <div style="font-size:11px;color:#446">המידע שלך מאובטח ואנונימי לחלוטין</div>
+      <div style="font-size:11px;color:#446" id="login-anon">המידע שלך מאובטח ואנונימי לחלוטין</div>
     </div>
   </div>
 
   <!-- PROFILE SETUP SCREEN -->
   <div id="s-profile" style="display:none">
     <div class="profile-screen">
-      <div style="font-size:22px;font-weight:900;text-align:center">ברוך הבא! 👋</div>
-      <div style="font-size:14px;color:#88c;text-align:center">מלא פעם אחת — הכל אנונימי</div>
+      <div style="font-size:22px;font-weight:900;text-align:center" id="prof-welcome">ברוך הבא! 👋</div>
+      <div style="font-size:14px;color:#88c;text-align:center" id="prof-sub">מלא פעם אחת — הכל אנונימי</div>
 
       <div>
-        <span class="lbl">מדינת מגורים</span>
+        <span class="lbl" id="prof-lbl-country">מדינת מגורים</span>
         <div class="autocomplete-wrap">
-          <input type="search" id="profile-country" placeholder="הקלד שם מדינה..." autocomplete="off">
+          <input type="search" id="profile-country" autocomplete="off">
           <div class="autocomplete-list" id="country-list"></div>
         </div>
       </div>
 
       <div>
-        <span class="lbl">עיר מגורים</span>
+        <span class="lbl" id="prof-lbl-city">עיר מגורים</span>
         <div class="autocomplete-wrap">
-          <input type="search" id="profile-city" placeholder="הקלד שם עיר..." autocomplete="off">
+          <input type="search" id="profile-city" autocomplete="off">
           <div class="autocomplete-list" id="city-list"></div>
         </div>
       </div>
 
       <div>
-        <span class="lbl">מה אתה עושה בחיים?</span>
+        <span class="lbl" id="prof-lbl-status">מה אתה עושה בחיים?</span>
         <div class="status-grid" id="status-grid">
-          <div class="status-opt" data-val="student">🎓 סטודנט</div>
-          <div class="status-opt" data-val="employed">💼 עובד/ת</div>
-          <div class="status-opt" data-val="self">🚀 עצמאי/ת</div>
-          <div class="status-opt" data-val="retired">🌴 גמלאי/ת</div>
-          <div class="status-opt" data-val="unemployed">🔍 מחפש/ת עבודה</div>
-          <div class="status-opt" data-val="other">✨ אחר</div>
+          <div class="status-opt" data-val="student" id="st-student">🎓 סטודנט</div>
+          <div class="status-opt" data-val="employed" id="st-employed">💼 עובד/ת</div>
+          <div class="status-opt" data-val="self" id="st-self">🚀 עצמאי/ת</div>
+          <div class="status-opt" data-val="retired" id="st-retired">🌴 גמלאי/ת</div>
+          <div class="status-opt" data-val="unemployed" id="st-unemployed">🔍 מחפש/ת עבודה</div>
+          <div class="status-opt" data-val="other" id="st-other">✨ אחר</div>
         </div>
       </div>
 
-      <button class="sbtn" id="save-profile-btn" style="background:linear-gradient(135deg,#00ff88,#00aa55);color:#000">המשך ←</button>
+      <button class="sbtn" id="save-profile-btn" style="background:linear-gradient(135deg,#00ff88,#00aa55);color:#000">
+        <span id="prof-save-txt">המשך ←</span>
+      </button>
     </div>
   </div>
 
@@ -143,13 +225,16 @@ select option{background:#0d0d20;color:#fff}
   <div id="s-app" style="display:none">
     <div class="hdr">
       <div>
-        <div class="htitle">מדד האושר 🌍<span class="online-dot" id="onlinedot" style="display:none"></span></div>
+        <div class="htitle" id="app-title">מדד האושר 🌍<span class="online-dot" id="onlinedot" style="display:none"></span></div>
         <div class="hsub" id="hdate"></div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
-        <div class="badge" id="streak" style="display:none"></div>
+      <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end">
+        <div style="display:flex;gap:6px;align-items:center">
+          <div class="badge" id="streak" style="display:none"></div>
+          <button class="gear-btn" id="gear-btn">⚙️</button>
+        </div>
         <div class="user-chip" id="user-chip" style="display:none">
-          <span>👤</span>
+          <span>📍</span>
           <span id="user-city-label"></span>
         </div>
       </div>
@@ -160,7 +245,7 @@ select option{background:#0d0d20;color:#fff}
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div>
-            <span class="lbl">ציון היום</span>
+            <span class="lbl" id="lbl-today-score">ציון היום</span>
             <div id="slabel" style="font-size:18px;font-weight:900;color:#00ff88">יום טוב!</div>
           </div>
           <div class="rring">
@@ -179,16 +264,16 @@ select option{background:#0d0d20;color:#fff}
       </div>
 
       <div>
-        <span class="lbl">מה היה מיוחד?</span>
-        <textarea id="special" rows="3" placeholder="רגע אחד מהיום..."></textarea>
+        <span class="lbl" id="lbl-special">מה היה מיוחד?</span>
+        <textarea id="special" rows="3"></textarea>
       </div>
 
       <div>
-        <span class="lbl">תמונה / סרטון (עד 10 שניות)</span>
+        <span class="lbl" id="lbl-media">תמונה / סרטון (עד 10 שניות)</span>
         <div id="uarea">
           <div class="uzone" id="uzone-btn">
             <div style="font-size:28px;margin-bottom:6px">📷</div>
-            <div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div>
+            <div style="font-size:14px;color:#88c;font-weight:700" id="uzone-text">לחץ להעלאת תמונה או סרטון</div>
             <div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div>
           </div>
         </div>
@@ -196,15 +281,17 @@ select option{background:#0d0d20;color:#fff}
         <input type="file" id="finput" accept="image/*,video/*" style="display:none">
       </div>
 
-      <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55);color:#000">💾 שמור את היום</button>
+      <button class="sbtn" id="savebtn" style="background:linear-gradient(135deg,#00ff88,#00aa55);color:#000">
+        <span id="savebtn-text">💾 שמור את היום</span>
+      </button>
 
       <div class="card" id="weekcard" style="display:none">
-        <span class="lbl">השבוע שלי</span>
+        <span class="lbl" id="lbl-myweek">השבוע שלי</span>
         <div class="wchart" id="mywchart"></div>
       </div>
 
       <div class="card" id="vscard" style="display:none">
-        <span class="lbl">אתה מול העולם</span>
+        <span class="lbl" id="lbl-vs">אתה מול העולם</span>
         <div id="vsrows"></div>
         <div id="vsdiff" style="text-align:center;margin-top:10px;font-size:14px;color:#88c"></div>
       </div>
@@ -217,21 +304,21 @@ select option{background:#0d0d20;color:#fff}
           <svg id="globesvg" viewBox="0 0 200 200" width="160" height="160"></svg>
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
             <div id="gnum" style="font-size:48px;font-weight:900;line-height:1;color:#00ff88">--</div>
-            <div style="font-size:13px;color:#88c;font-weight:700">ציון גלובלי היום</div>
+            <div style="font-size:13px;color:#88c;font-weight:700" id="lbl-global-score">ציון גלובלי היום</div>
           </div>
         </div>
         <div id="gtotal" style="font-size:13px;color:#66a;margin-top:10px;font-weight:700">טוען...</div>
       </div>
       <div class="stabs" id="wtabs">
-        <button class="stab on" data-tab="cities">🏙️ ערים</button>
-        <button class="stab" data-tab="countries">🌐 מדינות</button>
-        <button class="stab" data-tab="map">🗺️ מפה</button>
+        <button class="stab on" data-tab="cities" id="wtab-cities">🏙️ ערים</button>
+        <button class="stab" data-tab="countries" id="wtab-countries">🌐 מדינות</button>
+        <button class="stab" data-tab="map" id="wtab-map">🗺️ מפה</button>
       </div>
       <div id="wcities"></div>
       <div id="wcountries" style="display:none"></div>
       <div id="wmap" style="display:none">
         <div class="card" style="padding:12px">
-          <span class="lbl" style="margin-bottom:8px">מפה עולמית</span>
+          <span class="lbl" id="lbl-world-map">מפה עולמית</span>
           <div class="mapwrap" id="mapwrap"></div>
         </div>
       </div>
@@ -240,46 +327,26 @@ select option{background:#0d0d20;color:#fff}
     <!-- HISTORY -->
     <div class="screen" id="s-history">
       <div class="stabs" id="htabs">
-        <button class="stab on" data-tab="mine">📋 שלי</button>
-        <button class="stab" data-tab="world">🌍 עולמי</button>
-        <button class="stab" data-tab="stats">📊 סטטס</button>
+        <button class="stab on" data-tab="mine" id="htab-mine">📋 שלי</button>
+        <button class="stab" data-tab="world" id="htab-world">🌍 עולמי</button>
+        <button class="stab" data-tab="stats" id="htab-stats">📊 סטטיסטיקה</button>
       </div>
       <div id="h-mine"></div>
       <div id="h-world" style="display:none"></div>
       <div id="h-stats" style="display:none"></div>
     </div>
 
-    <!-- EXPORT -->
-    <div class="screen" id="s-export">
-      <div class="card">
-        <div style="font-size:17px;font-weight:900;margin-bottom:6px">💾 ייצוא הנתונים</div>
-        <div id="expinfo" style="font-size:14px;color:#88c;line-height:1.7"></div>
-      </div>
-      <button class="obtn" id="btn-csv">
-        <span style="font-size:24px">📊</span>
-        <div><div style="font-weight:900">ייצא כ-CSV</div><div style="font-size:12px;color:#66a">נפתח ב-Excel</div></div>
-      </button>
-      <button class="obtn" id="btn-json">
-        <span style="font-size:24px">💾</span>
-        <div><div style="font-weight:900">ייצא כ-JSON</div><div style="font-size:12px;color:#66a">גיבוי מלא</div></div>
-      </button>
-      <div id="expmsg" style="display:none;text-align:center;color:#00ff88;font-weight:900;padding:10px;font-size:16px"></div>
-      <button class="obtn" id="btn-logout" style="border-color:#ff4466;color:#ff4466;margin-top:8px">
-        <span style="font-size:24px">🚪</span>
-        <div><div style="font-weight:900">התנתק</div></div>
-      </button>
-    </div>
   </div>
 
 </div>
 </div>
 
+<!-- NAV -->
 <nav class="nav" id="main-nav" style="display:none">
   <div class="nav-in">
-    <button class="nb on" data-screen="today"><span>✍️</span>היום</button>
-    <button class="nb" data-screen="world"><span>🌍</span>עולם</button>
-    <button class="nb" data-screen="history"><span>📅</span>ארכיון</button>
-    <button class="nb" data-screen="export"><span>💾</span>ייצוא</button>
+    <button class="nb on" data-screen="today"><span>✍️</span><span id="nav-today">היום</span></button>
+    <button class="nb" data-screen="world"><span>🌍</span><span id="nav-world">עולם</span></button>
+    <button class="nb" data-screen="history"><span>📅</span><span id="nav-history">ארכיון</span></button>
   </div>
 </nav>
 
@@ -297,7 +364,7 @@ select option{background:#0d0d20;color:#fff}
     <div id="mloc" style="font-size:14px;color:#88c;margin-bottom:12px;display:none"></div>
     <div id="mmedia" style="border-radius:12px;overflow:hidden;margin-bottom:14px;display:none"></div>
     <div id="mspecial" style="background:#0d0d20;border-radius:12px;padding:14px;border:2px solid #2a2a4a;display:none">
-      <div style="font-size:10px;color:#66a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">מה היה מיוחד</div>
+      <div style="font-size:10px;color:#66a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px" id="modal-special-lbl">מה היה מיוחד</div>
       <div id="mtext" style="font-size:15px;line-height:1.8"></div>
     </div>
   </div>
@@ -312,55 +379,343 @@ var SK='whi-v5';
 var entries={},curScore=70,curMedia=null,curMediaType=null;
 var currentUser=null,userProfile=null;
 var selectedStatus='';
+var currentLang='he';
+var selectedCountryCode=''; // for Places API
+
 var GW=[62,65,71,68,74,70,68];
-var WL=['ב','ג','ד','ה','ו','ש','א'];
+var WL_HE=['ב','ג','ד','ה','ו','ש','א'];
+var WL_EN=['Mo','Tu','We','Th','Fr','Sa','Su'];
+
 var MAPC=[{n:'USA',s:0,x:18,y:38,r:7},{n:'Canada',s:0,x:18,y:25,r:6},{n:'Brazil',s:0,x:28,y:62,r:6},{n:'UK',s:0,x:45,y:28,r:2.5},{n:'Germany',s:0,x:49,y:29,r:2.5},{n:'Sweden',s:0,x:50,y:22,r:2.5},{n:'Finland',s:0,x:52,y:19,r:2.5},{n:'Russia',s:0,x:62,y:24,r:9},{n:'Israel',s:0,x:55,y:38,r:2},{n:'India',s:0,x:65,y:43,r:5},{n:'China',s:0,x:72,y:37,r:7},{n:'Japan',s:0,x:80,y:34,r:2.5},{n:'Australia',s:0,x:77,y:62,r:6},{n:'NZ',s:0,x:84,y:68,r:2}];
 
-// Countries list
-var COUNTRIES=['Afghanistan','Albania','Algeria','Argentina','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia','Brazil','Bulgaria','Cambodia','Canada','Chile','China','Colombia','Croatia','Cuba','Czech Republic','Denmark','Ecuador','Egypt','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mexico','Morocco','Netherlands','New Zealand','Nigeria','Norway','Pakistan','Palestine','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Saudi Arabia','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Thailand','Tunisia','Turkey','UAE','UK','USA','Ukraine','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen'];
+// ── TRANSLATIONS ──────────────────────────────────────────────────────────────
+var T = {
+  he: {
+    appTitle: 'מדד האושר 🌍',
+    loginTitle: 'מדד האושר העולמי',
+    loginSub: 'כל יום · כל אחד · כל העולם<br>אנונימי לחלוטין',
+    loginBtn: 'כניסה עם Google',
+    loginAnon: 'המידע שלך מאובטח ואנונימי לחלוטין',
+    profWelcome: 'ברוך הבא! 👋',
+    profSub: 'מלא פעם אחת — הכל אנונימי',
+    profLblCountry: 'מדינת מגורים',
+    profLblCity: 'עיר מגורים',
+    profLblStatus: 'מה אתה עושה בחיים?',
+    profSave: 'המשך ←',
+    profCountryPlaceholder: 'הקלד שם מדינה...',
+    profCityPlaceholder: 'הקלד שם עיר...',
+    stStudent: '🎓 סטודנט',
+    stEmployed: '💼 עובד/ת',
+    stSelf: '🚀 עצמאי/ת',
+    stRetired: '🌴 גמלאי/ת',
+    stUnemployed: '🔍 מחפש/ת עבודה',
+    stOther: '✨ אחר',
+    lblTodayScore: 'ציון היום',
+    lblSpecial: 'מה היה מיוחד?',
+    lblMedia: 'תמונה / סרטון (עד 10 שניות)',
+    uzoneText: 'לחץ להעלאת תמונה או סרטון',
+    savebtn: '💾 שמור את היום',
+    lblMyWeek: 'השבוע שלי',
+    lblVs: 'אתה מול העולם',
+    lblGlobalScore: 'ציון גלובלי היום',
+    wtabCities: '🏙️ ערים',
+    wtabCountries: '🌐 מדינות',
+    wtabMap: '🗺️ מפה',
+    lblWorldMap: 'מפה עולמית',
+    htabMine: '📋 שלי',
+    htabWorld: '🌍 עולמי',
+    htabStats: '📊 סטטיסטיקה',
+    navToday: 'היום',
+    navWorld: 'עולם',
+    navHistory: 'ארכיון',
+    setTitle: 'הגדרות',
+    setLblLang: 'שפה / Language',
+    setEditProfile: 'ערוך פרופיל',
+    setEditProfileSub: 'מדינה, עיר, סטטוס',
+    setCsvTitle: 'ייצוא CSV',
+    setCsvSub: 'הורד את כל הנתונים שלך',
+    setJsonTitle: 'ייצוא JSON',
+    setJsonSub: 'גיבוי מלא',
+    setLogout: 'התנתק',
+    setLogoutSub: 'יציאה מהחשבון',
+    modalSpecialLbl: 'מה היה מיוחד',
+    loading: 'טוען...',
+    noData: 'אין נתונים עדיין',
+    noDataFirst: 'אין נתונים עדיין\nהיה הראשון לשמור!',
+    entries: 'כניסות',
+    savedOk: '✓ נשמר בהצלחה!',
+    savedLocal: 'נשמר מקומית בלבד',
+    csvDone: '✓ CSV הורד!',
+    jsonDone: '✓ JSON הורד!',
+    fillAll: 'אנא מלא את כל השדות',
+    saveErr: 'שגיאה בשמירה',
+    videoErr: 'הסרטון ארוך מ-10 שניות',
+    daysCount: 'ימים',
+    bestDay: '🏆 היום הכי טוב',
+    myDays: 'ימים שנשמרו',
+    noEntries: '📭\nעדיין אין ימים שנשמרו',
+    worldArchive: 'ארכיון עולמי',
+    worldTrend: 'מגמה עולמית — 14 ימים',
+    topCities: 'ערים מובילות:',
+    myAvg: 'הציון שלך',
+    worldAvg: 'ממוצע עולמי',
+    aboveAvg: 'מעל הממוצע',
+    belowAvg: 'מתחת לממוצע',
+    exactAvg: 'בדיוק בממוצע',
+    myGraph: 'הגרף שלי',
+    avg: 'ממוצע',
+    highest: 'הכי גבוה',
+    lowest: 'הכי נמוך',
+    dir: 'rtl',
+    lang: 'he'
+  },
+  en: {
+    appTitle: 'Happiness Index 🌍',
+    loginTitle: 'World Happiness Index',
+    loginSub: 'Every day · Everyone · The whole world<br>100% anonymous',
+    loginBtn: 'Sign in with Google',
+    loginAnon: 'Your data is secure and completely anonymous',
+    profWelcome: 'Welcome! 👋',
+    profSub: 'Fill once — everything is anonymous',
+    profLblCountry: 'Country',
+    profLblCity: 'City',
+    profLblStatus: 'What do you do?',
+    profSave: 'Continue →',
+    profCountryPlaceholder: 'Type a country...',
+    profCityPlaceholder: 'Type a city...',
+    stStudent: '🎓 Student',
+    stEmployed: '💼 Employed',
+    stSelf: '🚀 Self-employed',
+    stRetired: '🌴 Retired',
+    stUnemployed: '🔍 Job hunting',
+    stOther: '✨ Other',
+    lblTodayScore: "Today's Score",
+    lblSpecial: 'What was special?',
+    lblMedia: 'Photo / Video (up to 10 seconds)',
+    uzoneText: 'Tap to upload a photo or video',
+    savebtn: '💾 Save today',
+    lblMyWeek: 'My week',
+    lblVs: 'You vs the world',
+    lblGlobalScore: "Today's global score",
+    wtabCities: '🏙️ Cities',
+    wtabCountries: '🌐 Countries',
+    wtabMap: '🗺️ Map',
+    lblWorldMap: 'World map',
+    htabMine: '📋 Mine',
+    htabWorld: '🌍 World',
+    htabStats: '📊 Statistics',
+    navToday: 'Today',
+    navWorld: 'World',
+    navHistory: 'Archive',
+    setTitle: 'Settings',
+    setLblLang: 'Language / שפה',
+    setEditProfile: 'Edit profile',
+    setEditProfileSub: 'Country, city, status',
+    setCsvTitle: 'Export CSV',
+    setCsvSub: 'Download all your data',
+    setJsonTitle: 'Export JSON',
+    setJsonSub: 'Full backup',
+    setLogout: 'Sign out',
+    setLogoutSub: 'Log out of your account',
+    modalSpecialLbl: 'What was special',
+    loading: 'Loading...',
+    noData: 'No data yet',
+    noDataFirst: 'No data yet\nBe the first to save!',
+    entries: 'entries',
+    savedOk: '✓ Saved successfully!',
+    savedLocal: 'Saved locally only',
+    csvDone: '✓ CSV downloaded!',
+    jsonDone: '✓ JSON downloaded!',
+    fillAll: 'Please fill in all fields',
+    saveErr: 'Error saving',
+    videoErr: 'Video is longer than 10 seconds',
+    daysCount: 'Days',
+    bestDay: '🏆 Best day',
+    myDays: 'days recorded',
+    noEntries: '📭\nNo days saved yet',
+    worldArchive: 'World archive',
+    worldTrend: 'Global trend — 14 days',
+    topCities: 'Top cities:',
+    myAvg: 'Your score',
+    worldAvg: 'World average',
+    aboveAvg: 'above average',
+    belowAvg: 'below average',
+    exactAvg: 'exactly average',
+    myGraph: 'My chart',
+    avg: 'Average',
+    highest: 'Highest',
+    lowest: 'Lowest',
+    dir: 'ltr',
+    lang: 'en'
+  }
+};
 
+function t(key){ return T[currentLang][key] || T['he'][key] || key; }
+
+// ── LANG APPLY ────────────────────────────────────────────────────────────────
+function applyLang(lang){
+  currentLang = lang;
+  localStorage.setItem('whi-lang', lang);
+  var L = T[lang];
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('dir', L.dir);
+
+  // Update all text nodes
+  var ids = {
+    'app-title': 'appTitle','login-title':'loginTitle','login-btn-text':'loginBtn',
+    'login-anon':'loginAnon','prof-welcome':'profWelcome','prof-sub':'profSub',
+    'prof-lbl-country':'profLblCountry','prof-lbl-city':'profLblCity',
+    'prof-lbl-status':'profLblStatus','prof-save-txt':'profSave',
+    'st-student':'stStudent','st-employed':'stEmployed','st-self':'stSelf',
+    'st-retired':'stRetired','st-unemployed':'stUnemployed','st-other':'stOther',
+    'lbl-today-score':'lblTodayScore','lbl-special':'lblSpecial',
+    'lbl-media':'lblMedia','uzone-text':'uzoneText','savebtn-text':'savebtn',
+    'lbl-myweek':'lblMyWeek','lbl-vs':'lblVs','lbl-global-score':'lblGlobalScore',
+    'wtab-cities':'wtabCities','wtab-countries':'wtabCountries','wtab-map':'wtabMap',
+    'lbl-world-map':'lblWorldMap','htab-mine':'htabMine','htab-world':'htabWorld',
+    'htab-stats':'htabStats','nav-today':'navToday','nav-world':'navWorld',
+    'nav-history':'navHistory','set-title':'setTitle','set-lbl-lang':'setLblLang',
+    'set-edit-profile':'setEditProfile','set-edit-profile-sub':'setEditProfileSub',
+    'set-csv-title':'setCsvTitle','set-csv-sub':'setCsvSub',
+    'set-json-title':'setJsonTitle','set-json-sub':'setJsonSub',
+    'set-logout-title':'setLogout','set-logout-sub':'setLogoutSub',
+    'modal-special-lbl':'modalSpecialLbl','gtotal':'loading'
+  };
+  Object.keys(ids).forEach(function(id){
+    var el2 = document.getElementById(id);
+    if(el2) el2.innerHTML = L[ids[id]] || '';
+  });
+
+  // Placeholders
+  var cp = document.getElementById('profile-country');
+  if(cp) cp.placeholder = L.profCountryPlaceholder;
+  var ci = document.getElementById('profile-city');
+  if(ci) ci.placeholder = L.profCityPlaceholder;
+  var sp = document.getElementById('special');
+  if(sp) sp.placeholder = lang === 'he' ? 'רגע אחד מהיום...' : 'One moment from today...';
+
+  // Login subtitle (has HTML)
+  var ls = document.getElementById('login-sub');
+  if(ls) ls.innerHTML = L.loginSub;
+
+  // Lang option highlights
+  document.querySelectorAll('.lang-opt').forEach(function(o){
+    o.classList.toggle('on', o.getAttribute('data-lang') === lang);
+  });
+
+  // Re-render score label if app is showing
+  if(curScore) updateUI(curScore);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
 function gc(s){if(!s)return'#2a2a4a';if(s<=20)return'#ff2d55';if(s<=40)return'#ff7c2a';if(s<=60)return'#ffd700';if(s<=80)return'#00ff88';return'#00d4ff';}
 function gg(s){if(s<=20)return'linear-gradient(135deg,#ff2d55,#cc0033)';if(s<=40)return'linear-gradient(135deg,#ff7c2a,#cc4400)';if(s<=60)return'linear-gradient(135deg,#ffd700,#aa8800)';if(s<=80)return'linear-gradient(135deg,#00ff88,#00aa55)';return'linear-gradient(135deg,#00d4ff,#0088cc)';}
 function ge(s){if(s<=20)return'😞';if(s<=40)return'😕';if(s<=60)return'😐';if(s<=80)return'🙂';return'😄';}
-function gl(s){if(s<=20)return'יום קשה';if(s<=40)return'לא קל';if(s<=60)return'סבבה';if(s<=80)return'יום טוב!';return'יום מעולה!';}
+function gl(s){
+  if(currentLang==='en'){if(s<=20)return'Tough day';if(s<=40)return'Not easy';if(s<=60)return'Alright';if(s<=80)return'Good day!';return'Amazing day!';}
+  if(s<=20)return'יום קשה';if(s<=40)return'לא קל';if(s<=60)return'סבבה';if(s<=80)return'יום טוב!';return'יום מעולה!';
+}
 function tod(){return new Date().toISOString().slice(0,10);}
-function fs(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'short',day:'numeric',month:'short'});}
-function fl(d){return new Date(d).toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function fs(d){return new Date(d).toLocaleDateString(currentLang==='en'?'en-US':'he-IL',{weekday:'short',day:'numeric',month:'short'});}
+function fl(d){return new Date(d).toLocaleDateString(currentLang==='en'?'en-US':'he-IL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function allE(){return Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});}
 function saveSt(){localStorage.setItem(SK,JSON.stringify(entries));}
 function el(id){return document.getElementById(id);}
-function showToast(msg,err){var t=el('toast');t.textContent=msg;t.style.background=err?'#ff2d55':'#00ff88';t.style.color=err?'#fff':'#000';t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
+function showToast(msg,err){var toast=el('toast');toast.textContent=msg;toast.style.background=err?'#ff2d55':'#00ff88';toast.style.color=err?'#fff':'#000';toast.style.display='block';setTimeout(function(){toast.style.display='none';},2500);}
+
+// ── GOOGLE PLACES ─────────────────────────────────────────────────────────────
+var countryAutocomplete = null;
+var cityAutocomplete = null;
+
+function initPlacesAutocomplete(){
+  if(!window.google || !window.google.maps || !window.google.maps.places) {
+    setTimeout(initPlacesAutocomplete, 300);
+    return;
+  }
+
+  // Country autocomplete — regions only
+  var countryInput = el('profile-country');
+  if(countryInput && !countryAutocomplete){
+    countryAutocomplete = new google.maps.places.Autocomplete(countryInput, {
+      types: ['country'],
+      fields: ['name','address_components']
+    });
+    countryAutocomplete.addListener('place_changed', function(){
+      var place = countryAutocomplete.getPlace();
+      if(place && place.address_components){
+        place.address_components.forEach(function(comp){
+          if(comp.types.indexOf('country') !== -1){
+            selectedCountryCode = comp.short_name;
+            countryInput.value = comp.long_name;
+            updateCityRestriction();
+          }
+        });
+      }
+    });
+    // Style the dropdown
+    countryInput.addEventListener('input', function(){
+      if(!this.value) selectedCountryCode = '';
+    });
+  }
+
+  // City autocomplete — cities only
+  var cityInput = el('profile-city');
+  if(cityInput && !cityAutocomplete){
+    cityAutocomplete = new google.maps.places.Autocomplete(cityInput, {
+      types: ['(cities)'],
+      fields: ['name']
+    });
+    cityAutocomplete.addListener('place_changed', function(){
+      var place = cityAutocomplete.getPlace();
+      if(place && place.name) cityInput.value = place.name;
+    });
+  }
+}
+
+function updateCityRestriction(){
+  if(cityAutocomplete && selectedCountryCode){
+    cityAutocomplete.setComponentRestrictions({country: selectedCountryCode});
+  }
+}
+
+// Style Google autocomplete dropdown
+var styleTag = document.createElement('style');
+styleTag.textContent = '.pac-container{background:#13132a!important;border:2px solid #4444aa!important;border-radius:10px!important;font-family:Heebo,sans-serif!important;box-shadow:0 8px 32px rgba(0,0,0,.8)!important;margin-top:4px!important}.pac-item{background:#13132a!important;border-bottom:1px solid #1a1a2e!important;color:#fff!important;padding:10px 14px!important;font-size:14px!important;cursor:pointer!important}.pac-item:hover{background:#1a1a35!important}.pac-item-query{color:#fff!important;font-weight:700!important}.pac-matched{color:#00ff88!important}.pac-icon{filter:invert(1) opacity(0.4)!important}';
+document.head.appendChild(styleTag);
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 function showLogin(){el('s-login').style.display='block';el('s-profile').style.display='none';el('s-app').style.display='none';el('main-nav').style.display='none';}
-function showProfile(){el('s-login').style.display='none';el('s-profile').style.display='block';el('s-app').style.display='none';el('main-nav').style.display='none';}
+function showProfile(){el('s-login').style.display='none';el('s-profile').style.display='block';el('s-app').style.display='none';el('main-nav').style.display='none';setTimeout(initPlacesAutocomplete,500);}
 function showApp(){el('s-login').style.display='none';el('s-profile').style.display='none';el('s-app').style.display='block';el('main-nav').style.display='block';initApp();}
 
 el('google-login-btn').addEventListener('click',function(){
   sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
 });
 
-el('btn-logout').addEventListener('click',function(){
-  sb.auth.signOut().then(function(){currentUser=null;userProfile=null;showLogin();});
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+el('gear-btn').addEventListener('click',function(){
+  el('settings-panel').classList.add('on');
 });
+el('settings-close').addEventListener('click',function(){
+  el('settings-panel').classList.remove('on');
+});
+document.querySelectorAll('.lang-opt').forEach(function(opt){
+  opt.addEventListener('click',function(){
+    applyLang(this.getAttribute('data-lang'));
+  });
+});
+el('set-logout-btn').addEventListener('click',function(){
+  sb.auth.signOut().then(function(){currentUser=null;userProfile=null;el('settings-panel').classList.remove('on');showLogin();});
+});
+el('set-profile-btn').addEventListener('click',function(){
+  el('settings-panel').classList.remove('on');
+  countryAutocomplete=null;cityAutocomplete=null;
+  showProfile();
+});
+el('set-export-csv').addEventListener('click',function(){ doCSV(); });
+el('set-export-json').addEventListener('click',function(){ doJSON(); });
 
 // ── PROFILE ───────────────────────────────────────────────────────────────────
-function setupAutocomplete(inputId,listId,items){
-  var inp=el(inputId),list=el(listId);
-  inp.addEventListener('input',function(){
-    var val=this.value.trim().toLowerCase();
-    if(val.length<2){list.style.display='none';return;}
-    var matches=items.filter(function(i){return i.toLowerCase().startsWith(val);}).slice(0,8);
-    if(!matches.length){list.style.display='none';return;}
-    list.innerHTML=matches.map(function(m){return'<div class="autocomplete-item">'+m+'</div>';}).join('');
-    list.style.display='block';
-    list.querySelectorAll('.autocomplete-item').forEach(function(item){
-      item.addEventListener('click',function(){inp.value=this.textContent;list.style.display='none';});
-    });
-  });
-  document.addEventListener('click',function(e){if(!inp.contains(e.target)&&!list.contains(e.target))list.style.display='none';});
-}
-
 el('status-grid').querySelectorAll('.status-opt').forEach(function(opt){
   opt.addEventListener('click',function(){
     el('status-grid').querySelectorAll('.status-opt').forEach(function(o){o.classList.remove('on');});
@@ -372,9 +727,9 @@ el('status-grid').querySelectorAll('.status-opt').forEach(function(opt){
 el('save-profile-btn').addEventListener('click',function(){
   var country=el('profile-country').value.trim();
   var city=el('profile-city').value.trim();
-  if(!country||!city||!selectedStatus){showToast('אנא מלא את כל השדות',true);return;}
+  if(!country||!city||!selectedStatus){showToast(t('fillAll'),true);return;}
   sb.from('profiles').upsert({user_id:currentUser.id,country:country,city:city,status:selectedStatus},{onConflict:'user_id'}).then(function(res){
-    if(res.error){showToast('שגיאה בשמירה',true);return;}
+    if(res.error){showToast(t('saveErr'),true);return;}
     userProfile={country:country,city:city,status:selectedStatus};
     showApp();
   });
@@ -383,12 +738,8 @@ el('save-profile-btn').addEventListener('click',function(){
 // ── LOAD PROFILE ─────────────────────────────────────────────────────────────
 function loadProfile(){
   sb.from('profiles').select('*').eq('user_id',currentUser.id).single().then(function(res){
-    if(res.data){
-      userProfile=res.data;
-      showApp();
-    } else {
-      showProfile();
-    }
+    if(res.data){userProfile=res.data;showApp();}
+    else{showProfile();}
   });
 }
 
@@ -411,24 +762,23 @@ function goTo(name){
   var sc=el('s-'+name);if(sc){sc.classList.add('on');sc.style.display='flex';}
   if(name==='world')loadWorldData();
   if(name==='history')renderHistory();
-  if(name==='export')renderExport();
 }
 
 // ── SAVE ──────────────────────────────────────────────────────────────────────
 function saveEntry(){
-  var t=tod();
-  entries[t]={score:curScore,special:el('special').value,mediaPreview:curMedia,mediaType:curMediaType,date:t};
+  var tday=tod();
+  entries[tday]={score:curScore,special:el('special').value,mediaPreview:curMedia,mediaType:curMediaType,date:tday};
   saveSt();
   sb.from('entries').upsert({
-    date:t,score:curScore,
+    date:tday,score:curScore,
     city:userProfile?userProfile.city:null,
     country:userProfile?userProfile.country:null,
     special:el('special').value||null,
     user_id:currentUser?currentUser.id:null,
     device_id:currentUser?currentUser.id:'anon'
   },{onConflict:'date,device_id'}).then(function(res){
-    if(res.error){showToast('נשמר מקומית בלבד',true);}
-    else{showToast('✓ נשמר בהצלחה!');el('onlinedot').style.display='inline-block';}
+    if(res.error)showToast(t('savedLocal'),true);
+    else{showToast(t('savedOk'));el('onlinedot').style.display='inline-block';}
   });
   el('special').value='';curMedia=null;curMediaType=null;resetUpload();
   updateUI(70);el('srange').value=70;
@@ -438,18 +788,19 @@ function saveEntry(){
 // ── WORLD ─────────────────────────────────────────────────────────────────────
 function loadWorldData(){
   var today=tod();
+  el('gtotal').textContent=t('loading');
   sb.from('entries').select('score,city,country').gte('created_at',today+'T00:00:00').then(function(res){
     if(res.error||!res.data||!res.data.length){
       el('gnum').textContent='--';
-      el('gtotal').textContent='אין נתונים עדיין להיום';
-      el('wcities').innerHTML='<div class="empty">🌍<br>אין נתונים עדיין<br>היה הראשון לשמור!</div>';
-      el('wcountries').innerHTML='<div class="empty">🌍<br>אין נתונים עדיין</div>';
+      el('gtotal').textContent=t('noData');
+      el('wcities').innerHTML='<div class="empty">🌍<br>'+t('noDataFirst').replace('\n','<br>')+'</div>';
+      el('wcountries').innerHTML='<div class="empty">🌍<br>'+t('noData')+'</div>';
       renderMap({});return;
     }
     var data=res.data;
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
-    el('gtotal').textContent=data.length+' '+ge(avg)+' כניסות היום';
+    el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
     renderGlobe(avg);
     var cityMap={},countryMap={};
@@ -466,9 +817,9 @@ function loadWorldData(){
 }
 
 function renderLeaders(items,elId){
-  if(!items.length){el(elId).innerHTML='<div class="empty">אין נתונים עדיין</div>';return;}
+  if(!items.length){el(elId).innerHTML='<div class="empty">'+t('noData')+'</div>';return;}
   var html='';
-  items.forEach(function(c,i){var col=gc(c.s);html+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' כניסות</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
+  items.forEach(function(c,i){var col=gc(c.s);html+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div><div style="font-size:11px;color:#66a">'+c.p+' '+t('entries')+'</div></div><div style="display:flex;align-items:center;gap:7px"><div class="wbar" style="width:50px"><div class="wbar-fill" style="width:'+c.s+'%;background:'+col+'"></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div></div>';});
   el(elId).innerHTML=html;
 }
 
@@ -498,15 +849,11 @@ function renderMap(countryMap){
 }
 
 // ── HISTORY ───────────────────────────────────────────────────────────────────
-function renderHistory(){
-  renderMyHistory();
-  renderWorldArchive();
-  renderStats();
-}
+function renderHistory(){renderMyHistory();renderWorldArchive();renderStats();}
 
 function renderMyHistory(){
   var e=allE();
-  if(!e.length){el('h-mine').innerHTML='<div class="empty">📭<br>עדיין אין ימים שנשמרו</div>';return;}
+  if(!e.length){el('h-mine').innerHTML='<div class="empty">'+t('noEntries').replace('\n','<br>')+'</div>';return;}
   var html='';
   e.forEach(function(en){var c=gc(en.score);html+='<div class="erow" data-date="'+en.date+'"><div style="flex:1;min-width:0"><div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'+(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';});
   el('h-mine').innerHTML=html;
@@ -515,25 +862,16 @@ function renderMyHistory(){
 
 function renderWorldArchive(){
   var hw=el('h-world');
-  hw.innerHTML='<div style="color:#88c;font-size:13px;margin-bottom:12px">טוען ארכיון עולמי...</div>';
+  hw.innerHTML='<div style="color:#88c;font-size:13px;margin-bottom:12px">'+t('loading')+'</div>';
   sb.from('entries').select('date,score,city,country').order('date',{ascending:false}).limit(200).then(function(res){
-    if(res.error||!res.data||!res.data.length){hw.innerHTML='<div class="empty">אין נתונים עדיין</div>';return;}
+    if(res.error||!res.data||!res.data.length){hw.innerHTML='<div class="empty">'+t('noData')+'</div>';return;}
     var data=res.data;
-    // Group by date
     var byDate={};
     data.forEach(function(d){if(!byDate[d.date])byDate[d.date]={scores:[],cities:{},countries:{}};byDate[d.date].scores.push(d.score);if(d.city){if(!byDate[d.date].cities[d.city])byDate[d.date].cities[d.city]=[];byDate[d.date].cities[d.city].push(d.score);}if(d.country){if(!byDate[d.date].countries[d.country])byDate[d.date].countries[d.country]=[];byDate[d.date].countries[d.country].push(d.score);}});
     var dates=Object.keys(byDate).sort(function(a,b){return b.localeCompare(a);});
-
-    // Build line chart data
     var chartDates=dates.slice(0,14).reverse();
     var globalAvgs=chartDates.map(function(d){var s=byDate[d].scores;return Math.round(s.reduce(function(a,b){return a+b;},0)/s.length);});
-
-    var html='<div class="card" style="margin-bottom:14px">';
-    html+='<span class="lbl">מגמה עולמית — 14 ימים</span>';
-    html+=renderLineChart(chartDates,globalAvgs,'#00ff88');
-    html+='</div>';
-
-    // Date list
+    var html='<div class="card" style="margin-bottom:14px"><span class="lbl">'+t('worldTrend')+'</span>'+renderLineChart(chartDates,globalAvgs,'#00ff88')+'</div>';
     dates.forEach(function(d){
       var s=byDate[d].scores;
       var avg=Math.round(s.reduce(function(a,b){return a+b;},0)/s.length);
@@ -541,9 +879,9 @@ function renderWorldArchive(){
       var topCities=Object.keys(byDate[d].cities).map(function(n){return{n:n,s:Math.round(byDate[d].cities[n].reduce(function(a,b){return a+b;},0)/byDate[d].cities[n].length)};}).sort(function(a,b){return b.s-a.s;}).slice(0,3);
       html+='<div class="card" style="margin-bottom:10px">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-      html+='<div><div style="font-size:13px;font-weight:700;color:#aac">'+fs(d)+'</div><div style="font-size:11px;color:#66a">'+s.length+' כניסות</div></div>';
+      html+='<div><div style="font-size:13px;font-weight:700;color:#aac">'+fs(d)+'</div><div style="font-size:11px;color:#66a">'+s.length+' '+t('entries')+'</div></div>';
       html+='<div style="font-size:36px;font-weight:900;color:'+c+'">'+avg+'</div></div>';
-      if(topCities.length){html+='<div style="font-size:11px;color:#66a;margin-bottom:6px">ערים מובילות:</div><div style="display:flex;gap:6px;flex-wrap:wrap">';topCities.forEach(function(ci){var cc=gc(ci.s);html+='<div style="background:'+cc+'22;border:1px solid '+cc+'44;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:'+cc+'">'+ci.n+' '+ci.s+'</div>';});html+='</div>';}
+      if(topCities.length){html+='<div style="font-size:11px;color:#66a;margin-bottom:6px">'+t('topCities')+'</div><div style="display:flex;gap:6px;flex-wrap:wrap">';topCities.forEach(function(ci){var cc=gc(ci.s);html+='<div style="background:'+cc+'22;border:1px solid '+cc+'44;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:'+cc+'">'+ci.n+' '+ci.s+'</div>';});html+='</div>';}
       html+='</div>';
     });
     hw.innerHTML=html;
@@ -573,48 +911,43 @@ function renderLineChart(labels,values,color){
 
 function renderStats(){
   var e=allE();
-  if(!e.length){el('h-stats').innerHTML='<div class="empty">אין נתונים עדיין</div>';return;}
+  if(!e.length){el('h-stats').innerHTML='<div class="empty">'+t('noData')+'</div>';return;}
   var avg=Math.round(e.reduce(function(a,b){return a+b.score;},0)/e.length);
   var best=Math.max.apply(null,e.map(function(x){return x.score;}));
   var worst=Math.min.apply(null,e.map(function(x){return x.score;}));
   var bestDay=e.find(function(x){return x.score===best;});
   var sh='<div class="sgrid">';
-  [{l:'ממוצע',v:avg,e:ge(avg)},{l:'ימים',v:e.length,e:'📅'},{l:'הכי גבוה',v:best,e:'🏆'},{l:'הכי נמוך',v:worst,e:'💪'}].forEach(function(x){var c=gc(x.l!=='ימים'?x.v:avg);sh+='<div class="sbox"><div class="lbl" style="margin-bottom:5px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:4px">'+x.e+'</div></div>';});
+  [{l:t('avg'),v:avg,e:ge(avg)},{l:t('daysCount'),v:e.length,e:'📅'},{l:t('highest'),v:best,e:'🏆'},{l:t('lowest'),v:worst,e:'💪'}].forEach(function(x){var c=gc(x.l!==t('daysCount')?x.v:avg);sh+='<div class="sbox"><div class="lbl" style="margin-bottom:5px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:4px">'+x.e+'</div></div>';});
   sh+='</div>';
-
-  // Line chart of my scores
   var chartE=e.slice(0,14).reverse();
   var chartLabels=chartE.map(function(e2){return e2.date;});
   var chartVals=chartE.map(function(e2){return e2.score;});
-  sh+='<div class="card"><span class="lbl">הגרף שלי</span>'+renderLineChart(chartLabels,chartVals,'#00d4ff')+'</div>';
-
-  if(bestDay){var bc=gc(best);sh+='<div class="card" style="background:'+bc+'12;border-color:'+bc+'33"><div style="font-size:12px;color:'+bc+';font-weight:900;margin-bottom:4px">🏆 היום הכי טוב</div><div style="font-size:13px;color:#aac">'+fl(bestDay.date)+'</div>'+(bestDay.special?'<div style="font-size:13px;margin-top:4px">'+bestDay.special+'</div>':'')+'</div>';}
-
+  sh+='<div class="card"><span class="lbl">'+t('myGraph')+'</span>'+renderLineChart(chartLabels,chartVals,'#00d4ff')+'</div>';
+  if(bestDay){var bc=gc(best);sh+='<div class="card" style="background:'+bc+'12;border-color:'+bc+'33"><div style="font-size:12px;color:'+bc+';font-weight:900;margin-bottom:4px">'+t('bestDay')+'</div><div style="font-size:13px;color:#aac">'+fl(bestDay.date)+'</div>'+(bestDay.special?'<div style="font-size:13px;margin-top:4px">'+bestDay.special+'</div>':'')+'</div>';}
   el('h-stats').innerHTML=sh;
 }
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
-function renderExport(){
-  var e=allE();
-  el('expinfo').textContent=e.length+' ימים נרשמו.';
-}
-
-function doCSV(){var e=allE(),rows=[['תאריך','ציון','מיוחד']];e.forEach(function(en){rows.push([en.date,en.score,(en.special||'').replace(/,/g,' ')]);});var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();showToast('✓ CSV הורד!');}
-function doJSON(){var blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.json';a.click();showToast('✓ JSON הורד!');}
+function doCSV(){var e=allE(),rows=[['Date','Score','Special']];e.forEach(function(en){rows.push([en.date,en.score,(en.special||'').replace(/,/g,' ')]);});var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();showToast(t('csvDone'));}
+function doJSON(){var blob=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.json';a.click();showToast(t('jsonDone'));}
 
 // ── MISC ──────────────────────────────────────────────────────────────────────
 function renderHeader(){
   var e=allE();
-  el('hdate').textContent=new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});
+  var now=new Date();
+  el('hdate').textContent=now.toLocaleDateString(currentLang==='en'?'en-US':'he-IL',{weekday:'long',day:'numeric',month:'long'});
   if(userProfile){el('user-city-label').textContent=userProfile.city;el('user-chip').style.display='flex';}
-  var s=0,d=new Date();while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){s++;d.setDate(d.getDate()-1);}else break;}
-  var b=el('streak');if(s>0){b.textContent='🔥 '+s+' ברצף';b.style.display='inline-block';}else b.style.display='none';
+  var streak=0,d2=new Date();
+  while(true){var ds=d2.toISOString().slice(0,10);if(entries[ds]){streak++;d2.setDate(d2.getDate()-1);}else break;}
+  var b=el('streak');if(streak>0){b.textContent='🔥 '+streak;b.style.display='inline-block';}else b.style.display='none';
+  el('app-title').innerHTML=t('appTitle')+'<span class="online-dot" id="onlinedot" style="display:none"></span>';
 }
 
 function renderWeekCard(){
   var e=allE();var wc=el('weekcard');
   if(e.length<2){if(wc)wc.style.display='none';return;}
   if(wc)wc.style.display='block';
+  var WL=currentLang==='en'?WL_EN:WL_HE;
   var arr=[],labels=[];
   for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var ds=d.toISOString().slice(0,10);arr.push(entries[ds]?entries[ds].score:0);labels.push(WL[6-i]||'');}
   el('mywchart').innerHTML='';
@@ -627,14 +960,15 @@ function renderVsCard(){
   var e=entries[tod()];var vc=el('vscard');
   if(!e){if(vc)vc.style.display='none';return;}
   if(vc)vc.style.display='block';
-  var rows=[{l:'הציון שלך',v:e.score},{l:'ממוצע עולמי',v:68}];
+  var rows=[{l:t('myAvg'),v:e.score},{l:t('worldAvg'),v:68}];
   var html='';rows.forEach(function(r){var c=gc(r.v);html+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px;font-weight:700"><span style="color:#aac">'+r.l+'</span><span style="color:'+c+'">'+r.v+'</span></div><div class="wbar"><div class="wbar-fill" style="width:'+r.v+'%;background:'+c+'"></div></div></div>';});
   el('vsrows').innerHTML=html;
-  var diff=e.score-68;el('vsdiff').textContent=diff>0?'+'+diff+' מעל הממוצע':diff<0?diff+' מתחת לממוצע':'בדיוק בממוצע';
+  var diff=e.score-68;
+  el('vsdiff').textContent=diff>0?'+'+diff+' '+t('aboveAvg'):diff<0?diff+' '+t('belowAvg'):t('exactAvg');
 }
 
 function showPreview(){el('uarea').innerHTML='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" id="mrem-btn">✕</button></div>';var rb=el('mrem-btn');if(rb)rb.addEventListener('click',resetUpload);}
-function resetUpload(){curMedia=null;curMediaType=null;el('uarea').innerHTML='<div class="uzone" id="uzone-btn"><div style="font-size:28px;margin-bottom:6px">📷</div><div style="font-size:14px;color:#88c;font-weight:700">לחץ להעלאת תמונה או סרטון</div><div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div></div>';var uz=el('uzone-btn');if(uz)uz.addEventListener('click',function(){el('finput').click();});el('finput').value='';}
+function resetUpload(){curMedia=null;curMediaType=null;el('uarea').innerHTML='<div class="uzone" id="uzone-btn"><div style="font-size:28px;margin-bottom:6px">📷</div><div style="font-size:14px;color:#88c;font-weight:700">'+t('uzoneText')+'</div><div style="font-size:12px;color:#446;margin-top:4px">JPG · PNG · MP4</div></div>';var uz=el('uzone-btn');if(uz)uz.addEventListener('click',function(){el('finput').click();});el('finput').value='';}
 
 function openM(date){var e=entries[date];if(!e)return;var c=gc(e.score);el('mdate').textContent=fl(date);el('mscore').textContent=e.score;el('mscore').style.color=c;el('mlabel').textContent=gl(e.score)+' '+ge(e.score);el('mlabel').style.color=c;el('mloc').style.display='none';var mm=el('mmedia');if(e.mediaPreview){mm.innerHTML=e.mediaType==='image'?'<img src="'+e.mediaPreview+'" style="width:100%;max-height:240px;object-fit:cover;display:block">':'<video src="'+e.mediaPreview+'" controls style="width:100%;display:block">';mm.style.display='block';}else mm.style.display='none';var ms=el('mspecial');if(e.special){el('mtext').textContent=e.special;ms.style.display='block';}else ms.style.display='none';el('modal').classList.add('on');}
 
@@ -644,82 +978,62 @@ function initApp(){
   try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(err){}
   renderHeader();updateUI(70);renderWeekCard();renderVsCard();
   renderGlobe(68);
-  setupAutocomplete('profile-country','country-list',COUNTRIES);
-  setupAutocomplete('profile-city','city-list',['תל אביב','ירושלים','חיפה','ראשון לציון','אשדוד','נתניה','באר שבע','בני ברק','חולון','רמת גן','New York','London','Paris','Berlin','Tokyo','Sydney','Dubai','Toronto','Singapore','Amsterdam']);
 }
 
 // ── EVENTS ────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',function(){
   makestars();
-  setupAutocomplete('profile-country','country-list',COUNTRIES);
-  setupAutocomplete('profile-city','city-list',['תל אביב','ירושלים','חיפה','ראשון לציון','אשדוד','נתניה','באר שבע','New York','London','Paris','Berlin','Tokyo']);
+  // Load saved lang
+  var savedLang = localStorage.getItem('whi-lang') || 'he';
+  applyLang(savedLang);
 
-  // Check auth
   sb.auth.getSession().then(function(res){
-    if(res.data.session){
-      currentUser=res.data.session.user;
-      loadProfile();
-    } else {
-      showLogin();
-    }
+    if(res.data.session){currentUser=res.data.session.user;loadProfile();}
+    else{showLogin();}
   });
-
   sb.auth.onAuthStateChange(function(event,session){
     if(session){currentUser=session.user;loadProfile();}
     else{currentUser=null;userProfile=null;showLogin();}
   });
 
-  // NAV
   document.querySelectorAll('.nb').forEach(function(btn){btn.addEventListener('click',function(){goTo(this.getAttribute('data-screen'));});});
-
-  // RANGE
   el('srange').addEventListener('input',function(){updateUI(this.value);});
-
-  // SAVE
   el('savebtn').addEventListener('click',saveEntry);
 
-  // UPLOAD
   el('uzone-btn').addEventListener('click',function(){el('finput').click();});
   el('finput').addEventListener('change',function(){
     var file=this.files[0];if(!file)return;
     el('verr').style.display='none';
     if(file.type.startsWith('video/')){
       var url=URL.createObjectURL(file);var v=document.createElement('video');v.src=url;
-      v.onloadedmetadata=function(){URL.revokeObjectURL(url);if(v.duration>10){el('verr').textContent='הסרטון ארוך מ-10 שניות';el('verr').style.display='block';return;}var fr=new FileReader();fr.onload=function(e){curMedia=e.target.result;curMediaType='video';showPreview();};fr.readAsDataURL(file);};
+      v.onloadedmetadata=function(){URL.revokeObjectURL(url);if(v.duration>10){el('verr').textContent=t('videoErr');el('verr').style.display='block';return;}var fr=new FileReader();fr.onload=function(e2){curMedia=e2.target.result;curMediaType='video';showPreview();};fr.readAsDataURL(file);};
     } else if(file.type.startsWith('image/')){
-      var fr=new FileReader();fr.onload=function(e){curMedia=e.target.result;curMediaType='image';showPreview();};fr.readAsDataURL(file);
+      var fr=new FileReader();fr.onload=function(e2){curMedia=e2.target.result;curMediaType='image';showPreview();};fr.readAsDataURL(file);
     }
   });
 
-  // HISTORY TABS
   el('htabs').querySelectorAll('.stab').forEach(function(btn){
     btn.addEventListener('click',function(){
-      var t=this.getAttribute('data-tab');
+      var tab=this.getAttribute('data-tab');
       el('htabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');
-      el('h-mine').style.display=t==='mine'?'block':'none';
-      el('h-world').style.display=t==='world'?'block':'none';
-      el('h-stats').style.display=t==='stats'?'block':'none';
+      el('h-mine').style.display=tab==='mine'?'block':'none';
+      el('h-world').style.display=tab==='world'?'block':'none';
+      el('h-stats').style.display=tab==='stats'?'block':'none';
     });
   });
 
-  // WORLD TABS
   el('wtabs').querySelectorAll('.stab').forEach(function(btn){
     btn.addEventListener('click',function(){
-      var t=this.getAttribute('data-tab');
+      var tab=this.getAttribute('data-tab');
       el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');
-      el('wcities').style.display=t==='cities'?'block':'none';
-      el('wcountries').style.display=t==='countries'?'block':'none';
-      el('wmap').style.display=t==='map'?'block':'none';
+      el('wcities').style.display=tab==='cities'?'block':'none';
+      el('wcountries').style.display=tab==='countries'?'block':'none';
+      el('wmap').style.display=tab==='map'?'block':'none';
     });
   });
 
-  // MODAL
   el('modal-close').addEventListener('click',function(){el('modal').classList.remove('on');});
   el('modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
-
-  // EXPORT
-  el('btn-csv').addEventListener('click',doCSV);
-  el('btn-json').addEventListener('click',doJSON);
 });
 })();
 </script>
