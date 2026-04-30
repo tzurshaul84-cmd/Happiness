@@ -438,8 +438,7 @@ window.addEventListener('beforeinstallprompt',function(e){
   e.preventDefault();deferredPWA=e;
   if(!localStorage.getItem('pwa-dismissed'))el('pwa-wrap').style.display='block';
 });
-el('pwa-install-btn').addEventListener('click',function(){if(deferredPWA){deferredPWA.prompt();deferredPWA.userChoice.then(function(){deferredPWA=null;el('pwa-wrap').style.display='none';});}});
-el('pwa-dismiss').addEventListener('click',function(){el('pwa-wrap').style.display='none';localStorage.setItem('pwa-dismissed','1');});
+// PWA listeners moved to DOMContentLoaded
 
 // ONBOARDING
 var OB_KEY='whi-ob-v3';var obStep=0;
@@ -760,6 +759,11 @@ function initApp(){
 
 window.addEventListener('DOMContentLoaded',function(){
   makestars();
+  // PWA
+  var pwaIb=el('pwa-install-btn');
+  if(pwaIb)pwaIb.addEventListener('click',function(){if(deferredPWA){deferredPWA.prompt();deferredPWA.userChoice.then(function(){deferredPWA=null;el('pwa-wrap').style.display='none';});}});
+  var pwaDis=el('pwa-dismiss');
+  if(pwaDis)pwaDis.addEventListener('click',function(){el('pwa-wrap').style.display='none';localStorage.setItem('pwa-dismissed','1');});
   currentLang=localStorage.getItem('whi-lang')||navigator.language.slice(0,2)||'he';
   if(!T[currentLang])currentLang='he';
   applyLang(currentLang);
