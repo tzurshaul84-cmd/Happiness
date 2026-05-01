@@ -602,8 +602,21 @@ function loadAI(){
   }).catch(function(){content.innerHTML=getFallbackAI(avg);});
 }
 function getFallbackAI(avg){
-  var msgs={he:avg>=80?'🌟 שבוע מדהים! הציון שלך גבוה מאוד. המשך לשמר את מה שעובד.':avg>=60?'👍 שבוע טוב! נסה להוסיף רגע של הכרת תודה כל יום.':'💙 שבוע מאתגר. נסה לצאת 10 דקות החוצה מחר.',en:avg>=80?'🌟 Amazing week! Keep up what's working for you.':avg>=60?'👍 Good week! Try adding a moment of gratitude daily.':'💙 Challenging week. Try going outside for 10 minutes tomorrow.',ar:avg>=80?'🌟 أسبوع رائع! استمر.':avg>=60?'👍 أسبوع جيد! أضف لحظة امتنان يومياً.':'💙 أسبوع صعب. حاول الخروج 10 دقائق غداً.',ru:avg>=80?'🌟 Отличная неделя! Продолжайте.':avg>=60?'👍 Хорошая неделя! Добавьте минуту благодарности в день.':'💙 Сложная неделя. Попробуйте выйти на 10 минут завтра.'};
-  return msgs[currentLang]||msgs.en;
+  var he80="🌟 שבוע מדהים! הציון שלך גבוה מאוד. המשך לשמר את מה שעובד.";
+  var he60="👍 שבוע טוב! נסה להוסיף רגע של הכרת תודה כל יום.";
+  var he0="💙 שבוע מאתגר. נסה לצאת 10 דקות החוצה מחר.";
+  var en80="🌟 Amazing week! Keep it up.";
+  var en60="👍 Good week! Try adding a moment of gratitude daily.";
+  var en0="💙 Challenging week. Try going outside for 10 minutes tomorrow.";
+  var ar80="🌟 اسبوع رائع! استمر.";
+  var ar60="👍 اسبوع جيد! اضف لحظة امتنان يومياً.";
+  var ar0="💙 اسبوع صعب. حاول الخروج 10 دقائق غداً.";
+  var ru80="🌟 Отличная неделя! Продолжайте.";
+  var ru60="👍 Хорошая неделя! Добавьте минуту благодарности.";
+  var ru0="💙 Сложная неделя. Попробуйте выйти на 10 минут завтра.";
+  var map={he:[he80,he60,he0],en:[en80,en60,en0],ar:[ar80,ar60,ar0],ru:[ru80,ru60,ru0]};
+  var arr=map[currentLang]||map.en;
+  return avg>=80?arr[0]:avg>=60?arr[1]:arr[2];
 }
 el('ai-refresh').addEventListener('click',loadAI);
 
