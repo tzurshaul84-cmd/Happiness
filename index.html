@@ -639,7 +639,10 @@ el('ai-refresh').addEventListener('click',loadAI);
 // WORLD
 function loadWorldData(){
   el('gtotal').textContent=t('loading');
-  sb.from('entries').select('score,city,country').gte('created_at',new Date(new Date().setHours(0,0,0,0)-3*3600000).toISOString()).then(function(res){
+  sb.from('entries').select('score,city,country,date').order('created_at',{ascending:false}).limit(500).then(function(res){
+    // filter to today in JS (avoids timezone issues with server)
+    var todayStr=tod();
+    if(res.data)res={data:res.data.filter(function(r){return r.date===todayStr;}),error:res.error};
     if(res.error||!res.data||!res.data.length){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
     var data=res.data;
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
