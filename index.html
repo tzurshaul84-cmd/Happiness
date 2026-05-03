@@ -648,6 +648,7 @@ function loadWorldData(){
   sb.from('entries').select('score,city,country,date').eq('date',tod()).then(function(res){
     if(res.error||!res.data||!res.data.length){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
     var data=res.data;
+    console.log('WORLD DATA:',data.length,'items',JSON.stringify(data[0]));
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
@@ -660,7 +661,9 @@ function loadWorldData(){
       if(!cityMap[city])cityMap[city]={t:0,c:0};cityMap[city].t+=d.score;cityMap[city].c++;
       if(!countryMap[country])countryMap[country]={t:0,c:0};countryMap[country].t+=d.score;countryMap[country].c++;
     });
-    renderLeaders(Object.keys(cityMap).map(function(n){return{n:n,s:Math.round(cityMap[n].t/cityMap[n].c),p:cityMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10),'wcities');
+    var citiesArr=Object.keys(cityMap).map(function(n){return{n:n,s:Math.round(cityMap[n].t/cityMap[n].c),p:cityMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
+    console.log('CITIES ARRAY:',JSON.stringify(citiesArr));
+    renderLeaders(citiesArr,'wcities');
     renderLeaders(Object.keys(countryMap).map(function(n){return{n:n,s:Math.round(countryMap[n].t/countryMap[n].c),p:countryMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10),'wcountries');
     renderMap(countryMap);
   });
