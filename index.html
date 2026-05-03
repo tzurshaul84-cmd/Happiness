@@ -441,7 +441,13 @@ function gc(s){if(s<=20)return'#ff2d55';if(s<=40)return'#ff7c2a';if(s<=60)return
 function gg(s){if(s<=20)return'linear-gradient(135deg,#ff2d55,#cc0033)';if(s<=40)return'linear-gradient(135deg,#ff7c2a,#cc4400)';if(s<=60)return'linear-gradient(135deg,#ffd700,#aa8800)';if(s<=80)return'linear-gradient(135deg,#00d4ff,#0088cc)';return'linear-gradient(135deg,#00ff88,#00aa55)';}
 function ge(s){if(s<=20)return'😞';if(s<=40)return'😕';if(s<=60)return'😐';if(s<=80)return'🙂';return'😄';}
 function gl(s){if(s<=20)return t('days7');if(s<=40)return t('days4');if(s<=60)return t('days6');if(s<=80)return t('days8');return t('days10');}
-function tod(){return new Date().toISOString().slice(0,10);}
+function tod(){
+  var d=new Date();
+  var y=d.getFullYear();
+  var m=String(d.getMonth()+1).padStart(2,'0');
+  var day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 function fs(d){var loc={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU'}[currentLang]||'he-IL';return new Date(d).toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'});}
 function fl(d){var loc={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU'}[currentLang]||'he-IL';return new Date(d).toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function allE(){return Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});}
