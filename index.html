@@ -639,7 +639,9 @@ el('ai-refresh').addEventListener('click',loadAI);
 // WORLD
 function loadWorldData(){
   el('gtotal').textContent=t('loading');
-  sb.from('entries').select('score,city,country,date').eq('date',tod()).then(function(res){
+  var todayStr=tod();
+  el('wcities').innerHTML='<div style="color:#aac;padding:10px;font-size:13px">תאריך היום: '+todayStr+'</div>';
+  sb.from('entries').select('score,city,country,date').gte('created_at','2026-05-01T00:00:00').then(function(res){
     if(res.error||!res.data||!res.data.length){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
     var data=res.data;
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
