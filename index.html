@@ -639,9 +639,7 @@ el('ai-refresh').addEventListener('click',loadAI);
 // WORLD
 function loadWorldData(){
   el('gtotal').textContent=t('loading');
-  var todayStr=tod();
-  el('wcities').innerHTML='<div style="color:#aac;padding:10px;font-size:13px">תאריך היום: '+todayStr+'</div>';
-  sb.from('entries').select('score,city,country,date').gte('created_at','2026-05-01T00:00:00').then(function(res){
+  sb.from('entries').select('score,city,country,date').eq('date',tod()).then(function(res){
     if(res.error||!res.data||!res.data.length){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
     var data=res.data;
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
@@ -649,7 +647,6 @@ function loadWorldData(){
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
     renderGlobe(avg);
-    el('wcities').innerHTML='<div style="color:#fff;padding:20px;font-size:14px">נתונים: '+data.length+' | עיר0: '+(data[0]?data[0].city:'null')+' | מדינה0: '+(data[0]?data[0].country:'null')+'</div>';
     var cityMap={},countryMap={};
     data.forEach(function(d){
       var city=d.city||(currentLang==='he'?'לא ידוע':'Unknown');
