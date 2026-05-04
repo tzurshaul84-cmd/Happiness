@@ -647,6 +647,7 @@ function loadWorldData(){
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
     renderGlobe(avg);
+    el('wcities').innerHTML='<div style="color:#fff;padding:20px;font-size:14px">נתונים: '+data.length+' | עיר0: '+(data[0]?data[0].city:'null')+' | מדינה0: '+(data[0]?data[0].country:'null')+'</div>';
     var cityMap={},countryMap={};
     data.forEach(function(d){
       var city=d.city||(currentLang==='he'?'לא ידוע':'Unknown');
