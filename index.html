@@ -324,8 +324,8 @@ input:focus,textarea:focus{border-color:#4444aa}
       <button class="stab" data-tab="countries" id="wtab-countries">🌐 מדינות</button>
       <button class="stab" data-tab="map" id="wtab-map">🗺️ מפה</button>
     </div>
-    <div id="wcities" style="display:block!important;min-height:50px"></div>
-    <div id="wcountries" style="display:none!important"></div>
+    <div id="wcities"></div>
+    <div id="wcountries" style="display:none"></div>
     <div id="wmap" style="display:none">
       <div class="card" style="padding:12px">
         <span class="lbl" id="lbl-worldmap">מפה עולמית</span>
@@ -818,7 +818,7 @@ window.addEventListener('DOMContentLoaded',function(){
     else if(file.type.startsWith('image/')){var fr=new FileReader();fr.onload=function(ev){curMedia=ev.target.result;curMediaType='image';showPreview();};fr.readAsDataURL(file);}
   });
   el('htabs').querySelectorAll('.stab').forEach(function(btn){btn.addEventListener('click',function(){var tab=this.getAttribute('data-tab');el('htabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('h-mine').style.display=tab==='mine'?'block':'none';el('h-world').style.display=tab==='world'?'block':'none';el('h-stats').style.display=tab==='stats'?'block':'none';});});
-  el('wtabs').querySelectorAll('.stab').forEach(function(btn){btn.addEventListener('click',function(){var tab=this.getAttribute('data-tab');el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('wcities').style.cssText=tab==='cities'?'display:block!important;min-height:50px':'display:none!important';el('wcountries').style.display=tab==='countries'?'block':'none';el('wmap').style.display=tab==='map'?'block':'none';});});
+  el('wtabs').querySelectorAll('.stab').forEach(function(btn){btn.addEventListener('click',function(){var tab=this.getAttribute('data-tab');el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('wcities').style.display=tab==='cities'?'block':'none';el('wcountries').style.display=tab==='countries'?'block':'none';el('wcountries').style.display=tab==='countries'?'block':'none';el('wmap').style.display=tab==='map'?'block':'none';});});
   el('modal-close').addEventListener('click',function(){el('modal').classList.remove('on');});
   // Mood recommendations button - placeholder for future feature
   var mrb=el('mood-rec-btn');
