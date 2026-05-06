@@ -517,7 +517,8 @@ el('loc-btn').addEventListener('click',function(){
 // AUTH
 function showLogin(){el('s-login').style.display='block';el('s-profile').style.display='none';el('s-app').style.display='none';el('main-nav').style.display='none';}
 function showProfile(){el('s-login').style.display='none';el('s-profile').style.display='block';el('s-app').style.display='none';el('main-nav').style.display='none';setTimeout(initCityAC,100);}
-function showApp(){el('s-login').style.display='none';el('s-profile').style.display='none';el('s-app').style.display='block';el('main-nav').style.display='block';initApp();if(!localStorage.getItem(OB_KEY))setTimeout(startOB,600);}
+var appInited=false;
+function showApp(){el('s-login').style.display='none';el('s-profile').style.display='none';el('s-app').style.display='block';el('main-nav').style.display='block';if(!appInited){appInited=true;initApp();if(!localStorage.getItem(OB_KEY))setTimeout(startOB,600);}}
 
 el('google-login-btn').addEventListener('click',function(){sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});});
 
@@ -647,11 +648,22 @@ function loadWorldData(){
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
     renderGlobe(avg);
-    // DEBUG - show raw data directly
-    var debugHtml='<div style="color:yellow;font-size:12px">data.length='+data.length+'</div>';
-    data.forEach(function(d,i){debugHtml+='<div style="color:lime;font-size:11px">['+i+'] city='+d.city+' country='+d.country+' score='+d.score+'</div>';});
-    el('wcities').innerHTML=debugHtml;
-    el('wcountries').innerHTML=debugHtml;
+    var cityMap={},countryMap={};
+    data.forEach(function(d){
+      var city=d.city||(currentLang==='he'?'לא ידוע':'Unknown');
+      var country=d.country||(currentLang==='he'?'לא ידוע':'Unknown');
+      if(!cityMap[city])cityMap[city]={t:0,c:0};cityMap[city].t+=d.score;cityMap[city].c++;
+      if(!countryMap[country])countryMap[country]={t:0,c:0};countryMap[country].t+=d.score;countryMap[country].c++;
+    });
+    var citiesArr=Object.keys(cityMap).map(function(n){return{n:n,s:Math.round(cityMap[n].t/cityMap[n].c),p:cityMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
+    var countriesArr=Object.keys(countryMap).map(function(n){return{n:n,s:Math.round(countryMap[n].t/countryMap[n].c),p:countryMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
+    var citHtml='';
+    citiesArr.forEach(function(c,i){var col=gc(c.s);citHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
+    el('wcities').innerHTML=citHtml||'<div class="empty">אין נתונים</div>';
+    var cntHtml='';
+    countriesArr.forEach(function(c,i){var col=gc(c.s);cntHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
+    el('wcountries').innerHTML=cntHtml||'<div class="empty">אין נתונים</div>';
+    renderMap(countryMap);
   });
 }
 
