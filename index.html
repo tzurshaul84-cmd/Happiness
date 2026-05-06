@@ -647,7 +647,7 @@ function loadWorldData(){
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
     try{renderGlobe(avg);}catch(e){el('wcities').innerHTML='<div style="color:red;font-size:20px">CRASH:'+e.message+'</div>';return;}
-    var cityMap={},countryMap={};el('wcities').innerHTML='<div style="color:red;font-size:20px">TEST:'+data.length+'</div>';
+    var cityMap={},countryMap={};el('wcities').innerHTML='<div style="color:lime;font-size:20px">A</div>';el('wcities').innerHTML='<div style="color:red;font-size:20px">TEST:'+data.length+'</div>';
     if(data[0]){var k=Object.keys(data[0]);el('wcities').innerHTML='<div style="color:yellow;font-size:11px">keys:'+k.join(',')+'<br>'+JSON.stringify(data[0])+'</div>';}
     data.forEach(function(d){
       var city=d.city||(currentLang==='he'?'לא ידוע':'Unknown');
@@ -655,6 +655,8 @@ function loadWorldData(){
       if(!cityMap[city])cityMap[city]={t:0,c:0};cityMap[city].t+=d.score;cityMap[city].c++;
       if(!countryMap[country])countryMap[country]={t:0,c:0};countryMap[country].t+=d.score;countryMap[country].c++;
     });
+  el('wcities').innerHTML='<div style="color:lime;font-size:20px">B:'+Object.keys(cityMap).length+'</div>';
+var citiesArr=Object.keys(cityMap).map...
     var citiesArr=Object.keys(cityMap).map(function(n){return{n:n,s:Math.round(cityMap[n].t/cityMap[n].c),p:cityMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
     var countriesArr=Object.keys(countryMap).map(function(n){return{n:n,s:Math.round(countryMap[n].t/countryMap[n].c),p:countryMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
     var citHtml='';
