@@ -646,7 +646,7 @@ function loadWorldData(){
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
-    renderGlobe(avg);
+    try{renderGlobe(avg);}catch(e){el('wcities').innerHTML='<div style="color:red">renderGlobe שגיאה: '+e.message+'</div>';}
     var cityMap={},countryMap={};
     data.forEach(function(d){
       var city=d.city||(currentLang==='he'?'לא ידוע':'Unknown');
