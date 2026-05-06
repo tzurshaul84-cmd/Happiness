@@ -635,12 +635,14 @@ function getFallbackAI(avg){
   return avg>=80?arr[0]:avg>=60?arr[1]:arr[2];
 }
 el('ai-refresh').addEventListener('click',loadAI);
-// WORLD - גרסה פשוטה
+// WORLD
 function loadWorldData(){
   el('gtotal').textContent=t('loading');
-  var todayStr=tod();el('gtotal').textContent='today='+todayStr;
-  sb.from('entries').select('*').eq('date',todayStr).then(function(res){
-    el('gtotal').textContent='err:'+JSON.stringify(res.error)+'|len:'+(res.data?res.data.length:0)+'|city:'+(res.data&&res.data[0]?res.data[0].city:'none');if(res.error||!res.data||!res.data.length){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
+  var todayStr=tod();
+  sb.from('entries').select('score,city,country,date').order('date',{ascending:false}).limit(200).then(function(res){
+    if(res.error||!res.data){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
+    var data=res.data.filter(function(d){return d.date===todayStr;});
+    if(!data.length){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
     var data=res.data;
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
