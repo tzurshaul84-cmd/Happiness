@@ -649,7 +649,7 @@ function loadWorldData(){
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
    el('wcities').innerHTML='<div style="color:lime">data:'+JSON.stringify(data)+'</div>';
-    renderGlobe(avg);
+    try{renderGlobe(avg);}catch(e){el('wcities').innerHTML='<div style="color:red">'+e.message+'</div>';}
     var cityMap={},countryMap={};
     data.forEach(function(d){
       var city=d.city||(currentLang==='he'?'לא ידוע':'Unknown');
