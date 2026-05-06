@@ -659,7 +659,7 @@ function loadWorldData(){
     var countriesArr=Object.keys(countryMap).map(function(n){return{n:n,s:Math.round(countryMap[n].t/countryMap[n].c),p:countryMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
     var citHtml='';
     citiesArr.forEach(function(c,i){var col=gc(c.s);citHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
-    el('wcities').innerHTML=citHtml||'<div class="empty">אין נתונים</div>';
+    el('wcities').innerHTML=citHtml||'<div class="empty">אין נתונים — cityMap:'+JSON.stringify(cityMap)+'</div>';
     var cntHtml='';
     countriesArr.forEach(function(c,i){var col=gc(c.s);cntHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
     el('wcountries').innerHTML=cntHtml||'<div class="empty">אין נתונים</div>';
