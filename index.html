@@ -651,7 +651,6 @@ function loadWorldData(){
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
-    el('onlinedot').style.display='inline-block';
     var cityMap={},countryMap={};
     data.forEach(function(d){
       var city=d.city||(currentLang==='he'?'לא ידוע':'Unknown');
