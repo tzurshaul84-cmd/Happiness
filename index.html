@@ -643,7 +643,7 @@ function loadWorldData(){
     if(res.error||!res.data||!res.data.length){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
     var data=res.data;
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
-    el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
+    el('gnum').textContent='LIVE:'+avg;el('gnum').style.color=gc(avg);
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
     try{renderGlobe(avg);}catch(e){el('wcities').innerHTML='<div style="color:red;font-size:20px">CRASH:'+e.message+'</div>';return;}
