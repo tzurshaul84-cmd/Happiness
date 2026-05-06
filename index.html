@@ -850,7 +850,7 @@ window.addEventListener('DOMContentLoaded',function(){
 </div>
 <script>
 
-function openGallery(){
+window.openGallery=function openGallery(){
   document.getElementById('gallery-modal').style.display='block';
   var now=new Date();
   var m=String(now.getMonth()+1).padStart(2,'0');
@@ -859,15 +859,15 @@ function openGallery(){
   document.getElementById('gallery-from').value=from.getFullYear()+'-'+String(from.getMonth()+1).padStart(2,'0');
   renderGallery();
 }
-function closeGallery(){
+window.closeGallery=function closeGallery(){
   document.getElementById('gallery-modal').style.display='none';
 }
-function clearGalleryFilter(){
+window.clearGalleryFilter=function clearGalleryFilter(){
   document.getElementById('gallery-from').value='';
   document.getElementById('gallery-to').value='';
   renderGallery();
 }
-function renderGallery(){
+window.renderGallery=function renderGallery(){
   var fromEl=document.getElementById('gallery-from');
   var toEl=document.getElementById('gallery-to');
   var from=fromEl?fromEl.value:'';
