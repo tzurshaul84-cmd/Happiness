@@ -811,8 +811,8 @@ window.addEventListener('DOMContentLoaded',function(){
   applyLang(currentLang);
   fillDL();
 
-  sb.auth.getSession().then(function(res){if(res.data.session){currentUser=res.data.session.user;window._galleryUser=currentUser.id;loadProfile();}else showLogin();});
-  sb.auth.onAuthStateChange(function(event,session){if(session){currentUser=session.user;window._galleryUser=currentUser.id;loadProfile();}else{currentUser=null;userProfile=null;showLogin();}});
+  sb.auth.getSession().then(function(res){if(res.data.session){currentUser=res.data.session.user;loadProfile();}else showLogin();});
+  sb.auth.onAuthStateChange(function(event,session){if(session){currentUser=session.user;loadProfile();}else{currentUser=null;userProfile=null;showLogin();}});
 
   document.querySelectorAll('.nb').forEach(function(btn){btn.addEventListener('click',function(){goTo(this.getAttribute('data-screen'));});});
   el('srange').addEventListener('input',function(){updateUI(this.value);});
@@ -833,10 +833,88 @@ window.addEventListener('DOMContentLoaded',function(){
   if(mrb)mrb.addEventListener('click',function(){showToast(currentLang==='he'?'בקרוב! 🔮':currentLang==='ar'?'قريباً! 🔮':currentLang==='ru'?'Скоро! 🔮':'Coming soon! 🔮');});
   el('modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 });
+
+window.openGallery=function(){
+  document.getElementById('gallery-modal').style.display='block';
+  var now=new Date();
+  var m=String(now.getMonth()+1).padStart(2,'0');
+  document.getElementById('gallery-to').value=now.getFullYear()+'-'+m;
+  var from=new Date(now.getFullYear(),now.getMonth()-2,1);
+  document.getElementById('gallery-from').value=from.getFullYear()+'-'+String(from.getMonth()+1).padStart(2,'0');
+  window.renderGallery();
+};
+window.closeGallery=function(){
+  document.getElementById('gallery-modal').style.display='none';
+};
+window.clearGalleryFilter=function(){
+  document.getElementById('gallery-from').value='';
+  document.getElementById('gallery-to').value='';
+  window.renderGallery();
+};
+window.renderGallery=function(){
+  var fromEl=document.getElementById('gallery-from');
+  var toEl=document.getElementById('gallery-to');
+  var from=fromEl?fromEl.value:'';
+  var to=toEl?toEl.value:'';
+  var grid=document.getElementById('gallery-grid');
+  grid.innerHTML='<div style="color:#66a;font-size:14px;text-align:center;grid-column:1/-1;padding:40px">טוען...</div>';
+  var query=sb.from('entries').select('date,score,special').order('date',{ascending:false}).limit(365);
+  if(currentUser)query=query.eq('user_id',currentUser.id);
+  query.then(function(res){
+    var all=[];
+    if(res.data&&res.data.length){
+      var stored=localStorage.getItem('whi-entries');
+      var local={};
+      try{if(stored)local=JSON.parse(stored);}catch(e2){}
+      all=res.data.map(function(e){
+        var loc=local[e.date]||{};
+        return{date:e.date,score:e.score,special:e.special||'',mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
+      });
+    } else {
+      var stored=localStorage.getItem('whi-entries');
+      var local={};
+      try{if(stored)local=JSON.parse(stored);}catch(e2){}
+      all=Object.values(local).sort(function(a,b){return b.date.localeCompare(a.date);});
+    }
+    var filtered=all.filter(function(e){
+      if(from&&e.date<from+'-01')return false;
+      if(to&&e.date>to+'-31')return false;
+      return true;
+    });
+    if(!filtered.length){grid.innerHTML='<div style="color:#66a;font-size:14px;text-align:center;grid-column:1/-1;padding:40px">אין ימים בטווח זה</div>';return;}
+    var scores={1:'😢',2:'😢',3:'😟',4:'😟',5:'😐',6:'😐',7:'🙂',8:'🙂',9:'😊',10:'😁'};
+    function getEmoji(s){return scores[Math.ceil(s/10)]||'😐';}
+    function getColor(s){if(s>=80)return'#00ff88';if(s>=60)return'#ffaa00';if(s>=40)return'#ff6644';return'#ff2244';}
+    grid.innerHTML=filtered.map(function(e){
+      var c=getColor(e.score);
+      var d=e.date;
+      var dateStr=d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4);
+      var mediaHtml='';
+      if(e.mediaPreview&&e.mediaType==='image'){
+        mediaHtml='<img src="'+e.mediaPreview+'" style="width:100%;height:130px;object-fit:cover" loading="lazy">';
+      } else if(e.mediaPreview&&e.mediaType==='video'){
+        mediaHtml='<video src="'+e.mediaPreview+'" style="width:100%;height:130px;object-fit:cover" muted playsinline></video>';
+      } else {
+        mediaHtml='<div style="width:100%;height:130px;background:linear-gradient(135deg,'+c+'22,'+c+'44);display:flex;align-items:center;justify-content:center;font-size:50px">'+getEmoji(e.score)+'</div>';
+      }
+      return '<div style="background:#13132a;border:2px solid '+c+'55;border-radius:14px;overflow:hidden;cursor:pointer" onclick="window.closeGallery()">'
+        +mediaHtml
+        +'<div style="padding:10px">'
+        +'<div style="font-size:11px;color:#88c;margin-bottom:3px">'+dateStr+'</div>'
+        +'<div style="display:flex;align-items:center;justify-content:space-between">'
+        +'<div style="font-size:26px;font-weight:900;color:'+c+'">'+e.score+'</div>'
+        +'<div style="font-size:20px">'+getEmoji(e.score)+'</div>'
+        +'</div>'
+        +(e.special?'<div style="font-size:11px;color:#aac;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+e.special+'</div>':'')
+        +'</div>'
+        +'</div>';
+    }).join('');
+  });
+};
 })();
 </script>
 
-<div id="gallery-modal" style="display:none;position:fixed;inset:0;background:#0a0a14;z-index:1000;overflow-y:auto;padding:16px">
+<div id="gallery-modal" style="display:none;position:fixed;inset:0;background:#0a0a14;z-index:2000;overflow-y:auto;padding:16px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#0a0a14;padding:8px 0;z-index:10">
     <div style="font-size:18px;font-weight:900;color:#fff">גלריה</div>
     <button onclick="window.closeGallery()" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">X</button>
@@ -849,8 +927,8 @@ window.addEventListener('DOMContentLoaded',function(){
   <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"></div>
 </div>
 <script>
-
-function openGallery(){
+// gallery functions moved above
+function _old_openGallery_disabled(){
   document.getElementById('gallery-modal').style.display='block';
   var now=new Date();
   var m=String(now.getMonth()+1).padStart(2,'0');
@@ -872,35 +950,15 @@ function renderGallery(){
   var toEl=document.getElementById('gallery-to');
   var from=fromEl?fromEl.value:'';
   var to=toEl?toEl.value:'';
-  var grid=document.getElementById('gallery-grid');
-  grid.innerHTML='<div style="color:#66a;font-size:14px;text-align:center;grid-column:1/-1;padding:40px">טוען...</div>';
-  // Build Supabase query
-  var query=sb.from('entries').select('date,score,special,city').order('date',{ascending:false}).limit(365);
-  if(window._galleryUser)query=query.eq('user_id',window._galleryUser);
-  query.then(function(res){
-    var all=[];
-    if(res.data&&res.data.length){
-      all=res.data;
-      // also merge localStorage entries (for media previews)
-      var stored=localStorage.getItem('whi-entries');
-      var local={};
-      try{if(stored)local=JSON.parse(stored);}catch(e){}
-      all=all.map(function(e){
-        var loc=local[e.date]||{};
-        return {date:e.date,score:e.score,special:e.special||'',mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
-      });
-    } else {
-      // fallback to localStorage only
-      var stored=localStorage.getItem('whi-entries');
-      var local={};
-      try{if(stored)local=JSON.parse(stored);}catch(e){}
-      all=Object.values(local).sort(function(a,b){return b.date.localeCompare(a.date);});
-    }
-    var filtered=all.filter(function(e){
-      if(from&&e.date<from+'-01')return false;
-      if(to&&e.date>to+'-31')return false;
-      return true;
-    });
+  var stored=localStorage.getItem('whi-entries');
+  var entries={};
+  try{if(stored)entries=JSON.parse(stored);}catch(e){}
+  var all=Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});
+  var filtered=all.filter(function(e){
+    if(from&&e.date<from+'-01')return false;
+    if(to&&e.date>to+'-31')return false;
+    return true;
+  });
   var grid=document.getElementById('gallery-grid');
   if(!filtered.length){grid.innerHTML='<div style="color:#66a;font-size:14px;text-align:center;grid-column:1/-1;padding:40px">אין ימים בטווח זה</div>';return;}
   var scores={1:'😢',2:'😢',3:'😟',4:'😟',5:'😐',6:'😐',7:'🙂',8:'🙂',9:'😊',10:'😁'};
@@ -930,7 +988,6 @@ function renderGallery(){
       +'</div>'
       +'</div>';
   }).join('');
-  }); // end .then
 }
 
 </script>
