@@ -829,14 +829,14 @@ window.addEventListener('DOMContentLoaded',function(){
   // Mood recommendations button - placeholder for future feature
   var mrb=el('mood-rec-btn');
   var alb=el('album-btn');
-  if(alb)alb.addEventListener('click',function(){showToast(currentLang==='he'?'בקרוב! 📸':currentLang==='ar'?'قريباً! 📸':currentLang==='ru'?'Скоро! 📸':'Coming soon! 📸');});
+  if(alb)alb.addEventListener('click',function(){openGallery();});
   if(mrb)mrb.addEventListener('click',function(){showToast(currentLang==='he'?'בקרוב! 🔮':currentLang==='ar'?'قريباً! 🔮':currentLang==='ru'?'Скоро! 🔮':'Coming soon! 🔮');});
   el('modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 });
 })();
 </script>
 
-<div id="gallery-modal" style="display:none;position:fixed;inset:0;background:#0a0a14;z-index:1000;overflow-y:auto;padding:16px">
+<div id="gallery-modal" style="display:none;position:fixed;inset:0;background:#0a0a14;z-index:2000;overflow-y:auto;padding:16px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#0a0a14;padding:8px 0;z-index:10">
     <div style="font-size:18px;font-weight:900;color:#fff">גלריה</div>
     <button onclick="window.closeGallery()" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">X</button>
