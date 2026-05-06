@@ -644,7 +644,7 @@ function loadWorldData(){
     var data=res.data;
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
-    el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
+    el('gtotal').textContent='city0='+(data[0]?data[0].city:'null')+' country0='+(data[0]?data[0].country:'null');
     el('onlinedot').style.display='inline-block';
     renderGlobe(avg);
     var cityMap={},countryMap={};
