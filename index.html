@@ -648,6 +648,7 @@ function loadWorldData(){
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
+   el('wcities').innerHTML='<div style="color:lime">data:'+JSON.stringify(data)+'</div>';
     renderGlobe(avg);
     var cityMap={},countryMap={};
     data.forEach(function(d){
