@@ -517,8 +517,7 @@ el('loc-btn').addEventListener('click',function(){
 // AUTH
 function showLogin(){el('s-login').style.display='block';el('s-profile').style.display='none';el('s-app').style.display='none';el('main-nav').style.display='none';}
 function showProfile(){el('s-login').style.display='none';el('s-profile').style.display='block';el('s-app').style.display='none';el('main-nav').style.display='none';setTimeout(initCityAC,100);}
-var appInited=false;
-function showApp(){el('s-login').style.display='none';el('s-profile').style.display='none';el('s-app').style.display='block';el('main-nav').style.display='block';if(!appInited){appInited=true;initApp();if(!localStorage.getItem(OB_KEY))setTimeout(startOB,600);}}
+function showApp(){el('s-login').style.display='none';el('s-profile').style.display='none';el('s-app').style.display='block';el('main-nav').style.display='block';initApp();if(!localStorage.getItem(OB_KEY))setTimeout(startOB,600);}
 
 el('google-login-btn').addEventListener('click',function(){sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});});
 
@@ -643,6 +642,7 @@ function loadWorldData(){
   sb.from('entries').select('score,city,country,date').gte('date',todayStr).lte('date',todayStr).then(function(res){
     if(res.error||!res.data||!res.data.length){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
     var data=res.data;
+    el('gtotal').textContent='DEBUG: '+data.length+' rows, city0='+( data[0]?data[0].city:'none');
     var avg=Math.round(data.reduce(function(a,b){return a+b.score;},0)/data.length);
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
