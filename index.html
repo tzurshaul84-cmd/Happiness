@@ -650,6 +650,8 @@ function loadWorldData(){
     el('onlinedot').style.display='inline-block';
    el('wcities').innerHTML='<div style="color:lime">data:'+JSON.stringify(data)+'</div>';
     try{renderGlobe(avg);}catch(e){el('wcities').innerHTML='<div style="color:red">'+e.message+'</div>';}
+    el('wcities').style.cssText='display:block!important;min-height:200px!important;background:red!important;';
+el('wcities').innerHTML='TEST';
     var cityMap={},countryMap={};
     data.forEach(function(d){
       var city=d.city||(currentLang==='he'?'לא ידוע':'Unknown');
