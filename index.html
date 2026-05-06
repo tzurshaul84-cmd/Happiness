@@ -646,7 +646,7 @@ function loadWorldData(){
     el('gnum').textContent=avg;el('gnum').style.color=gc(avg);
     el('gtotal').textContent=data.length+' '+ge(avg)+' '+t('entries');
     el('onlinedot').style.display='inline-block';
-    renderGlobe(avg);
+    try{renderGlobe(avg);}catch(e){el('wcities').innerHTML='<div style="color:red;font-size:20px">CRASH:'+e.message+'</div>';return;}
     var cityMap={},countryMap={};el('wcities').innerHTML='<div style="color:red;font-size:20px">TEST:'+data.length+'</div>';
     if(data[0]){var k=Object.keys(data[0]);el('wcities').innerHTML='<div style="color:yellow;font-size:11px">keys:'+k.join(',')+'<br>'+JSON.stringify(data[0])+'</div>';}
     data.forEach(function(d){
