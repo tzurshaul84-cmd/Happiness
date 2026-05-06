@@ -335,15 +335,32 @@ input:focus,textarea:focus{border-color:#4444aa}
   </div>
 
   <div class="screen" id="s-history">
-    <div class="stabs" id="htabs">
-      <button class="stab on" data-tab="mine" id="htab-mine">📋 שלי</button>
-      <button class="stab" data-tab="world" id="htab-world">🌍 עולמי</button>
-      <button class="stab" data-tab="stats" id="htab-stats">📊 סטטיסטיקה</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="stabs" id="htabs" style="margin-bottom:0">
+        <button class="stab on" data-tab="mine" id="htab-mine">📋 שלי</button>
+        <button class="stab" data-tab="world" id="htab-world">🌍 עולמי</button>
+        <button class="stab" data-tab="stats" id="htab-stats">📊 סטטיסטיקה</button>
+      </div>
+      <button onclick="openGallery()" style="background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:#fff;border-radius:20px;padding:8px 14px;font-size:13px;font-weight:900;cursor:pointer;font-family:Heebo,sans-serif">🖼️ גלריה</button>
     </div>
     <div id="h-mine"></div>
     <div id="h-world" style="display:none"></div>
     <div id="h-stats" style="display:none"></div>
   </div>
+
+<!-- GALLERY MODAL -->
+<div id="gallery-modal" style="display:none;position:fixed;inset:0;background:#0a0a14;z-index:1000;overflow-y:auto;padding:16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#0a0a14;padding:8px 0;z-index:10">
+    <div style="font-size:18px;font-weight:900;color:#fff">🖼️ גלריה</div>
+    <button onclick="closeGallery()" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <input type="month" id="gallery-from" style="background:#13132a;border:2px solid #2a2a4a;color:#fff;border-radius:10px;padding:8px 12px;font-size:13px;font-family:Heebo,sans-serif" onchange="renderGallery()">
+    <input type="month" id="gallery-to" style="background:#13132a;border:2px solid #2a2a4a;color:#fff;border-radius:10px;padding:8px 12px;font-size:13px;font-family:Heebo,sans-serif" onchange="renderGallery()">
+    <button onclick="clearGalleryFilter()" style="background:#13132a;border:2px solid #2a2a4a;color:#88c;border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer;font-family:Heebo,sans-serif">הכל</button>
+  </div>
+  <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"></div>
+</div>
 </div>
 </div></div>
 
@@ -830,6 +847,68 @@ window.addEventListener('DOMContentLoaded',function(){
   if(mrb)mrb.addEventListener('click',function(){showToast(currentLang==='he'?'בקרוב! 🔮':currentLang==='ar'?'قريباً! 🔮':currentLang==='ru'?'Скоро! 🔮':'Coming soon! 🔮');});
   el('modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 });
+// GALLERY
+function openGallery(){
+  var modal=el('gallery-modal');
+  modal.style.display='block';
+  var now=new Date();
+  var m=String(now.getMonth()+1).padStart(2,'0');
+  el('gallery-to').value=now.getFullYear()+'-'+m;
+  var from=new Date(now.getFullYear(),now.getMonth()-2,1);
+  el('gallery-from').value=from.getFullYear()+'-'+String(from.getMonth()+1).padStart(2,'0');
+  renderGallery();
+}
+
+function closeGallery(){
+  el('gallery-modal').style.display='none';
+}
+
+function clearGalleryFilter(){
+  el('gallery-from').value='';
+  el('gallery-to').value='';
+  renderGallery();
+}
+
+function renderGallery(){
+  var from=el('gallery-from').value;
+  var to=el('gallery-to').value;
+  var all=allE();
+  var filtered=all.filter(function(e){
+    if(from&&e.date<from+'-01')return false;
+    if(to){var toEnd=to+'-31';if(e.date>toEnd)return false;}
+    return true;
+  });
+  if(!filtered.length){
+    el('gallery-grid').innerHTML='<div style="color:#66a;font-size:14px;text-align:center;grid-column:1/-1;padding:40px">אין ימים בטווח זה</div>';
+    return;
+  }
+  el('gallery-grid').innerHTML=filtered.map(function(e){
+    var c=gc(e.score);
+    var hasMedia=e.mediaPreview&&e.mediaType;
+    var mediaHtml='';
+    if(hasMedia){
+      if(e.mediaType==='image'){
+        mediaHtml='<img src="'+e.mediaPreview+'" style="width:100%;height:140px;object-fit:cover;border-radius:0" loading="lazy">';
+      } else {
+        mediaHtml='<video src="'+e.mediaPreview+'" style="width:100%;height:140px;object-fit:cover;border-radius:0" muted playsinline></video>';
+      }
+    } else {
+      mediaHtml='<div style="width:100%;height:140px;background:linear-gradient(135deg,'+c+'22,'+c+'44);display:flex;align-items:center;justify-content:center;font-size:48px">'+ge(e.score)+'</div>';
+    }
+    return '<div onclick="openM(''+e.date+'')" style="background:#13132a;border:2px solid '+c+'44;border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">'
+      +mediaHtml
+      +'<div style="padding:10px">'
+      +'<div style="font-size:11px;color:#88c;margin-bottom:4px">'+fs(e.date)+'</div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between">'
+      +'<div style="font-size:28px;font-weight:900;color:'+c+'">'+e.score+'</div>'
+      +'<div style="font-size:18px">'+ge(e.score)+'</div>'
+      +'</div>'
+      +(e.special?'<div style="font-size:12px;color:#aac;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+e.special+'</div>':'')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
 })();
 </script>
 </body>
