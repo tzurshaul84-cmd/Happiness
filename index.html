@@ -587,8 +587,7 @@ function uploadToCloudinary(dataUrl, userId, date, callback){
   var fd=new FormData();
   fd.append('file', blob);
   fd.append('upload_preset', CLOUDINARY_PRESET);
-  fd.append('public_id', (userId||'anon')+'/'+date);
-  fd.append('overwrite', 'true');
+  fd.append('public_id', (userId||'anon')+'_'+date+'_'+Date.now());
 
   fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/image/upload', {method:'POST', body:fd})
     .then(function(r){return r.json();})
@@ -757,9 +756,12 @@ function renderHistory(){renderMyHistory();renderWorldArchive();renderStats();}
 
 function renderMyHistory(){
   if(currentUser){
-    sb.from('entries').select('*').eq('user_id',currentUser.id).order('date',{ascending:false}).limit(365).then(function(res){
+    sb.from('entries').select('*,media_url').eq('user_id',currentUser.id).order('date',{ascending:false}).limit(365).then(function(res){
       if(res.data&&res.data.length){
-        res.data.forEach(function(d){if(!entries[d.date])entries[d.date]={score:d.score,special:d.special||'',date:d.date};});
+        res.data.forEach(function(d){
+          var loc=entries[d.date]||{};
+          entries[d.date]={score:d.score,special:d.special||'',date:d.date,media_url:d.media_url||null,mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
+        });
         saveSt();
       }
       renderMyHistoryLocal();
