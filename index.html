@@ -569,7 +569,7 @@ function goTo(name){
   var nb=document.querySelector('.nb[data-screen="'+name+'"]');if(nb)nb.classList.add('on');
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');s.style.display='none';});
   var sc=el('s-'+name);if(sc){sc.classList.add('on');sc.style.display='flex';}
-  if(name==='world')loadWorldData();
+  if(name==='world'){worldDataLoading=false;loadWorldData();}
   if(name==='history')renderHistory();
 }
 
@@ -701,6 +701,8 @@ var worldDataLoading=false;
 function loadWorldData(){
   if(worldDataLoading)return;
   worldDataLoading=true;
+  el('gnum').textContent='--';
+  el('gnum').style.color='#00d4ff';
   el('gtotal').textContent=t('loading');
   var todayStr=tod();
   sb.from('entries').select('score,city,country,date').order('date',{ascending:false}).limit(200).then(function(res){
@@ -1025,9 +1027,9 @@ function closeGallery(){
 function clearGalleryFilter(){
   document.getElementById('gallery-from').value='';
   document.getElementById('gallery-to').value='';
-  renderGallery();
+  window.renderGallery();
 }
-function renderGallery(){
+function renderGallery_OLD_DISABLED(){
   var fromEl=document.getElementById('gallery-from');
   var toEl=document.getElementById('gallery-to');
   var from=fromEl?fromEl.value:'';
