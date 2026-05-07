@@ -608,8 +608,9 @@ function saveEntry(){
   // Save locally immediately so UI updates
   entries[tday]={score:curScore,special:specialVal,mediaPreview:mediaToSave,mediaType:mediaTypeToSave,date:tday};
   saveSt();
+  var savedScore=curScore;
   el('special').value='';curMedia=null;curMediaType=null;resetUpload();
-  updateUI(70);el('srange').value=70;
+  updateUI(savedScore);el('srange').value=savedScore;
   renderHeader();renderWeekCard();renderVsCard();
 
   function doSupabaseSave(mediaUrl){
@@ -624,7 +625,7 @@ function saveEntry(){
       media_url:mediaUrl||null
     },{onConflict:'date,device_id',ignoreDuplicates:false}).then(function(res){
       if(res.error){console.error(res.error);showToast(t('savedErr'),true);}
-      else{showToast(t('saved'));el('onlinedot').style.display='inline-block';loadAI();}
+      else{showToast(t('saved'));var od=el('onlinedot');if(od)od.style.display='inline-block';loadAI();}
     });
   }
 
