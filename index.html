@@ -937,28 +937,66 @@ window.openGallery=function(){
   document.getElementById('gallery-from').value=from.getFullYear()+'-'+String(from.getMonth()+1).padStart(2,'0');
   window.renderGallery();
 };
-window.openGalleryItem=function(date,mediaUrl,mediaPreview,mediaType,score,special,dateStr){
-  var m=document.getElementById('gitem-modal');
-  var mediaSrc=decodeURIComponent(mediaUrl)||( mediaType==='image'?decodeURIComponent(mediaPreview):null);
+var _galleryItems=[];
+var _galleryIndex=0;
+
+function _renderGalleryModal(idx){
+  if(idx<0||idx>=_galleryItems.length)return;
+  _galleryIndex=idx;
+  var e=_galleryItems[idx];
+  var mediaSrc=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
   var mediaEl=document.getElementById('gitem-media');
+  var c=e.score>=80?'#00ff88':e.score>=60?'#ffcc00':'#ff6b6b';
   if(mediaSrc){
     mediaEl.innerHTML='<img src="'+mediaSrc+'" style="width:100%;max-height:300px;object-fit:cover;display:block">';
-  } else if(mediaType==='video'&&mediaPreview){
-    mediaEl.innerHTML='<video src="'+decodeURIComponent(mediaPreview)+'" controls style="width:100%;display:block"></video>';
+  } else if(e.mediaType==='video'&&e.mediaPreview){
+    mediaEl.innerHTML='<video src="'+e.mediaPreview+'" controls style="width:100%;display:block"></video>';
   } else {
-    var c=score>=80?'#00ff88':score>=60?'#ffcc00':'#ff6b6b';
-    mediaEl.innerHTML='<div style="width:100%;height:160px;background:linear-gradient(135deg,'+c+'22,'+c+'44);display:flex;align-items:center;justify-content:center;font-size:70px">'+ge(score)+'</div>';
+    mediaEl.innerHTML='<div style="width:100%;height:160px;background:linear-gradient(135deg,'+c+'22,'+c+'44);display:flex;align-items:center;justify-content:center;font-size:70px">'+ge(e.score)+'</div>';
   }
+  // Format date nicely
+  var d=new Date(e.date+'T12:00:00');
+  var dateStr=d.toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('gitem-date').textContent=dateStr;
-  var c=score>=80?'#00ff88':score>=60?'#ffcc00':'#ff6b6b';
-  document.getElementById('gitem-score').textContent=score;
+  document.getElementById('gitem-score').textContent=e.score;
   document.getElementById('gitem-score').style.color=c;
-  document.getElementById('gitem-emoji').textContent=ge(score);
+  document.getElementById('gitem-emoji').textContent=ge(e.score);
   var sp=document.getElementById('gitem-special');
-  var specialText=decodeURIComponent(special);
-  if(specialText){sp.textContent=specialText;sp.style.display='block';}else sp.style.display='none';
+  if(e.special){sp.textContent=e.special;sp.style.display='block';}else sp.style.display='none';
+  // Update nav arrows
+  var btnPrev=document.getElementById('gitem-prev');
+  var btnNext=document.getElementById('gitem-next');
+  // items are sorted newest first, so idx+1 = older, idx-1 = newer
+  if(btnPrev)btnPrev.style.opacity=idx>0?'1':'0.2';
+  if(btnNext)btnNext.style.opacity=idx<_galleryItems.length-1?'1':'0.2';
+  // counter
+  var counter=document.getElementById('gitem-counter');
+  if(counter)counter.textContent=(idx+1)+' / '+_galleryItems.length;
+}
+
+window.openGalleryItem=function(idx){
+  _renderGalleryModal(idx);
+  var m=document.getElementById('gitem-modal');
   m.style.display='flex';
+  // Setup swipe
+  var card=document.getElementById('gitem-card');
+  var startX=0;
+  card.ontouchstart=function(ev){startX=ev.touches[0].clientX;};
+  card.ontouchend=function(ev){
+    var dx=ev.changedTouches[0].clientX-startX;
+    if(Math.abs(dx)>50){
+      if(dx<0&&_galleryIndex<_galleryItems.length-1)_renderGalleryModal(_galleryIndex+1); // swipe left = older
+      if(dx>0&&_galleryIndex>0)_renderGalleryModal(_galleryIndex-1); // swipe right = newer
+    }
+  };
 };
+
+window._galleryNav=function(dir){
+  var newIdx=_galleryIndex+dir;
+  if(newIdx>=0&&newIdx<_galleryItems.length)_renderGalleryModal(newIdx);
+};
+
+window.setGalleryItems=function(items){_galleryItems=items;};
 window.closeGallery=function(){
   document.getElementById('gallery-modal').style.display='none';
 };
@@ -1001,7 +1039,7 @@ window.renderGallery=function(){
     var scores={1:'😢',2:'😢',3:'😟',4:'😟',5:'😐',6:'😐',7:'🙂',8:'🙂',9:'😊',10:'😁'};
     function getEmoji(s){return scores[Math.ceil(s/10)]||'😐';}
     function getColor(s){if(s>=80)return'#00ff88';if(s>=60)return'#ffaa00';if(s>=40)return'#ff6644';return'#ff2244';}
-    grid.innerHTML=filtered.map(function(e){
+    grid.innerHTML=filtered.map(function(e,i){
       var c=getColor(e.score);
       var d=e.date;
       var dateStr=d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4);
@@ -1015,7 +1053,8 @@ window.renderGallery=function(){
       } else {
         mediaHtml='<div style="width:100%;height:130px;background:linear-gradient(135deg,'+c+'22,'+c+'44);display:flex;align-items:center;justify-content:center;font-size:50px">'+getEmoji(e.score)+'</div>';
       }
-      return '<div style="background:#13132a;border:2px solid '+c+'55;border-radius:14px;overflow:hidden;cursor:pointer" onclick="window.openGalleryItem(\''+e.date+'\',\''+encodeURIComponent(e.media_url||'')+'\',\''+encodeURIComponent(e.mediaPreview||'')+'\',\''+e.mediaType+'\','+e.score+',\''+encodeURIComponent(e.special||'')+'\',\''+dateStr+'\')">'
+      var idx=i;
+      return '<div style="background:#13132a;border:2px solid '+c+'55;border-radius:14px;overflow:hidden;cursor:pointer" onclick="window.openGalleryItem('+idx+')">'
         +mediaHtml
         +'<div style="padding:10px">'
         +'<div style="font-size:11px;color:#88c;margin-bottom:3px">'+dateStr+'</div>'
@@ -1027,6 +1066,7 @@ window.renderGallery=function(){
         +'</div>'
         +'</div>';
     }).join('');
+    window.setGalleryItems(filtered);
   });
 };
 })();
@@ -1037,9 +1077,10 @@ window.renderGallery=function(){
     <div style="font-size:18px;font-weight:900;color:#fff">גלריה</div>
 
 <!-- Gallery item modal -->
-<div id="gitem-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:3000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#13132a;border-radius:20px;overflow:hidden;width:100%;max-width:400px;position:relative">
+<div id="gitem-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:3000;flex-direction:column;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
+  <div id="gitem-card" style="background:#13132a;border-radius:20px;overflow:hidden;width:100%;max-width:400px;position:relative">
     <button onclick="document.getElementById('gitem-modal').style.display='none'" style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.5);border:none;color:#fff;font-size:18px;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:10">✕</button>
+    <div id="gitem-counter" style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.5);color:#aac;font-size:12px;padding:4px 8px;border-radius:10px;z-index:10"></div>
     <div id="gitem-media"></div>
     <div style="padding:16px">
       <div id="gitem-date" style="font-size:12px;color:#88c;margin-bottom:6px"></div>
@@ -1048,6 +1089,11 @@ window.renderGallery=function(){
         <div id="gitem-emoji" style="font-size:32px"></div>
       </div>
       <div id="gitem-special" style="font-size:14px;color:#aac;line-height:1.5"></div>
+    </div>
+    <!-- Nav arrows -->
+    <div style="display:flex;justify-content:space-between;padding:0 16px 16px">
+      <button id="gitem-prev" onclick="window._galleryNav(-1)" style="background:#1a1a35;border:2px solid #2a2a4a;color:#fff;border-radius:12px;padding:8px 20px;font-size:18px;cursor:pointer">‹ חדש</button>
+      <button id="gitem-next" onclick="window._galleryNav(1)" style="background:#1a1a35;border:2px solid #2a2a4a;color:#fff;border-radius:12px;padding:8px 20px;font-size:18px;cursor:pointer">ישן ›</button>
     </div>
   </div>
 </div>
