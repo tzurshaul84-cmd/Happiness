@@ -343,9 +343,9 @@ input:focus,textarea:focus{border-color:#4444aa}
       </div>
       <button onclick="window.openGallery()" style="background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:#fff;border-radius:20px;padding:8px 14px;font-size:13px;font-weight:900;cursor:pointer;font-family:Heebo,sans-serif">&#128444; גלריה</button>
     </div>
-    <div id="h-mine"></div>
-    <div id="h-world" style="display:none"></div>
-    <div id="h-stats" style="display:none"></div>
+    <div id="h-mine" style="padding-bottom:80px"></div>
+    <div id="h-world" style="display:none;padding-bottom:80px"></div>
+    <div id="h-stats" style="display:none;padding-bottom:80px"></div>
   </div>
 </div>
 </div></div>
@@ -842,31 +842,6 @@ function renderStats(){
   el('h-stats').innerHTML='<div class="empty" style="color:#88c;font-size:13px;padding:20px;text-align:center">סטטיסטיקה עולמית — בקרוב</div>';
 }
 
-window.openAllDays=function(){
-  var items=window._allDaysData||[];
-  if(!items.length)return;
-  var html=items.map(function(en){
-    var c=gc(en.score);
-    return '<div class="erow" data-date="'+en.date+'" style="cursor:pointer">'
-      +'<div style="flex:1;min-width:0">'
-      +'<div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'
-      +(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')
-      +'</div>'
-      +'<div style="text-align:center">'
-      +'<div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div>'
-      +'<div style="font-size:14px">'+ge(en.score)+'</div>'
-      +'</div></div>';
-  }).join('');
-  document.getElementById('alldays-content').innerHTML=html;
-  document.getElementById('alldays-modal').style.display='flex';
-  document.getElementById('alldays-content').querySelectorAll('.erow').forEach(function(r){
-    r.addEventListener('click',function(){
-      document.getElementById('alldays-modal').style.display='none';
-      openM(this.getAttribute('data-date'));
-    });
-  });
-};
-
 function doCSV(){var e=allE(),rows=[['Date','Score','Special']];e.forEach(function(en){rows.push([en.date,en.score,(en.special||'').replace(/,/g,' ')]);});var blob=new Blob([rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();}
 
 function renderHeader(){
@@ -1105,6 +1080,32 @@ window.renderGallery=function(){
     window.setGalleryItems(filtered);
   });
 };
+
+window.openAllDays=function(){
+  var items=window._allDaysData||[];
+  if(!items.length)return;
+  var html=items.map(function(en){
+    var c=gc(en.score);
+    return '<div class="erow" data-date="'+en.date+'" style="cursor:pointer">'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'
+      +(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')
+      +'</div>'
+      +'<div style="text-align:center">'
+      +'<div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div>'
+      +'<div style="font-size:14px">'+ge(en.score)+'</div>'
+      +'</div></div>';
+  }).join('');
+  document.getElementById('alldays-content').innerHTML=html;
+  document.getElementById('alldays-modal').style.display='flex';
+  document.getElementById('alldays-content').querySelectorAll('.erow').forEach(function(r){
+    r.addEventListener('click',function(){
+      document.getElementById('alldays-modal').style.display='none';
+      openM(this.getAttribute('data-date'));
+    });
+  });
+};
+
 })();
 </script>
 
