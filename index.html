@@ -782,8 +782,26 @@ function renderMyHistory(){
 function renderMyHistoryLocal(){
   var e=allE();
   if(!e.length){el('h-mine').innerHTML='<div class="empty">'+t('noEntries').replace('\\n','<br>')+'</div>';return;}
-  el('h-mine').innerHTML=e.map(function(en){var c=gc(en.score);return'<div class="erow" data-date="'+en.date+'"><div style="flex:1;min-width:0"><div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'+(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')+'</div><div style="text-align:center"><div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div><div style="font-size:14px">'+ge(en.score)+'</div></div></div>';}).join('');
-  el('h-mine').querySelectorAll('.erow').forEach(function(r){r.addEventListener('click',function(){openM(this.getAttribute('data-date'));});});
+
+  // Stats grid
+  var avg=Math.round(e.reduce(function(a,b){return a+b.score;},0)/e.length);
+  var best=Math.max.apply(null,e.map(function(x){return x.score;}));
+  var worst=Math.min.apply(null,e.map(function(x){return x.score;}));
+  var html='<div class="sgrid">'+[{l:t('avg'),v:avg,em:true},{l:t('days'),v:e.length,em:false},{l:t('highest'),v:best,em:true},{l:t('lowest'),v:worst,em:true}].map(function(x){var c=gc(x.v);return'<div class="sbox"><div class="lbl" style="margin-bottom:5px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:4px">'+(x.em?ge(x.v):'📅')+'</div></div>';}).join('')+'</div>';
+
+  // Graph
+  var ce=e.slice(0,14).reverse();
+  html+='<div class="card"><span class="lbl">'+t('myGraph')+'</span>'+renderLineChart(ce.map(function(e2){return e2.date;}),ce.map(function(e2){return e2.score;}),'#00d4ff')+'</div>';
+
+  // All days button
+  html+='<div class="card" style="cursor:pointer;background:#13132a;border-color:#2a2a4a" onclick="window.openAllDays()">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between">'
+    +'<div style="font-size:14px;font-weight:900;color:#aac">📋 כל הימים שלי</div>'
+    +'<div style="font-size:16px;color:#667eea">'+e.length+' ימים ›</div>'
+    +'</div></div>';
+
+  el('h-mine').innerHTML=html;
+  window._allDaysData=e;
 }
 
 function renderWorldArchive(){
@@ -821,46 +839,32 @@ function renderLineChart(labels,values,color){
 
 function renderStats(){
   var e=allE();if(!e.length){el('h-stats').innerHTML='<div class="empty">'+t('nodata')+'</div>';return;}
-  var avg=Math.round(e.reduce(function(a,b){return a+b.score;},0)/e.length);
-  var best=Math.max.apply(null,e.map(function(x){return x.score;}));
-  var worst=Math.min.apply(null,e.map(function(x){return x.score;}));
-  var bestDay=e.find(function(x){return x.score===best;});
-  var sh='<div class="sgrid">'+[{l:t('avg'),v:avg,em:true},{l:t('days'),v:e.length,em:false},{l:t('highest'),v:best,em:true},{l:t('lowest'),v:worst,em:true}].map(function(x){var c=gc(x.v);return'<div class="sbox"><div class="lbl" style="margin-bottom:5px">'+x.l+'</div><div style="font-size:28px;font-weight:900;color:'+c+'">'+x.v+'</div><div style="font-size:17px;margin-top:4px">'+(x.em?ge(x.v):'📅')+'</div></div>';}).join('')+'</div>';
-  var ce=e.slice(0,14).reverse();
-  sh+='<div class="card"><span class="lbl">'+t('myGraph')+'</span>'+renderLineChart(ce.map(function(e2){return e2.date;}),ce.map(function(e2){return e2.score;}),'#00d4ff')+'</div>';
-  // All days button instead of bestDay
-  var sorted=e.slice().sort(function(a,b){return b.date.localeCompare(a.date);});
-  sh+='<div class="card" style="cursor:pointer;background:#13132a;border-color:#2a2a4a" onclick="window.openAllDays()">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between">'
-    +'<div style="font-size:14px;font-weight:900;color:#aac">📋 כל הימים שלי</div>'
-    +'<div style="font-size:18px;color:#667eea">'+sorted.length+' ימים ›</div>'
-    +'</div>'
-    +'</div>';
-  el('h-stats').innerHTML=sh;
-  // Store for modal
-  window._allDaysData=sorted;
+  el('h-stats').innerHTML='<div class="empty" style="color:#88c;font-size:13px;padding:20px;text-align:center">סטטיסטיקה עולמית — בקרוב</div>';
 }
 
 window.openAllDays=function(){
   var items=window._allDaysData||[];
   if(!items.length)return;
-  var html=items.map(function(e){
-    var c=gc(e.score);
-    var d=new Date(e.date+'T12:00:00');
-    var dateStr=d.toLocaleDateString('he-IL',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1a1a35">'
-      +'<div>'
-      +'<div style="font-size:12px;color:#88c;margin-bottom:2px">'+dateStr+'</div>'
-      +(e.special?'<div style="font-size:13px;color:#aac">'+e.special+'</div>':'')
+  var html=items.map(function(en){
+    var c=gc(en.score);
+    return '<div class="erow" data-date="'+en.date+'" style="cursor:pointer">'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:12px;color:#88c;margin-bottom:3px">'+fs(en.date)+'</div>'
+      +(en.special?'<div style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+en.special+'</div>':'')
       +'</div>'
-      +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
-      +'<div style="font-size:22px;font-weight:900;color:'+c+'">'+e.score+'</div>'
-      +'<div style="font-size:18px">'+ge(e.score)+'</div>'
-      +'</div>'
-      +'</div>';
+      +'<div style="text-align:center">'
+      +'<div style="font-size:22px;font-weight:900;color:'+c+'">'+en.score+'</div>'
+      +'<div style="font-size:14px">'+ge(en.score)+'</div>'
+      +'</div></div>';
   }).join('');
   document.getElementById('alldays-content').innerHTML=html;
   document.getElementById('alldays-modal').style.display='flex';
+  document.getElementById('alldays-content').querySelectorAll('.erow').forEach(function(r){
+    r.addEventListener('click',function(){
+      document.getElementById('alldays-modal').style.display='none';
+      openM(this.getAttribute('data-date'));
+    });
+  });
 };
 
 function doCSV(){var e=allE(),rows=[['Date','Score','Special']];e.forEach(function(en){rows.push([en.date,en.score,(en.special||'').replace(/,/g,' ')]);});var blob=new Blob([rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='happiness.csv';a.click();}
