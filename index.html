@@ -655,13 +655,14 @@ function saveEntry(){
 }
 
 // SHARE
-function shareWA(score,date,special){
+function shareWA(score,date,special,mediaUrl){
   var url=window.location.href.split('?')[0];
-  var msgs={he:'היום שלי במדד האושר: '+score+'/100 '+ge(score)+' '+gl(score)+(special?'\n"'+special+'"':'')+' \n🌍 '+url,en:'My happiness today: '+score+'/100 '+ge(score)+' '+gl(score)+(special?'\n"'+special+'"':'')+' \n🌍 '+url,ar:'يومي: '+score+'/100 '+ge(score)+(special?'\n"'+special+'"':'')+' \n🌍 '+url,ru:'Мой день: '+score+'/100 '+ge(score)+' '+gl(score)+(special?'\n"'+special+'"':'')+' \n🌍 '+url};
+  var photoLine=mediaUrl?'\n📸 '+mediaUrl:'';
+  var msgs={he:'היום שלי במדד האושר: '+score+'/100 '+ge(score)+' '+gl(score)+(special?'\n"'+special+'"':'')+photoLine+' \n🌍 '+url,en:'My happiness today: '+score+'/100 '+ge(score)+' '+gl(score)+(special?'\n"'+special+'"':'')+photoLine+' \n🌍 '+url,ar:'يومي: '+score+'/100 '+ge(score)+(special?'\n"'+special+'"':'')+photoLine+' \n🌍 '+url,ru:'Мой день: '+score+'/100 '+ge(score)+' '+gl(score)+(special?'\n"'+special+'"':'')+photoLine+' \n🌍 '+url};
   window.open('https://wa.me/?text='+encodeURIComponent(msgs[currentLang]||msgs.en),'_blank');
 }
-el('share-today-btn').addEventListener('click',function(){var e=entries[tod()];if(e)shareWA(e.score,e.date,e.special);});
-el('share-modal-btn').addEventListener('click',function(){var e=modalDate?entries[modalDate]:null;if(e)shareWA(e.score,modalDate,e.special);});
+el('share-today-btn').addEventListener('click',function(){var e=entries[tod()];if(e)shareWA(e.score,e.date,e.special,e.media_url||null);});
+el('share-modal-btn').addEventListener('click',function(){var e=modalDate?entries[modalDate]:null;if(e)shareWA(e.score,modalDate,e.special,e.media_url||null);});
 
 // AI
 function loadAI(){
