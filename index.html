@@ -814,16 +814,41 @@ function renderWorldArchive(){
     var cd=dates.slice(0,14).reverse();
     var ga=cd.map(function(d){var s=byDate[d].scores;return Math.round(s.reduce(function(a,b){return a+b;},0)/s.length);});
     var html='<div class="card" style="margin-bottom:14px"><span class="lbl">'+t('worldTrend')+'</span>'+renderLineChart(cd,ga,'#00d4ff')+'</div>';
-    dates.forEach(function(d){
-      var s=byDate[d].scores,avg2=Math.round(s.reduce(function(a,b){return a+b;},0)/s.length),c=gc(avg2);
-      var tc=Object.keys(byDate[d].cities).map(function(n){return{n:n,s:Math.round(byDate[d].cities[n].reduce(function(a,b){return a+b;},0)/byDate[d].cities[n].length)};}).sort(function(a,b){return b.s-a.s;}).slice(0,3);
-      html+='<div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div><div style="font-size:13px;font-weight:700;color:#aac">'+fs(d)+'</div><div style="font-size:11px;color:#66a">'+s.length+' '+t('entries')+'</div></div><div style="font-size:32px;font-weight:900;color:'+c+'">'+avg2+'</div></div>';
-      if(tc.length){html+='<div style="font-size:11px;color:#66a;margin-bottom:5px">'+t('topCities')+'</div><div style="display:flex;gap:5px;flex-wrap:wrap">';tc.forEach(function(ci){var cc=gc(ci.s);html+='<div style="background:'+cc+'22;border:1px solid '+cc+'44;border-radius:8px;padding:3px 9px;font-size:12px;font-weight:700;color:'+cc+'">'+ci.n+' '+ci.s+'</div>';});html+='</div>';}
-      html+='</div>';
-    });
+    // Button instead of list
+    html+='<div class="card" style="cursor:pointer;background:#13132a;border-color:#2a2a4a" onclick="window.openWorldDays()">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between">'
+      +'<div style="font-size:14px;font-weight:900;color:#aac">🌍 ציונים עולמיים</div>'
+      +'<div style="font-size:16px;color:#667eea">'+dates.length+' ימים ›</div>'
+      +'</div></div>';
     hw.innerHTML=html;
+    // Store world data for modal
+    window._worldDaysData=dates.map(function(d){
+      var s=byDate[d].scores,avg2=Math.round(s.reduce(function(a,b){return a+b;},0)/s.length);
+      var tc=Object.keys(byDate[d].cities).map(function(n){return{n:n,s:Math.round(byDate[d].cities[n].reduce(function(a,b){return a+b;},0)/byDate[d].cities[n].length)};}).sort(function(a,b){return b.s-a.s;}).slice(0,3);
+      return{date:d,avg:avg2,count:s.length,cities:tc};
+    });
   });
 }
+
+window.openWorldDays=function(){
+  var items=window._worldDaysData||[];
+  if(!items.length)return;
+  var html=items.map(function(e){
+    var c=gc(e.avg);
+    return '<div style="padding:12px 0;border-bottom:1px solid #1a1a35">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<div>'
+      +'<div style="font-size:13px;font-weight:700;color:#aac">'+fs(e.date)+'</div>'
+      +'<div style="font-size:11px;color:#66a">'+e.count+' '+t('entries')+'</div>'
+      +'</div>'
+      +'<div style="font-size:28px;font-weight:900;color:'+c+'">'+e.avg+'</div>'
+      +'</div>'
+      +(e.cities.length?'<div style="display:flex;gap:5px;flex-wrap:wrap">'+e.cities.map(function(ci){var cc=gc(ci.s);return'<div style="background:'+cc+'22;border:1px solid '+cc+'44;border-radius:8px;padding:3px 9px;font-size:12px;font-weight:700;color:'+cc+'">'+ci.n+' '+ci.s+'</div>';}).join('')+'</div>':'')
+      +'</div>';
+  }).join('');
+  document.getElementById('worlddays-content').innerHTML=html;
+  document.getElementById('worlddays-modal').style.display='flex';
+};
 
 function renderLineChart(labels,values,color){
   if(!values||!values.length)return'';
@@ -1145,6 +1170,15 @@ window.openAllDays=function(){
     <button onclick="window.clearGalleryFilter()" style="background:#13132a;border:2px solid #2a2a4a;color:#88c;border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer">הכל</button>
   </div>
   <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"></div>
+</div>
+
+<!-- World days modal -->
+<div id="worlddays-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:#0a0a14;z-index:4000;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;position:sticky;top:0;background:#0a0a14;border-bottom:1px solid #1a1a35;z-index:10">
+    <div style="font-size:18px;font-weight:900;color:#fff">🌍 ציונים עולמיים</div>
+    <button onclick="document.getElementById('worlddays-modal').style.display='none'" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button>
+  </div>
+  <div id="worlddays-content" style="overflow-y:auto;flex:1;padding:0 16px"></div>
 </div>
 
 <!-- All days modal -->
