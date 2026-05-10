@@ -955,7 +955,13 @@ window.addEventListener('DOMContentLoaded',function(){
   });
   el('htabs').querySelectorAll('.stab').forEach(function(btn){btn.addEventListener('click',function(){var tab=this.getAttribute('data-tab');el('htabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('h-mine').style.display=tab==='mine'?'block':'none';el('h-world').style.display=tab==='world'?'block':'none';el('h-stats').style.display=tab==='stats'?'block':'none';});});
   el('wtabs').querySelectorAll('.stab').forEach(function(btn){btn.addEventListener('click',function(){var tab=this.getAttribute('data-tab');el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('wcities').style.display=tab==='cities'?'block':'none';el('wcountries').style.display=tab==='countries'?'block':'none';el('wmap').style.display=tab==='map'?'block':'none';});});
-  el('modal-close').addEventListener('click',function(){el('modal').classList.remove('on');});
+  el('modal-close').addEventListener('click',function(){
+    el('modal').classList.remove('on');
+    if(window._modalOpenedFrom==='alldays'){
+      window._modalOpenedFrom=null;
+      document.getElementById('alldays-modal').style.display='flex';
+    }
+  });
   // Mood recommendations button - placeholder for future feature
   var mrb=el('mood-rec-btn');
   var alb=el('album-btn');
@@ -1126,6 +1132,7 @@ window.openAllDays=function(){
   document.getElementById('alldays-content').querySelectorAll('.erow').forEach(function(r){
     r.addEventListener('click',function(){
       document.getElementById('alldays-modal').style.display='none';
+      window._modalOpenedFrom='alldays';
       openM(this.getAttribute('data-date'));
     });
   });
