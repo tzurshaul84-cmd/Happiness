@@ -510,15 +510,16 @@ el('loc-btn').addEventListener('click',function(){
   var btn=this;el('loc-txt').textContent=t('loading');btn.disabled=true;
   if(!navigator.geolocation){el('loc-txt').textContent=t('locErr');btn.disabled=false;return;}
   navigator.geolocation.getCurrentPosition(function(pos){
-    fetch('https://nominatim.openstreetmap.org/reverse?lat='+pos.coords.latitude+'&lon='+pos.coords.longitude+'&format=json&accept-language=he')
+    fetch('https://nominatim.openstreetmap.org/reverse?lat='+pos.coords.latitude+'&lon='+pos.coords.longitude+'&format=json&zoom=14')
     .then(function(r){return r.json();})
     .then(function(data){
       var a=data.address;
-      var city=a.city||a.town||a.village||a.municipality||'';
+      var city=a.village||a.town||a.suburb||a.neighbourhood||a.city||a.hamlet||a.county||'';
       var country=a.country||'';
       if(city)el('profile-city').value=city;
       if(country)el('profile-country').value=country;
       el('loc-txt').textContent=t('locDone');btn.style.borderColor='#00d4ff';btn.style.color='#00d4ff';
+      btn.disabled=false;
     }).catch(function(){el('loc-txt').textContent=t('locErr');btn.disabled=false;});
   },function(){el('loc-txt').textContent=t('locErr');btn.disabled=false;});
 });
@@ -537,7 +538,20 @@ document.querySelectorAll('.lang-opt').forEach(function(opt){
   opt.addEventListener('click',function(){applyLang(this.getAttribute('data-lang'));});
 });
 el('set-logout-btn').addEventListener('click',function(){sb.auth.signOut().then(function(){currentUser=null;userProfile=null;el('settings-panel').classList.remove('on');showLogin();});});
-el('set-profile-btn').addEventListener('click',function(){el('settings-panel').classList.remove('on');showProfile();});
+el('set-profile-btn').addEventListener('click',function(){
+  var lastChange=localStorage.getItem('whi-loc-changed');
+  if(lastChange){
+    var daysSince=Math.floor((Date.now()-parseInt(lastChange))/(1000*60*60*24));
+    if(daysSince<30){
+      var daysLeft=30-daysSince;
+      showToast((currentLang==='he'?'ניתן לשנות מיקום בעוד '+daysLeft+' ימים':'Location can be changed in '+daysLeft+' days'),true);
+      el('settings-panel').classList.remove('on');
+      return;
+    }
+  }
+  el('settings-panel').classList.remove('on');
+  showProfile();
+});
 el('set-export-csv').addEventListener('click',doCSV);
 
 // PROFILE
@@ -548,9 +562,9 @@ el('status-grid').querySelectorAll('.status-opt').forEach(function(opt){
 el('save-profile-btn').addEventListener('click',function(){
   var country=el('profile-country').value.trim(),city=el('profile-city').value.trim();
   if(!country||!city||!selectedStatus){showToast(t('fillAll'),true);return;}
-  if(['ישראל','Israel'].indexOf(country)!==-1&&IL_CITIES.indexOf(city)===-1){showToast(t('cityVal'),true);return;}
   sb.from('profiles').upsert({user_id:currentUser.id,country:country,city:city,status:selectedStatus},{onConflict:'user_id'}).then(function(res){
     if(res.error){showToast(t('saveErr'),true);return;}
+    localStorage.setItem('whi-loc-changed', Date.now().toString());
     userProfile={country:country,city:city,status:selectedStatus};showApp();
   });
 });
