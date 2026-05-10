@@ -196,8 +196,7 @@ input:focus,textarea:focus{border-color:#4444aa}
     <div>
       <span class="lbl" id="prof-city-lbl">עיר מגורים</span>
       <div class="city-wrap">
-        <input type="text" id="profile-city" placeholder="הקלד 2 אותיות..." autocomplete="off">
-        <div class="city-sug" id="city-sug"></div>
+        <input type="text" id="profile-city" readonly style="background:#0a0a1a;cursor:default;color:#aac" placeholder="לחץ על זהה מיקום..." autocomplete="off">
       </div>
       <button class="loc-btn" id="loc-btn"><span>📍</span><span id="loc-txt">זהה מיקום אוטומטי</span></button>
     </div>
@@ -514,7 +513,7 @@ el('loc-btn').addEventListener('click',function(){
     .then(function(r){return r.json();})
     .then(function(data){
       var a=data.address;
-      var city=a.village||a.town||a.suburb||a.neighbourhood||a.city||a.hamlet||a.county||'';
+      var city=a.city||a.town||a.village||a.hamlet||a.suburb||a.county||'';
       var country=a.country||'';
       if(city)el('profile-city').value=city;
       if(country)el('profile-country').value=country;
