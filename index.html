@@ -497,9 +497,29 @@ var OB=[
 function startOB(){obStep=0;renderOB();el('onboard').classList.add('on');}
 function renderOB(){
   if(obStep===0){
-    var flags={he:'🇮🇱',en:'🇺🇸',ar:'🇸🇦',ru:'🇷🇺',es:'🇪🇸',pt:'🇧🇷',fr:'🇫🇷',de:'🇩🇪',it:'🇮🇹',hi:'🇮🇳',zh:'🇨🇳',ja:'🇯🇵'};
-    var names={he:'עברית',en:'English',ar:'العربية',ru:'Русский',es:'Español',pt:'Português',fr:'Français',de:'Deutsch',it:'Italiano',hi:'हिन्दी',zh:'中文',ja:'日本語'};
-    var btns=Object.keys(flags).map(function(k){return '<button onclick="window.setLangOB(''+k+'')" style="background:'+(k===currentLang?'#667eea':'#1a1a35')+';border:2px solid '+(k===currentLang?'#667eea':'#2a2a4a')+';color:#fff;border-radius:12px;padding:10px 14px;font-size:14px;cursor:pointer;margin:4px">'+flags[k]+' '+names[k]+'</button>';}).join('');
+    var langData=[
+      {k:'he',f:'🇮🇱',n:'עברית'},
+      {k:'en',f:'🇺🇸',n:'English'},
+      {k:'ar',f:'🇸🇦',n:'العربية'},
+      {k:'ru',f:'🇷🇺',n:'Русский'},
+      {k:'es',f:'🇪🇸',n:'Español'},
+      {k:'pt',f:'🇧🇷',n:'Português'},
+      {k:'fr',f:'🇫🇷',n:'Français'},
+      {k:'de',f:'🇩🇪',n:'Deutsch'},
+      {k:'it',f:'🇮🇹',n:'Italiano'},
+      {k:'hi',f:'🇮🇳',n:'हिन्दी'},
+      {k:'zh',f:'🇨🇳',n:'中文'},
+      {k:'ja',f:'🇯🇵',n:'日本語'}
+    ];
+    var btns=langData.map(function(d){
+      var bg=d.k===currentLang?'#667eea':'#1a1a35';
+      var bc=d.k===currentLang?'#667eea':'#2a2a4a';
+      var btn=document.createElement('button');
+      btn.style.cssText='background:'+bg+';border:2px solid '+bc+';color:#fff;border-radius:12px;padding:10px 14px;font-size:14px;cursor:pointer;margin:4px';
+      btn.textContent=d.f+' '+d.n;
+      btn.onclick=function(){window.setLangOB(d.k);};
+      return btn.outerHTML;
+    }).join('');
     el('ob-body').innerHTML='<div class="ob-icon">🌍</div><div class="ob-title">Choose your language</div><div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:16px">'+btns+'</div>';
     el('ob-dots').innerHTML='';
     el('ob-next').textContent='Continue →';
@@ -512,7 +532,9 @@ function renderOB(){
   var dots='';OB.forEach(function(_,i){dots+='<div class="ob-dot'+(i===obStep-1?' on':'')+'"></div>';});
   el('ob-dots').innerHTML=dots;
   var last=obStep===OB.length;
-  el('ob-next').textContent=last?({'he':'✓ הבנתי!','en':'✓ Got it!','ar':'✓ فهمت!','ru':'✓ Понял!','es':'✓ Entendido!','pt':'✓ Entendi!','fr':'✓ Compris!','de':'✓ Verstanden!','it':'✓ Capito!','hi':'✓ समझ गया!','zh':'✓ 明白了!','ja':'✓ わかった!'}[currentLang]||'✓ Got it!'):({'he':'הבא ←','en':'Next →','ar':'التالي →','ru':'Далее →','es':'Siguiente →','pt':'Próximo →','fr':'Suivant →','de':'Weiter →','it':'Avanti →','hi':'अगला →','zh':'下一个 →','ja':'次へ →'}[currentLang]||'Next →');
+  var nextLabels={he:'✓ הבנתי!',en:'✓ Got it!',ar:'✓ فهمت!',ru:'✓ Понял!',es:'✓ Entendido!',pt:'✓ Entendi!',fr:'✓ Compris!',de:'✓ Verstanden!',it:'✓ Capito!',hi:'✓ समझ गया!',zh:'✓ 明白了!',ja:'✓ わかった!'};
+  var contLabels={he:'הבא ←',en:'Next →',ar:'التالي →',ru:'Далее →',es:'Siguiente →',pt:'Próximo →',fr:'Suivant →',de:'Weiter →',it:'Avanti →',hi:'अगला →',zh:'下一个 →',ja:'次へ →'};
+  el('ob-next').textContent=last?(nextLabels[currentLang]||'✓ Got it!'):(contLabels[currentLang]||'Next →');
   el('ob-skip').style.display=last?'none':'block';
 }
 window.setLangOB=function(lang){currentLang=lang;localStorage.setItem('whi-lang',lang);applyLang();renderOB();};
