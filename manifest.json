@@ -9,12 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://res.cloudinary.com/dqt4v8qjs/image/upload/1778398432713_ejytvu.png",
+      "src": "https://happiness-eta-ochre.vercel.app/icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://res.cloudinary.com/dqt4v8qjs/image/upload/1778398432713_ejytvu.png",
+      "src": "https://happiness-eta-ochre.vercel.app/icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
