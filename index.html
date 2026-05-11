@@ -1289,7 +1289,7 @@ window._drawMap=function(cm){
     var s=Math.round(data.t/data.c);
     var col=gc(s);
     svg.append('circle')
-      .attr('cx',centroid[0]).attr('cy',centroid[1]).attr('r',6)
+      .attr('cx',centroid[0]).attr('cy',centroid[1]).attr('r',3)
       .attr('fill',col).attr('fill-opacity',0.95)
       .attr('stroke','#000').attr('stroke-width',0.5);
     svg.append('text')
