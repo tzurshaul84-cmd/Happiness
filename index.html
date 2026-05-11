@@ -342,7 +342,8 @@ input:focus,textarea:focus{border-color:#4444aa}
     <div id="wmap" style="display:none">
       <div class="card" style="padding:12px">
         <span class="lbl" id="lbl-worldmap">מפה עולמית</span>
-        <div class="mapwrap" id="mapwrap"></div>
+        <div class="mapwrap" id="mapwrap" onclick="window.openMapModal()" style="cursor:pointer;position:relative"></div>
+      <div style="text-align:center;font-size:11px;color:#446;margin-top:4px">לחץ להגדלה 🔍</div>
       </div>
     </div>
   </div>
@@ -1247,6 +1248,70 @@ window.openAllDays=function(){
   });
 };
 
+window.openMapModal=function(){
+  var modal=document.getElementById('map-modal');
+  modal.style.display='flex';
+  var wrap=document.getElementById('map-modal-wrap');
+  if(!window._lastCountryMap||!window._d3MapReady){wrap.innerHTML='<div style="color:#88c;text-align:center;padding:40px">טוען...</div>';return;}
+  wrap.innerHTML='';
+  var W=700,H=400;
+  var svg=d3.select(wrap).append('svg')
+    .attr('width','100%').attr('height','100%')
+    .attr('viewBox','0 0 '+W+' '+H)
+    .style('background','#05050e').style('display','block');
+  var proj=d3.geoNaturalEarth1().scale(110).translate([W/2,H/2]);
+  var path=d3.geoPath().projection(proj);
+  var cm=window._lastCountryMap;
+  var g=svg.append('g');
+  g.selectAll('path')
+    .data(window._worldGeo.features)
+    .enter().append('path')
+    .attr('d',path)
+    .attr('fill',function(d){
+      var data=cm[d.properties.name];
+      if(!data)return'#2a2a4a';
+      return gc(Math.round(data.t/data.c));
+    })
+    .attr('fill-opacity',function(d){return cm[d.properties.name]?0.85:0.5;})
+    .attr('stroke','#0a0a14').attr('stroke-width',0.4);
+  // Bubbles for small countries
+  window._worldGeo.features.filter(function(d){
+    if(!cm[d.properties.name])return false;
+    var b=path.bounds(d);
+    return(b[1][0]-b[0][0])<15||(b[1][1]-b[0][1])<15;
+  }).forEach(function(d){
+    var c=path.centroid(d);
+    if(!c||isNaN(c[0]))return;
+    var data=cm[d.properties.name];
+    var s=Math.round(data.t/data.c);
+    var col=gc(s);
+    g.append('circle').attr('cx',c[0]).attr('cy',c[1]).attr('r',7)
+      .attr('fill',col).attr('fill-opacity',0.95).attr('stroke','#000').attr('stroke-width',0.5);
+    g.append('text').attr('x',c[0]).attr('y',c[1])
+      .attr('text-anchor','middle').attr('dominant-baseline','central')
+      .attr('font-size','6px').attr('font-weight','bold').attr('fill','#000').text(s);
+  });
+  // Labels for large countries with data
+  window._worldGeo.features.filter(function(d){
+    if(!cm[d.properties.name])return false;
+    var b=path.bounds(d);
+    return(b[1][0]-b[0][0])>=15&&(b[1][1]-b[0][1])>=15;
+  }).forEach(function(d){
+    var c=path.centroid(d);
+    if(!c||isNaN(c[0]))return;
+    var data=cm[d.properties.name];
+    var s=Math.round(data.t/data.c);
+    var col=gc(s);
+    g.append('text').attr('x',c[0]).attr('y',c[1])
+      .attr('text-anchor','middle').attr('dominant-baseline','central')
+      .attr('font-size','9px').attr('font-weight','bold').attr('fill',col)
+      .attr('stroke','#000').attr('stroke-width','0.3px').attr('paint-order','stroke')
+      .text(s);
+  });
+  // Zoom + pan with D3
+  var zoom=d3.zoom().scaleExtent([1,8]).on('zoom',function(event){g.attr('transform',event.transform);});
+  svg.call(zoom);
+};
 window._drawMap=function(cm){
   var wrap=el('mapwrap');
   wrap.innerHTML='';
@@ -1441,5 +1506,14 @@ function renderGallery_OLD_DISABLED(){
 }
 
 </script>
+
+<div id="map-modal" style="display:none;position:fixed;inset:0;background:#05050e;z-index:5000;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#0a0a14;border-bottom:1px solid #1a1a35;flex-shrink:0">
+    <div style="font-size:16px;font-weight:900;color:#fff">🗺️ מפה עולמית</div>
+    <button onclick="document.getElementById('map-modal').style.display='none'" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button>
+  </div>
+  <div id="map-modal-wrap" style="flex:1;overflow:hidden;position:relative"></div>
+  <div style="text-align:center;padding:8px;font-size:11px;color:#446">גרור להזזה · צבוט לזום</div>
+</div>
 </body>
 </html>
