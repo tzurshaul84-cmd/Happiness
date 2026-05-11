@@ -1289,14 +1289,14 @@ window._drawMap=function(cm){
     var s=Math.round(data.t/data.c);
     var col=gc(s);
     svg.append('circle')
-      .attr('cx',centroid[0]).attr('cy',centroid[1]).attr('r',3)
+      .attr('cx',centroid[0]).attr('cy',centroid[1]).attr('r',2.5)
       .attr('fill',col).attr('fill-opacity',0.95)
       .attr('stroke','#000').attr('stroke-width',0.5);
     svg.append('text')
       .attr('x',centroid[0]).attr('y',centroid[1])
       .attr('text-anchor','middle')
       .attr('dominant-baseline','central')
-      .attr('font-size','3px').attr('font-weight','bold')
+      .attr('font-size','2.8px').attr('font-weight','bold')
       .attr('fill','#000').text(s);
   });
 }
