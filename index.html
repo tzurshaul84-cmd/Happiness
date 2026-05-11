@@ -847,40 +847,6 @@ function renderMap(cm){
   document.head.appendChild(s1);
 }
 
-window._drawMap=function(cm){
-  var wrap=el('mapwrap');
-  wrap.innerHTML='';
-  var W=wrap.offsetWidth||360,H=Math.round(W*0.5);
-  var svg=d3.select(wrap).append('svg')
-    .attr('width','100%').attr('height',H)
-    .attr('viewBox','0 0 '+W+' '+H)
-    .style('background','#05050e').style('border-radius','8px');
-  var proj=d3.geoNaturalEarth1().scale(W/6.5).translate([W/2,H/2]);
-  var path=d3.geoPath().projection(proj);
-  svg.append('g').selectAll('path')
-    .data(window._worldGeo.features)
-    .enter().append('path')
-    .attr('d',path)
-    .attr('fill',function(d){
-      var name=d.properties.name;
-      var data=cm[name];
-      if(!data)return'#1a1a2e';
-      var s=Math.round(data.t/data.c);
-      return gc(s);
-    })
-    .attr('fill-opacity',function(d){
-      return cm[d.properties.name]?0.8:0.3;
-    })
-    .attr('stroke','#0a0a14').attr('stroke-width',0.5)
-    .append('title').text(function(d){
-      var name=d.properties.name;
-      var data=cm[name];
-      if(!data)return name;
-      var s=Math.round(data.t/data.c);
-      return name+': '+s+' ('+data.c+' '+t('entries')+')';
-    });
-}
-
 // HISTORY — fixes archive loading from Supabase
 function renderHistory(){renderMyHistory();renderWorldArchive();renderStats();}
 
@@ -1258,6 +1224,40 @@ window.openAllDays=function(){
     });
   });
 };
+
+window._drawMap=function(cm){
+  var wrap=el('mapwrap');
+  wrap.innerHTML='';
+  var W=wrap.offsetWidth||360,H=Math.round(W*0.5);
+  var svg=d3.select(wrap).append('svg')
+    .attr('width','100%').attr('height',H)
+    .attr('viewBox','0 0 '+W+' '+H)
+    .style('background','#05050e').style('border-radius','8px');
+  var proj=d3.geoNaturalEarth1().scale(W/6.5).translate([W/2,H/2]);
+  var path=d3.geoPath().projection(proj);
+  svg.append('g').selectAll('path')
+    .data(window._worldGeo.features)
+    .enter().append('path')
+    .attr('d',path)
+    .attr('fill',function(d){
+      var name=d.properties.name;
+      var data=cm[name];
+      if(!data)return'#1a1a2e';
+      var s=Math.round(data.t/data.c);
+      return gc(s);
+    })
+    .attr('fill-opacity',function(d){
+      return cm[d.properties.name]?0.8:0.3;
+    })
+    .attr('stroke','#0a0a14').attr('stroke-width',0.5)
+    .append('title').text(function(d){
+      var name=d.properties.name;
+      var data=cm[name];
+      if(!data)return name;
+      var s=Math.round(data.t/data.c);
+      return name+': '+s+' ('+data.c+' '+t('entries')+')';
+    });
+}
 
 })();
 </script>
