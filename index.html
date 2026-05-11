@@ -1257,6 +1257,7 @@ window._drawMap=function(cm){
     .style('background','#05050e').style('border-radius','8px').style('display','block');
   var proj=d3.geoNaturalEarth1().scale(57).translate([W/2,H/2]);
   var path=d3.geoPath().projection(proj);
+  // Draw countries
   svg.append('g').selectAll('path')
     .data(window._worldGeo.features)
     .enter().append('path')
@@ -1264,21 +1265,34 @@ window._drawMap=function(cm){
     .attr('fill',function(d){
       var name=d.properties.name;
       var data=cm[name];
-      if(!data)return'#1a1a2e';
+      if(!data)return'#2a2a4a';
       var s=Math.round(data.t/data.c);
       return gc(s);
     })
     .attr('fill-opacity',function(d){
-      return cm[d.properties.name]?0.8:0.3;
+      return cm[d.properties.name]?0.85:0.6;
     })
-    .attr('stroke','#0a0a14').attr('stroke-width',0.5)
-    .append('title').text(function(d){
-      var name=d.properties.name;
-      var data=cm[name];
-      if(!data)return name;
-      var s=Math.round(data.t/data.c);
-      return name+': '+s+' ('+data.c+' '+t('entries')+')';
-    });
+    .attr('stroke','#0a0a14').attr('stroke-width',0.3);
+  // Draw bubbles on countries with data
+  var bubbleData=window._worldGeo.features.filter(function(d){return cm[d.properties.name];});
+  bubbleData.forEach(function(d){
+    var centroid=path.centroid(d);
+    if(!centroid||isNaN(centroid[0])||isNaN(centroid[1]))return;
+    var name=d.properties.name;
+    var data=cm[name];
+    var s=Math.round(data.t/data.c);
+    var col=gc(s);
+    var r=Math.max(4, Math.min(12, data.c*3));
+    svg.append('circle')
+      .attr('cx',centroid[0]).attr('cy',centroid[1]).attr('r',r)
+      .attr('fill',col).attr('fill-opacity',0.9)
+      .attr('stroke','#000').attr('stroke-width',0.5);
+    svg.append('text')
+      .attr('x',centroid[0]).attr('y',centroid[1]+3)
+      .attr('text-anchor','middle')
+      .attr('font-size','5px').attr('font-weight','bold')
+      .attr('fill','#000').text(s);
+  });
 }
 
 })();
