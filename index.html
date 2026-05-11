@@ -830,7 +830,7 @@ function renderMap(cm){
   var wrap=el('mapwrap');
   wrap.innerHTML='<div style="color:#88c;font-size:13px;text-align:center;padding:20px">טוען מפה...</div>';
   // Load D3 and world topojson
-  if(window._d3MapReady){_drawMap(cm);return;}
+  if(window._d3MapReady){window._drawMap(cm);return;}
   var s1=document.createElement('script');
   s1.src='https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
   s1.onload=function(){
@@ -839,7 +839,7 @@ function renderMap(cm){
     s2.onload=function(){
       fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
       .then(function(r){return r.json();})
-      .then(function(geo){window._worldGeo=geo;window._d3MapReady=true;_drawMap(cm);})
+      .then(function(geo){window._worldGeo=geo;window._d3MapReady=true;window._drawMap(cm);})
       .catch(function(){wrap.innerHTML='<div style="color:#88c;font-size:12px;text-align:center;padding:20px">מפה לא זמינה</div>';});
     };
     document.head.appendChild(s2);
@@ -847,7 +847,7 @@ function renderMap(cm){
   document.head.appendChild(s1);
 }
 
-function _drawMap(cm){
+window._drawMap=function(cm){
   var wrap=el('mapwrap');
   wrap.innerHTML='';
   var W=wrap.offsetWidth||360,H=Math.round(W*0.5);
