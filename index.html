@@ -827,10 +827,58 @@ function renderGlobe(score){
 }
 
 function renderMap(cm){
-  var W=360,H=180,html='<svg viewBox="0 0 '+W+' '+H+'" style="background:#05050e;display:block;width:100%;border-radius:8px">';
-  html+='<g stroke="#1a1a35" stroke-width="0.5">';for(var x=0;x<=W;x+=60)html+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'"/>';for(var y=0;y<=H;y+=45)html+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'"/>';html+='</g>';
-  MAPC.forEach(function(c){var d=cm[c.n];var s=d?Math.round(d.t/d.c):0;var col=s?gc(s):'#2a2a4a';var cx=c.x/100*W,cy=c.y/100*H,r=c.r*3;html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'" fill-opacity="'+(s?.3:.08)+'" stroke="'+col+'" stroke-width="1.5" stroke-opacity="'+(s?.8:.2)+'"/><circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.35+1)+'" fill="'+col+'" fill-opacity="'+(s?1:.2)+'"/>';if(r>8){if(s)html+='<text x="'+cx+'" y="'+(cy+2)+'" text-anchor="middle" fill="#fff" font-size="6.5" font-family="Heebo,sans-serif" font-weight="bold">'+s+'</text>';html+='<text x="'+cx+'" y="'+(cy+r+8)+'" text-anchor="middle" fill="'+col+'" font-size="5.5" font-family="Heebo,sans-serif" opacity="'+(s?.9:.3)+'">'+c.n+'</text>';}});
-  html+='</svg>';el('mapwrap').innerHTML=html;
+  var wrap=el('mapwrap');
+  wrap.innerHTML='<div style="color:#88c;font-size:13px;text-align:center;padding:20px">טוען מפה...</div>';
+  // Load D3 and world topojson
+  if(window._d3MapReady){_drawMap(cm);return;}
+  var s1=document.createElement('script');
+  s1.src='https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
+  s1.onload=function(){
+    var s2=document.createElement('script');
+    s2.src='https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js';
+    s2.onload=function(){
+      fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
+      .then(function(r){return r.json();})
+      .then(function(geo){window._worldGeo=geo;window._d3MapReady=true;_drawMap(cm);})
+      .catch(function(){wrap.innerHTML='<div style="color:#88c;font-size:12px;text-align:center;padding:20px">מפה לא זמינה</div>';});
+    };
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s1);
+}
+
+function _drawMap(cm){
+  var wrap=el('mapwrap');
+  wrap.innerHTML='';
+  var W=wrap.offsetWidth||360,H=Math.round(W*0.5);
+  var svg=d3.select(wrap).append('svg')
+    .attr('width','100%').attr('height',H)
+    .attr('viewBox','0 0 '+W+' '+H)
+    .style('background','#05050e').style('border-radius','8px');
+  var proj=d3.geoNaturalEarth1().scale(W/6.5).translate([W/2,H/2]);
+  var path=d3.geoPath().projection(proj);
+  svg.append('g').selectAll('path')
+    .data(window._worldGeo.features)
+    .enter().append('path')
+    .attr('d',path)
+    .attr('fill',function(d){
+      var name=d.properties.name;
+      var data=cm[name];
+      if(!data)return'#1a1a2e';
+      var s=Math.round(data.t/data.c);
+      return gc(s);
+    })
+    .attr('fill-opacity',function(d){
+      return cm[d.properties.name]?0.8:0.3;
+    })
+    .attr('stroke','#0a0a14').attr('stroke-width',0.5)
+    .append('title').text(function(d){
+      var name=d.properties.name;
+      var data=cm[name];
+      if(!data)return name;
+      var s=Math.round(data.t/data.c);
+      return name+': '+s+' ('+data.c+' '+t('entries')+')';
+    });
 }
 
 // HISTORY — fixes archive loading from Supabase
@@ -868,7 +916,7 @@ function renderMyHistoryLocal(){
   // All days button
   html+='<div class="card" style="cursor:pointer;background:#13132a;border-color:#2a2a4a" onclick="window.openAllDays()">'
     +'<div style="display:flex;align-items:center;justify-content:space-between">'
-    +'<div style="font-size:14px;font-weight:900;color:#aac" id="alldays-btn-txt">📋 All My Days</div>'
+    +'<div style="font-size:14px;font-weight:900;color:#aac" id="alldays-btn-txt">📋 '+t('allMyDays')+'</div>'
     +'<div style="font-size:16px;color:#667eea">'+e.length+' ימים ›</div>'
     +'</div></div>';
 
@@ -889,7 +937,7 @@ function renderWorldArchive(){
     // Button instead of list
     html+='<div class="card" style="cursor:pointer;background:#13132a;border-color:#2a2a4a" onclick="window.openWorldDays()">'
       +'<div style="display:flex;align-items:center;justify-content:space-between">'
-      +'<div style="font-size:14px;font-weight:900;color:#aac" id="worlddays-btn-txt">🌍 World Scores</div>'
+      +'<div style="font-size:14px;font-weight:900;color:#aac" id="worlddays-btn-txt">🌍 '+t('worldScores')+'</div>'
       +'<div style="font-size:16px;color:#667eea">'+dates.length+' ימים ›</div>'
       +'</div></div>';
     hw.innerHTML=html;
