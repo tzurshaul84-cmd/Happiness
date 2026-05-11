@@ -1058,7 +1058,13 @@ window.addEventListener('DOMContentLoaded',function(){
     }
   });
   el('htabs').querySelectorAll('.stab').forEach(function(btn){btn.addEventListener('click',function(){var tab=this.getAttribute('data-tab');el('htabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('h-mine').style.display=tab==='mine'?'block':'none';el('h-world').style.display=tab==='world'?'block':'none';el('h-stats').style.display=tab==='stats'?'block':'none';});});
-  el('wtabs').querySelectorAll('.stab').forEach(function(btn){btn.addEventListener('click',function(){var tab=this.getAttribute('data-tab');el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('wcities').style.display=tab==='cities'?'block':'none';el('wcountries').style.display=tab==='countries'?'block':'none';el('wmap').style.display=tab==='map'?'block':'none';});});
+  el('wtabs').querySelectorAll('.stab').forEach(function(btn){btn.addEventListener('click',function(){var tab=this.getAttribute('data-tab');el('wtabs').querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});this.classList.add('on');el('wcities').style.display=tab==='cities'?'block':'none';el('wcountries').style.display=tab==='countries'?'block':'none';el('wmap').style.display=tab==='map'?'block':'none';
+    if(tab==='map'&&window._lastCountryMap){
+      requestAnimationFrame(function(){
+        window._drawMap(window._lastCountryMap);
+      });
+    }
+  });});});
   el('modal-close').addEventListener('click',function(){
     el('modal').classList.remove('on');
     if(window._modalOpenedFrom==='alldays'){
@@ -1246,7 +1252,7 @@ window.openAllDays=function(){
 window._drawMap=function(cm){
   var wrap=el('mapwrap');
   wrap.innerHTML='';
-  var W=wrap.offsetWidth||360,H=Math.round(W*0.5);
+  var W=wrap.offsetWidth||wrap.parentElement&&wrap.parentElement.offsetWidth||360,H=Math.round(W*0.5);
   var svg=d3.select(wrap).append('svg')
     .attr('width','100%').attr('height',H)
     .attr('viewBox','0 0 '+W+' '+H)
