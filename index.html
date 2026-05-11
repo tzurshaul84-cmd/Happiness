@@ -566,7 +566,7 @@ el('loc-btn').addEventListener('click',function(){
     .then(function(r){return r.json();})
     .then(function(data){
       var a=data.address;
-      var city=a.city||a.town||a.village||a.hamlet||a.suburb||a.county||'';
+      var city=a.village||a.hamlet||a.town||a.locality||a.quarter||a.city||a.suburb||a.county||'';
       var country=a.country||'';
       if(city)el('profile-city').value=city;
       if(country)el('profile-country').value=country;
@@ -806,10 +806,10 @@ function loadWorldData(){
     var citiesArr=Object.keys(cityMap).map(function(n){return{n:n,s:Math.round(cityMap[n].t/cityMap[n].c),p:cityMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
     var countriesArr=Object.keys(countryMap).map(function(n){return{n:n,s:Math.round(countryMap[n].t/countryMap[n].c),p:countryMap[n].c};}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
     var citHtml='';
-    citiesArr.forEach(function(c,i){var col=gc(c.s);citHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
+    citiesArr.forEach(function(c,i){var col=gc(c.s);citHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+' <span style="font-size:11px;color:#66a">('+c.p+')</span></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
     el('wcities').innerHTML=citHtml||'<div class="empty">אין נתונים</div>';
     var cntHtml='';
-    countriesArr.forEach(function(c,i){var col=gc(c.s);cntHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+'</div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
+    countriesArr.forEach(function(c,i){var col=gc(c.s);cntHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+' <span style="font-size:11px;color:#66a">('+c.p+')</span></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
     el('wcountries').innerHTML=cntHtml||'<div class="empty">אין נתונים</div>';
     renderMap(countryMap);
 
