@@ -811,7 +811,7 @@ function loadWorldData(){
     var cntHtml='';
     countriesArr.forEach(function(c,i){var col=gc(c.s);cntHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+' <span style="font-size:11px;color:#66a">('+c.p+')</span></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
     el('wcountries').innerHTML=cntHtml||'<div class="empty">אין נתונים</div>';
-    renderMap(countryMap);
+    window._lastCountryMap=countryMap;console.log('countryMap keys:',Object.keys(countryMap));renderMap(countryMap);
 
   });
 }
