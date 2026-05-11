@@ -811,7 +811,25 @@ function loadWorldData(){
     var cntHtml='';
     countriesArr.forEach(function(c,i){var col=gc(c.s);cntHtml+='<div class="lrow"><div style="font-size:12px;font-weight:900;color:#44a;min-width:18px">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:900">'+c.n+' <span style="font-size:11px;color:#66a">('+c.p+')</span></div></div><div style="font-size:17px;font-weight:900;color:'+col+'">'+c.s+'</div></div>';});
     el('wcountries').innerHTML=cntHtml||'<div class="empty">אין נתונים</div>';
-    window._lastCountryMap=countryMap;console.log('countryMap keys:',Object.keys(countryMap));renderMap(countryMap);
+    // Translate country names to English for GeoJSON matching
+    var countryNameMap={
+      'ישראל':'Israel','ארצות הברית':'United States of America','ארהב':'United States of America',
+      'גרמניה':'Germany','צרפת':'France','ספרד':'Spain','איטליה':'Italy','בריטניה':'United Kingdom',
+      'רוסיה':'Russia','סין':'China','יפן':'Japan','הודו':'India','ברזיל':'Brazil',
+      'קנדה':'Canada','אוסטרליה':'Australia','מקסיקו':'Mexico','דרום אפריקה':'South Africa',
+      'מצרים':'Egypt','טורקיה':'Turkey','ירדן':'Jordan','לבנון':'Lebanon','סוריה':'Syria',
+      'ערב הסעודית':'Saudi Arabia','איחוד האמירויות':'United Arab Emirates',
+      'הולנד':'Netherlands','בלגיה':'Belgium','שוויץ':'Switzerland','אוסטריה':'Austria',
+      'פולין':'Poland','שבדיה':'Sweden','נורווגיה':'Norway','דנמרק':'Denmark','פינלנד':'Finland',
+      'יוון':'Greece','פורטוגל':'Portugal','ארגנטינה':'Argentina','קולומביה':'Colombia',
+      'צ\'ילה':'Chile','פרו':'Peru','אוקראינה':'Ukraine','רומניה':'Romania','הונגריה':'Hungary'
+    };
+    var translatedMap={};
+    Object.keys(countryMap).forEach(function(k){
+      var eng=countryNameMap[k]||k;
+      translatedMap[eng]=countryMap[k];
+    });
+    window._lastCountryMap=translatedMap;console.log('countryMap keys:',Object.keys(translatedMap));renderMap(translatedMap);
 
   });
 }
