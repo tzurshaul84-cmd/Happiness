@@ -1254,7 +1254,7 @@ window.openAllDays=function(){
 window.openAbout=function(){
   var modal=document.getElementById('about-modal');
   modal.style.display='flex';
-  var L=window._currentLang&&LANGS[window._currentLang]||LANGS['he'];
+  var L=T[currentLang]||T['he'];
   document.getElementById('about-modal-title').textContent='ℹ️ '+(L.aboutTitle||'About');
   document.getElementById('about-modal-body').textContent=L.aboutBody||'';
 };
