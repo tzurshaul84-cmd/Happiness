@@ -17,6 +17,7 @@
 <meta name="apple-mobile-web-app-title" content="מדד האושר">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0a14;font-family:Heebo,sans-serif;color:#fff;font-weight:600;padding-bottom:70px;min-height:100vh}
@@ -975,13 +976,10 @@ function renderStats(){
   el('h-stats').innerHTML='<div class="empty" style="color:#88c;font-size:13px;padding:20px;text-align:center">סטטיסטיקה עולמית — בקרוב</div>';
 }
 
-function doCSV(){var e=allE(),rows=[['Date','Score','Special']];e.forEach(function(en){rows.push([en.date,en.score,(en.special||'').replace(/,/g,' ')]);});var tsvText=rows.map(function(r){return r.join('\t');}).join('\n');
-navigator.clipboard.writeText(tsvText).then(function(){
-  alert((T[currentLang]&&T[currentLang].csvCopied)||'הנתונים הועתקו! הדבק ב-Google Sheets');
-}).catch(function(){
-  var ta=document.createElement('textarea');ta.value=tsvText;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-  alert((T[currentLang]&&T[currentLang].csvCopied)||'הנתונים הועתקו! הדבק ב-Google Sheets');
-});}
+function doCSV(){var e=allE(),rows=[['Date','Score','Special']];e.forEach(function(en){rows.push([en.date,en.score,(en.special||'').replace(/,/g,' ')]);});var ws=XLSX.utils.aoa_to_sheet(rows);
+var wb=XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb,ws,'Happiness');
+XLSX.writeFile(wb,'happiness.xlsx')}
 
 function renderHeader(){
   var loc={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU','es':'es-ES','pt':'pt-BR','fr':'fr-FR','de':'de-DE','it':'it-IT','hi':'hi-IN','zh':'zh-CN','ja':'ja-JP'}[currentLang]||'en-US';
