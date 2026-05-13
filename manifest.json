@@ -1,7 +1,7 @@
 {
   "name": "Happiness Index",
   "short_name": "Happiness",
-  "description": "Track your daily happiness",
+  "description": "Track your daily happiness and see how the world feels",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a14",
@@ -11,12 +11,14 @@
     {
       "src": "https://happiness-eta-ochre.vercel.app/icon.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "https://happiness-eta-ochre.vercel.app/icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
