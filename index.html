@@ -986,7 +986,7 @@ function renderHeader(){
   el('hdate').textContent=new Date().toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'long'});
   if(userProfile){el('user-city-label').textContent=userProfile.city;el('user-chip').style.display='flex';}
   var streak=0,d=new Date();while(true){var ds=d.toISOString().slice(0,10);if(entries[ds]){streak++;d.setDate(d.getDate()-1);}else break;}
-  var b=el('streak');if(streak>0){b.innerHTML='🔥 '+streak+'<br><span style="font-size:10px;font-weight:700;opacity:0.85">המשך כך!</span>';b.style.display='inline-block';b.style.cursor='pointer';b.style.textAlign='right';b.style.lineHeight='1.3';b.style.padding='4px 10px';b.onclick=function(){var L=T[currentLang]||T['he'];var msg=(L.streakMsg||'כל הכבוד! הכנסת נתונים {n} ימים רצופים').replace('{n}',streak);window.showToast(msg);};}else b.style.display='none';
+  var b=el('streak');if(streak>0){b.innerHTML='🔥 '+streak+'<br><span style="font-size:9px;font-weight:700;letter-spacing:0.5px">ימים רצופים</span>';b.style.display='inline-block';b.style.cursor='pointer';b.style.textAlign='center';b.style.lineHeight='1.4';b.style.padding='3px 8px';b.style.marginLeft='2px';b.onclick=function(){var L=T[currentLang]||T['he'];var msg=(L.streakMsg||'כל הכבוד! הכנסת נתונים {n} ימים רצופים').replace('{n}',streak);window.showToast(msg);};}else b.style.display='none';
 }
 
 function renderWeekCard(){} // removed from today screen
