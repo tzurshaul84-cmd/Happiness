@@ -67,7 +67,7 @@ input:focus,textarea:focus{border-color:#4444aa}
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
 .mbg.on{display:flex}
 .mbox{background:#13132a;border:2px solid #2a2a4a;border-radius:18px;padding:24px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto}
-.mapwrap{background:#06060f;border-radius:10px;overflow:hidden}
+.mapwrap{background:linear-gradient(135deg,#0a0a2e,#0d1535);border-radius:12px;overflow:hidden;box-shadow:0 0 20px rgba(0,180,255,0.15),inset 0 0 40px rgba(0,50,120,0.3)}
 .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .content{position:relative;z-index:1}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00d4ff;color:#000;font-family:Heebo,sans-serif;font-size:14px;font-weight:900;padding:12px 24px;border-radius:30px;z-index:2000;display:none;white-space:nowrap}
@@ -341,7 +341,7 @@ input:focus,textarea:focus{border-color:#4444aa}
     <div id="wcities" style="min-height:50px"></div>
     <div id="wcountries" style="display:none"></div>
     <div id="wmap" style="display:none">
-      <div class="card" style="padding:12px">
+      <div class="card" style="padding:12px;background:linear-gradient(135deg,#0d0d25,#0a1530);border-color:#1a3a6a;box-shadow:0 0 24px rgba(0,150,255,0.12)">
         <span class="lbl" id="lbl-worldmap">מפה עולמית</span>
         <div class="mapwrap" id="mapwrap" onclick="window.openMapModal()" style="cursor:pointer;position:relative"></div>
       <div style="text-align:center;font-size:11px;color:#446;margin-top:4px" id="map-tap-hint"></div>
@@ -1020,31 +1020,19 @@ function renderStats(){
 
   window._statsMode=function(m){mode=m;localStorage.setItem(MODE_KEY,m);window._statsSelected=[];renderStats();};
 
-  // Try sessionStorage cache first
-  var _cached=sessionStorage.getItem('stats-data');
-  if(_cached){
-    try{
-      window._statsAllData=JSON.parse(_cached);
-      el('stats-empty').textContent=t('statsPickHint');
-      window._setupStatsHandlers();
-      return;
-    }catch(e){}
-  }
   el('stats-empty').textContent=t('statsLoading');
   sb.from('entries').select('score,city,country,date').then(function(res){
     if(res.error||!res.data){el('stats-empty').textContent=t('statsLoadErr');return;}
     window._statsAllData=res.data;
-    try{sessionStorage.setItem('stats-data',JSON.stringify(res.data));}catch(e){}
     el('stats-empty').textContent=t('statsPickHint');
 
-    window._setupStatsHandlers=function(){
     window._statsSearch=function(q){
       if(!q){el('stats-suggestions').style.display='none';return;}
       var data=window._statsAllData||[];
       var key=mode==='country'?'country':'city';
       var seen={};
       data.forEach(function(d){if(d[key])seen[d[key]]=true;});
-      var opts=Object.keys(seen).filter(function(n){return n.toLowerCase().startsWith(q.toLowerCase());}).slice(0,8);
+      var opts=Object.keys(seen).filter(function(n){return n.toLowerCase().includes(q.toLowerCase());}).slice(0,8);
       if(!opts.length){el('stats-suggestions').style.display='none';return;}
       el('stats-suggestions').style.display='block';
       el('stats-suggestions').innerHTML=opts.map(function(n){
@@ -1094,10 +1082,10 @@ function renderStats(){
       canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';
       var ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
       var PL=32,PR=10,PT=10,PB=30,cW=W-PL-PR,cH=H-PT-PB;
-      ctx.strokeStyle='#3a3a6a';ctx.lineWidth=1;
-      for(var g=0;g<=4;g++){var gy=PT+cH*(1-g/4);ctx.beginPath();ctx.moveTo(PL,gy);ctx.lineTo(PL+cW,gy);ctx.stroke();ctx.fillStyle='#8888bb';ctx.font='10px Arial';ctx.textAlign='right';ctx.fillText(g*25,PL-4,gy+4);}
+      ctx.strokeStyle='#2a2a4a';ctx.lineWidth=1;
+      for(var g=0;g<=4;g++){var gy=PT+cH*(1-g/4);ctx.beginPath();ctx.moveTo(PL,gy);ctx.lineTo(PL+cW,gy);ctx.stroke();ctx.fillStyle='#446';ctx.font='10px Arial';ctx.textAlign='right';ctx.fillText(g*25,PL-4,gy+4);}
       var step=Math.max(1,Math.floor(dates.length/6));
-      ctx.fillStyle='#8888bb';ctx.font='9px Arial';ctx.textAlign='center';
+      ctx.fillStyle='#446';ctx.font='9px Arial';ctx.textAlign='center';
       for(var di=0;di<dates.length;di+=step){ctx.fillText(dates[di].slice(5),PL+cW*(di/(dates.length-1||1)),H-PB+14);}
       series.forEach(function(s){
         ctx.strokeStyle=s.color;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.beginPath();
@@ -1111,7 +1099,6 @@ function renderStats(){
 
     el('stats-from').addEventListener('change',function(){if(window._statsRender)window._statsRender();});
     el('stats-to').addEventListener('change',function(){if(window._statsRender)window._statsRender();});
-    };window._setupStatsHandlers();
   });
 }
 
@@ -1505,7 +1492,7 @@ window.openMapModal=function(){
     .attr('d',path)
     .attr('fill',function(d){
       var data=cm[d.properties.name];
-      if(!data)return'#2a2a4a';
+      if(!data)return'#1a3a5c';
       return gc(Math.round(data.t/data.c));
     })
     .attr('fill-opacity',function(d){return cm[d.properties.name]?0.85:0.5;})
@@ -1566,7 +1553,7 @@ window._drawMap=function(cm){
   var svg=d3.select(wrap).append('svg')
     .attr('width','100%').attr('height','auto')
     .attr('viewBox','0 0 '+W+' '+H)
-    .style('background','#05050e').style('border-radius','8px').style('display','block');
+    .style('background','linear-gradient(180deg,#05152e 0%,#0a1a3a 100%)').style('border-radius','10px').style('display','block');
   var proj=d3.geoNaturalEarth1().scale(57).translate([W/2,H/2]);
   var path=d3.geoPath().projection(proj);
   // Draw countries - color those with data
@@ -1577,14 +1564,14 @@ window._drawMap=function(cm){
     .attr('fill',function(d){
       var name=d.properties.name;
       var data=cm[name];
-      if(!data)return'#2a2a4a';
+      if(!data)return'#1a3a5c';
       var s=Math.round(data.t/data.c);
       return gc(s);
     })
     .attr('fill-opacity',function(d){
-      return cm[d.properties.name]?0.7:0.6;
+      return cm[d.properties.name]?0.92:0.75;
     })
-    .attr('stroke','#0a0a14').attr('stroke-width',0.3);
+    .attr('stroke','#0d2040').attr('stroke-width',0.4);
   // Add small bubble only for small countries (area < threshold)
   var bubbleData=window._worldGeo.features.filter(function(d){
     if(!cm[d.properties.name])return false;
