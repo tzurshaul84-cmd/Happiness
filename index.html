@@ -67,7 +67,7 @@ input:focus,textarea:focus{border-color:#4444aa}
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
 .mbg.on{display:flex}
 .mbox{background:#13132a;border:2px solid #2a2a4a;border-radius:18px;padding:24px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto}
-.mapwrap{background:#0a1628;border-radius:12px;overflow:hidden;border:2px solid #1e4a8a;box-shadow:0 0 24px rgba(0,120,255,0.2)}
+.mapwrap{background:#050a0f;border-radius:12px;overflow:hidden;border:1px solid #333;box-shadow:0 2px 12px rgba(0,0,0,0.6)}
 .stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .content{position:relative;z-index:1}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#00d4ff;color:#000;font-family:Heebo,sans-serif;font-size:14px;font-weight:900;padding:12px 24px;border-radius:30px;z-index:2000;display:none;white-space:nowrap}
@@ -341,7 +341,7 @@ input:focus,textarea:focus{border-color:#4444aa}
     <div id="wcities" style="min-height:50px"></div>
     <div id="wcountries" style="display:none"></div>
     <div id="wmap" style="display:none">
-      <div class="card" style="padding:12px;background:#111128;border:2px solid #2a4a8a;box-shadow:0 4px 20px rgba(0,100,255,0.15)">
+      <div class="card" style="padding:12px">
         <span class="lbl" id="lbl-worldmap">מפה עולמית</span>
         <div class="mapwrap" id="mapwrap" onclick="window.openMapModal()" style="cursor:pointer;position:relative"></div>
       <div style="text-align:center;font-size:11px;color:#446;margin-top:4px" id="map-tap-hint"></div>
@@ -1481,7 +1481,7 @@ window.openMapModal=function(){
   var svg=d3.select(wrap).append('svg')
     .attr('width','100%').attr('height','100%')
     .attr('viewBox','0 0 '+W+' '+H)
-    .style('background','linear-gradient(180deg,#061830 0%,#0c2040 100%)').style('display','block');
+    .style('background','#050a0f').style('display','block');
   var proj=d3.geoNaturalEarth1().scale(110).translate([W/2,H/2]);
   var path=d3.geoPath().projection(proj);
   var cm=window._lastCountryMap;
@@ -1492,11 +1492,11 @@ window.openMapModal=function(){
     .attr('d',path)
     .attr('fill',function(d){
       var data=cm[d.properties.name];
-      if(!data)return'#1e4060';
+      if(!data)return'#1e3028';
       return gc(Math.round(data.t/data.c));
     })
-    .attr('fill-opacity',function(d){return cm[d.properties.name]?0.95:0.8;})
-    .attr('stroke','#0d2a4a').attr('stroke-width',0.5);
+    .attr('fill-opacity',function(d){return cm[d.properties.name]?0.85:0.5;})
+    .attr('stroke','#0a0a14').attr('stroke-width',0.4);
   // Bubbles for small countries
   window._worldGeo.features.filter(function(d){
     if(!cm[d.properties.name])return false;
@@ -1553,7 +1553,7 @@ window._drawMap=function(cm){
   var svg=d3.select(wrap).append('svg')
     .attr('width','100%').attr('height','auto')
     .attr('viewBox','0 0 '+W+' '+H)
-    .style('background','linear-gradient(180deg,#061830 0%,#0c2040 100%)').style('border-radius','10px').style('display','block');
+    .style('background','#050a0f').style('border-radius','10px').style('display','block');
   var proj=d3.geoNaturalEarth1().scale(57).translate([W/2,H/2]);
   var path=d3.geoPath().projection(proj);
   // Draw countries - color those with data
@@ -1564,14 +1564,14 @@ window._drawMap=function(cm){
     .attr('fill',function(d){
       var name=d.properties.name;
       var data=cm[name];
-      if(!data)return'#2a2a4a';
+      if(!data)return'#1e3028';
       var s=Math.round(data.t/data.c);
       return gc(s);
     })
     .attr('fill-opacity',function(d){
       return cm[d.properties.name]?0.7:0.6;
     })
-    .attr('stroke','#0a0a14').attr('stroke-width',0.3);
+    .attr('stroke','#111').attr('stroke-width',0.4);
   // Add small bubble only for small countries (area < threshold)
   var bubbleData=window._worldGeo.features.filter(function(d){
     if(!cm[d.properties.name])return false;
@@ -1741,7 +1741,7 @@ function renderGallery_OLD_DISABLED(){
 
 </script>
 
-<div id="map-modal" style="display:none;position:fixed;inset:0;background:#06111e;z-index:5000;flex-direction:column">
+<div id="map-modal" style="display:none;position:fixed;inset:0;background:#080808;z-index:5000;flex-direction:column">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#0a0a14;border-bottom:1px solid #1a1a35;flex-shrink:0">
     <div style="font-size:16px;font-weight:900;color:#fff" id="map-modal-title">🗺️</div>
     <button onclick="document.getElementById('map-modal').style.display='none'" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button>
