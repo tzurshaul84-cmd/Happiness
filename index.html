@@ -1015,13 +1015,23 @@ function renderStats(){
   var now=new Date(),past=new Date(now);past.setDate(past.getDate()-30);
   el('stats-from').value=past.toISOString().slice(0,10);
   el('stats-to').value=now.toISOString().slice(0,10);
-  window._statsSelected=[];
+  var _savedSelected=[];
+  try{var _ss=sessionStorage.getItem('stats-selected');if(_ss)_savedSelected=JSON.parse(_ss);}catch(e){}
+  window._statsSelected=_savedSelected;
   window._statsAllData=null;
 
   window._statsMode=function(m){mode=m;localStorage.setItem(MODE_KEY,m);window._statsSelected=[];renderStats();};
 
   var _cached=sessionStorage.getItem('stats-data');
-  if(_cached){try{window._statsAllData=JSON.parse(_cached);el('stats-empty').textContent=t('statsPickHint');window._setupStatsHandlers();return;}catch(e){}}
+  if(_cached){try{
+    window._statsAllData=JSON.parse(_cached);
+    var _ss2=sessionStorage.getItem('stats-selected');
+    if(_ss2)window._statsSelected=JSON.parse(_ss2);
+    el('stats-empty').textContent=t('statsPickHint');
+    window._setupStatsHandlers();
+    if(window._statsSelected&&window._statsSelected.length>0)setTimeout(function(){window._statsRender();},50);
+    return;
+  }catch(e){}}
   el('stats-empty').textContent=t('statsLoading');
   sb.from('entries').select('score,city,country,date').then(function(res){
     if(res.error||!res.data){el('stats-empty').textContent=t('statsLoadErr');return;}
@@ -1033,10 +1043,11 @@ function renderStats(){
     window._statsSearch=function(q){
       if(!q){el('stats-suggestions').style.display='none';return;}
       var data=window._statsAllData||[];
-      var key=mode==='country'?'country':'city';
+      var _mode=localStorage.getItem('stats-mode')||'country';
+      var key=_mode==='country'?'country':'city';
       var seen={};
       data.forEach(function(d){var v=d[key];if(v&&v.trim())seen[v.trim()]=true;});
-      var opts=Object.keys(seen).filter(function(n){return n.toLowerCase().includes(q.toLowerCase());}).slice(0,8);
+      var opts=Object.keys(seen).filter(function(n){return n&&n.toLowerCase().startsWith(q.toLowerCase());}).slice(0,8);
       if(!opts.length){el('stats-suggestions').style.display='none';return;}
       el('stats-suggestions').style.display='block';
       el('stats-suggestions').innerHTML=opts.map(function(n){
@@ -1047,6 +1058,7 @@ function renderStats(){
     window._statsAdd=function(name){
       if(window._statsSelected.length>=5||window._statsSelected.indexOf(name)>=0)return;
       window._statsSelected.push(name);
+      try{sessionStorage.setItem('stats-selected',JSON.stringify(window._statsSelected));}catch(e){}
       el('stats-search').value='';
       el('stats-suggestions').style.display='none';
       window._statsRender();
@@ -1054,6 +1066,7 @@ function renderStats(){
 
     window._statsRemove=function(name){
       window._statsSelected=window._statsSelected.filter(function(n){return n!==name;});
+      try{sessionStorage.setItem('stats-selected',JSON.stringify(window._statsSelected));}catch(e){}
       window._statsRender();
     };
 
@@ -1068,7 +1081,8 @@ function renderStats(){
       }).join('');
       if(!selected.length){el('stats-chart-wrap').style.display='none';el('stats-empty').style.display='block';el('stats-empty').textContent=t('statsPickHint');return;}
       el('stats-chart-wrap').style.display='block';el('stats-empty').style.display='none';
-      var key=mode==='country'?'country':'city';
+      var _rmode=localStorage.getItem('stats-mode')||'country';
+      var key=_rmode==='country'?'country':'city';
       var filtered=data.filter(function(d){var dt=String(d.date).slice(0,10);return(!fromVal||dt>=fromVal)&&(!toVal||dt<=toVal);});
       var datesSet={};filtered.forEach(function(d){datesSet[String(d.date).slice(0,10)]=true;});
       var dates=Object.keys(datesSet).sort();
@@ -1104,6 +1118,7 @@ function renderStats(){
     el('stats-from').addEventListener('change',function(){if(window._statsRender)window._statsRender();});
     el('stats-to').addEventListener('change',function(){if(window._statsRender)window._statsRender();});
     };window._setupStatsHandlers();
+    if(window._statsSelected&&window._statsSelected.length>0)window._statsRender();
   });
 }
 
