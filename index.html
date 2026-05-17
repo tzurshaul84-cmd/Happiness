@@ -1841,7 +1841,7 @@ function renderGallery_OLD_DISABLED(){
         <div id="ab-label-seldays" style="font-size:11px;color:#88b;text-transform:uppercase;letter-spacing:1px;font-weight:700"></div>
         <div id="ab-count" style="font-size:13px;font-weight:900;color:#00d4ff;font-family:Heebo,sans-serif">0</div>
       </div>
-      <div id="ab-days-list" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:5px"></div>
+      <div id="ab-days-list" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:5px"></div>
     </div>
     <button onclick="window.createAlbum()" id="ab-create-btn" style="width:100%;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:14px;color:#fff;font-family:Heebo,sans-serif;font-size:17px;font-weight:900;padding:17px;cursor:pointer"></button>
   </div>
@@ -1851,28 +1851,27 @@ function renderGallery_OLD_DISABLED(){
 <div id="album-viewer-modal" style="display:none;position:fixed;inset:0;background:#06020f;z-index:7000;flex-direction:column;overflow:hidden">
   <style>
   .alb-book{perspective:1400px;width:100%;position:relative;display:flex;justify-content:center}
-  .alb-spread{display:flex;width:100%;max-width:800px;position:relative;transform-style:preserve-3d}
-  .alb-leaf{flex:1;min-height:460px;background:#13132a;border-radius:0 12px 12px 0;overflow:hidden;transition:transform 0.55s cubic-bezier(.645,.045,.355,1);transform-origin:left center;transform-style:preserve-3d;position:relative}
-  .alb-leaf.left-page{border-radius:12px 0 0 12px;transform-origin:right center;border-right:1px solid #0a0a20}
-  .alb-leaf-inner{padding:18px;height:100%;box-sizing:border-box;backface-visibility:hidden}
+  .alb-spread{display:flex;width:100%;max-width:800px;position:relative}
+  .alb-leaf{flex:1;min-height:460px;background:#13132a;border-radius:0 12px 12px 0;overflow:hidden;position:relative}
+  .alb-leaf.left-page{border-radius:12px 0 0 12px;border-right:1px solid #0a0a20}
+  .alb-leaf-inner{padding:18px;height:100%;box-sizing:border-box}
   .alb-date-tag{background:rgba(0,212,255,0.12);border:1px solid #00d4ff33;border-radius:6px;padding:3px 9px;font-size:10px;color:#00d4ff;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;font-family:Heebo,sans-serif}
   .alb-score-ring{width:56px;height:56px;border-radius:50%;border:2.5px solid currentColor;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-  .alb-page-num{font-size:10px;color:#1e1e35;text-align:center;padding:6px 0;font-family:Heebo,sans-serif}
-  @keyframes albPageIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-  @keyframes albPageInLeft{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
-  .alb-page-in{animation:albPageIn 0.35s ease forwards}
-  .alb-page-in-left{animation:albPageInLeft 0.35s ease forwards}
+  @keyframes albPageIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes albPageInLeft{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+  .alb-page-in{animation:albPageIn 0.3s ease forwards}
+  .alb-page-in-left{animation:albPageInLeft 0.3s ease forwards}
   @media(max-width:480px){.alb-spread{flex-direction:column}.alb-leaf.left-page{display:none}.alb-leaf{border-radius:12px;min-height:400px}}
   </style>
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(6,2,15,0.97);border-bottom:1px solid #150d25;flex-shrink:0">
-    <button onclick="window.albumPrev()" id="alb-prev-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:18px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:900">&#8249;</button>
+    <button onclick="window.albumPrev()" id="alb-prev-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900">&#8249;</button>
     <div style="text-align:center">
       <div id="alb-page-label" style="font-size:13px;font-weight:900;color:#fff;font-family:Heebo,sans-serif"></div>
       <div id="alb-swipe-hint" style="font-size:10px;color:#332255;font-family:Heebo,sans-serif"></div>
     </div>
-    <button onclick="window.albumNext()" id="alb-next-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:18px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:900">&#8250;</button>
+    <button onclick="window.albumNext()" id="alb-next-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900">&#8250;</button>
   </div>
-  <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:14px 12px 0;gap:8px">
+  <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:14px 12px 0">
     <div class="alb-book" id="alb-book-wrap" style="width:100%">
       <div class="alb-spread" id="alb-spread"></div>
     </div>
@@ -1888,51 +1887,64 @@ function renderGallery_OLD_DISABLED(){
 (function(){
 var _abAll=[], _abSelected=[], _albPages=[], _albCur=0;
 
-function T(k){return(typeof t!=='undefined'&&t[currentLang]&&t[currentLang][k])||k;}
+/* Use the existing t() function from the site */
+function abT(k){return(typeof t==='function')?t(k):k;}
 function abColor(s){return s>=80?'#00ff88':s>=60?'#ffcc00':s>=40?'#ff8844':'#ff4466';}
-function abEmoji(s){var m={1:'\u{1F622}',2:'\u{1F622}',3:'\u{1F61F}',4:'\u{1F61F}',5:'\u{1F610}',6:'\u{1F610}',7:'\u{1F642}',8:'\u{1F642}',9:'\u{1F60A}',10:'\u{1F601}'};return m[Math.ceil(s/10)]||'\u{1F610}';}
+function abEmoji(s){
+  if(s>=90)return'\uD83D\uDE01';
+  if(s>=80)return'\uD83D\uDE0A';
+  if(s>=70)return'\uD83D\uDE42';
+  if(s>=60)return'\uD83D\uDE10';
+  if(s>=50)return'\uD83D\uDE1F';
+  if(s>=40)return'\uD83D\uDE1E';
+  return'\uD83D\uDE22';
+}
 function abDateStr(d){return d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4);}
 function abDateFull(d){
   try{
-    var locMap={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU','es':'es-ES','pt':'pt-BR','fr':'fr-FR','de':'de-DE','it':'it-IT','hi':'hi-IN','zh':'zh-CN','ja':'ja-JP'};
-    var loc=locMap[currentLang]||'en-US';
-    return new Date(d+'T12:00:00').toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    var lm={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU','es':'es-ES','pt':'pt-BR','fr':'fr-FR','de':'de-DE','it':'it-IT','hi':'hi-IN','zh':'zh-CN','ja':'ja-JP'};
+    return new Date(d+'T12:00:00').toLocaleDateString(lm[currentLang]||'en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   }catch(e){return d;}
 }
+
 function abSetTexts(){
-  var dir=T('dir')||'ltr';
-  var bm=document.getElementById('album-builder-modal');
-  if(bm)bm.setAttribute('dir',dir);
-  var vm=document.getElementById('album-viewer-modal');
-  if(vm)vm.setAttribute('dir',dir);
-  var els={
-    'ab-modal-title':'\uD83D\uDCF8 '+T('albTitle'),
-    'ab-label-choose':T('albChooseDays'),
-    'ab-q-month':T('albThisMonth'),
-    'ab-q-3m':T('alb3Months'),
-    'ab-q-year':T('albThisYear'),
-    'ab-q-best':T('albBest'),
-    'ab-q-all':T('albAll'),
-    'ab-label-minscore':T('albMinScore'),
-    'ab-label-seldays':T('albSelectedDays'),
-    'ab-create-btn':T('albCreate'),
-    'alb-share-btn':T('albShare'),
-    'alb-edit-btn':T('albEdit'),
-    'alb-swipe-hint':T('albSwipe')
+  var dir=(currentLang==='he'||currentLang==='ar')?'rtl':'ltr';
+  ['album-builder-modal','album-viewer-modal'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.setAttribute('dir',dir);
+  });
+  var map={
+    'ab-modal-title':'\uD83D\uDCF8 '+abT('albTitle'),
+    'ab-label-choose':abT('albChooseDays'),
+    'ab-q-month':abT('albThisMonth'),
+    'ab-q-3m':abT('alb3Months'),
+    'ab-q-year':abT('albThisYear'),
+    'ab-q-best':abT('albBest'),
+    'ab-q-all':abT('albAll'),
+    'ab-label-minscore':abT('albMinScore'),
+    'ab-label-seldays':abT('albSelectedDays'),
+    'ab-create-btn':abT('albCreate'),
+    'alb-share-btn':abT('albShare'),
+    'alb-edit-btn':abT('albEdit'),
+    'alb-swipe-hint':abT('albSwipe')
   };
-  Object.keys(els).forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=els[id];});
+  Object.keys(map).forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=map[id];});
 }
 
 window.openAlbumBuilder=function(){
   document.getElementById('album-builder-modal').style.display='flex';
   abSetTexts();
-  var stored=localStorage.getItem('whi-entries'),local={};
+  /* Load entries exactly like the gallery does */
+  var stored=localStorage.getItem('whi-entries');
+  var local={};
   try{if(stored)local=JSON.parse(stored);}catch(e){}
-  var q=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
-  if(currentUser)q=q.eq('user_id',currentUser.id);
-  q.then(function(res){
+  var query=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  if(currentUser)query=query.eq('user_id',currentUser.id);
+  query.then(function(res){
     if(res.data&&res.data.length){
-      _abAll=res.data.map(function(e){var lc=local[e.date]||{};return{date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:lc.mediaPreview||null,mediaType:lc.mediaType||null};});
+      _abAll=res.data.map(function(e){
+        var lc=local[e.date]||{};
+        return{date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:lc.mediaPreview||null,mediaType:lc.mediaType||null};
+      });
     } else {
       _abAll=Object.values(local).sort(function(a,b){return b.date.localeCompare(a.date);});
     }
@@ -1942,7 +1954,6 @@ window.openAlbumBuilder=function(){
   document.getElementById('ab-to').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   var f=new Date(now.getFullYear(),now.getMonth()-2,1);
   document.getElementById('ab-from').value=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0');
-  window.abFilterAndRender();
 };
 
 window.abQuick=function(mode){
@@ -1966,13 +1977,13 @@ window.abFilterAndRender=function(){
     var ym=e.date.slice(0,7);
     if(from&&ym<from)return false;
     if(to&&ym>to)return false;
-    if(e.score<min)return false;
+    if((e.score||0)<min)return false;
     return true;
   }).sort(function(a,b){return a.date.localeCompare(b.date);});
-  document.getElementById('ab-count').textContent=_abSelected.length+' '+T('albDays');
+  document.getElementById('ab-count').textContent=_abSelected.length+' '+abT('albDays');
   var list=document.getElementById('ab-days-list');
   if(!_abSelected.length){
-    list.innerHTML='<div style="color:#446;font-size:13px;text-align:center;padding:20px;font-family:Heebo,sans-serif">'+T('albPickRange')+'</div>';
+    list.innerHTML='<div style="color:#446;font-size:13px;text-align:center;padding:20px;font-family:Heebo,sans-serif">'+abT('albPickRange')+'</div>';
     return;
   }
   list.innerHTML=_abSelected.map(function(e){
@@ -1985,7 +1996,7 @@ window.abFilterAndRender=function(){
       +(e.special?'<div style="font-size:11px;color:#aac;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:Heebo,sans-serif">'+e.special+'</div>':'')
       +'</div>'
       +'<div style="font-size:16px;font-weight:900;color:'+c+';font-family:Heebo,sans-serif">'+e.score+'</div>'
-      +(hasImg?'<div style="font-size:12px">&#128248;</div>':'')
+      +(hasImg?'<span style="font-size:12px">&#128248;</span>':'')
       +'</div>';
   }).join('');
 };
@@ -2000,84 +2011,89 @@ window.createAlbum=function(){
   _renderSpread(true);
 };
 
-function _dayLabel(score){
-  if(score>=80)return T('albDayGreat');
-  if(score>=60)return T('albDayGood');
-  if(score>=40)return T('albDayAvg');
-  return T('albDayHard');
+function _dayLabel(s){
+  if(s>=80)return abT('albDayGreat');
+  if(s>=60)return abT('albDayGood');
+  if(s>=40)return abT('albDayAvg');
+  return abT('albDayHard');
 }
 
 function _makePageHTML(e,animClass){
-  if(!e)return '<div class="alb-leaf-inner" style="display:flex;align-items:center;justify-content:center;opacity:0.1"><div style="font-size:40px">&#128218;</div></div>';
+  if(!e)return'<div class="alb-leaf-inner" style="display:flex;align-items:center;justify-content:center;opacity:0.15;font-size:60px">&#128218;</div>';
   var c=abColor(e.score);
   var mediaSrc=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
   var mediaHtml=mediaSrc
-    ?'<img src="'+mediaSrc+'" style="width:100%;height:180px;object-fit:cover;border-radius:9px;display:block;margin-bottom:12px" loading="lazy">'
-    :'<div style="width:100%;height:120px;background:linear-gradient(135deg,'+c+'15,'+c+'28);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:64px;margin-bottom:12px">'+abEmoji(e.score)+'</div>';
+    ?'<img src="'+mediaSrc+'" style="width:100%;height:190px;object-fit:cover;border-radius:9px;display:block;margin-bottom:12px" loading="lazy" onerror="this.style.display='none'">'
+    :'<div style="width:100%;height:110px;background:linear-gradient(135deg,'+c+'18,'+c+'30);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:60px;margin-bottom:12px">'+abEmoji(e.score)+'</div>';
   return '<div class="alb-leaf-inner '+animClass+'">'
     +'<div class="alb-date-tag">'+abDateFull(e.date)+'</div>'
     +mediaHtml
     +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">'
     +'<div class="alb-score-ring" style="color:'+c+';border-color:'+c+'">'
-    +'<div style="font-size:22px;font-weight:900;line-height:1;color:'+c+';font-family:Heebo,sans-serif">'+e.score+'</div>'
-    +'<div style="font-size:14px">'+abEmoji(e.score)+'</div>'
+    +'<div style="font-size:20px;font-weight:900;color:'+c+';font-family:Heebo,sans-serif;line-height:1">'+e.score+'</div>'
+    +'<div style="font-size:13px">'+abEmoji(e.score)+'</div>'
     +'</div>'
     +'<div style="flex:1">'
-    +'<div style="font-size:13px;color:'+c+';font-weight:900;font-family:Heebo,sans-serif;margin-bottom:4px">'+_dayLabel(e.score)+'</div>'
-    +'<div style="height:4px;background:#1a1a35;border-radius:2px;overflow:hidden"><div style="height:100%;width:'+e.score+'%;background:'+c+';border-radius:2px"></div></div>'
+    +'<div style="font-size:12px;color:'+c+';font-weight:900;font-family:Heebo,sans-serif;margin-bottom:4px">'+_dayLabel(e.score)+'</div>'
+    +'<div style="height:4px;background:#1a1a35;border-radius:2px"><div style="height:100%;width:'+e.score+'%;background:'+c+';border-radius:2px"></div></div>'
     +'</div></div>'
     +(e.special?'<div style="background:#0a0a20;border:1px solid #1a1a30;border-radius:9px;padding:10px 12px;font-size:13px;line-height:1.7;color:#ccd;font-style:italic;font-family:Heebo,sans-serif">&#8220;'+e.special+'&#8221;</div>':'')
-    +'<div class="alb-page-num">&#10021;</div>'
     +'</div>';
 }
 
-function _isMobile(){return window.innerWidth<=480;}
+function _isMobile(){return window.innerWidth<=500;}
 
-function _renderSpread(isForward){
+function _renderSpread(dir){
   var spread=document.getElementById('alb-spread');
   var total=_albPages.length;
   var cur=_albCur;
-  var animClass=isForward===true?'alb-page-in':isForward===false?'alb-page-in-left':'';
+  var anim=dir===true?'alb-page-in':dir===false?'alb-page-in-left':'';
   if(_isMobile()){
-    spread.innerHTML='<div class="alb-leaf" style="border-radius:12px;min-height:400px">'+_makePageHTML(_albPages[cur],animClass)+'</div>';
+    spread.innerHTML='<div class="alb-leaf" style="border-radius:12px">'+_makePageHTML(_albPages[cur],anim)+'</div>';
   } else {
     var eL=_albPages[cur]||null;
     var eR=(cur+1<total)?_albPages[cur+1]:null;
-    spread.innerHTML='<div class="alb-leaf left-page">'+_makePageHTML(eL,animClass)+'</div>'+'<div class="alb-leaf">'+_makePageHTML(eR,animClass)+'</div>';
+    spread.innerHTML='<div class="alb-leaf left-page">'+_makePageHTML(eL,anim)+'</div>'
+      +'<div class="alb-leaf">'+_makePageHTML(eR,anim)+'</div>';
   }
   var pageNum=_isMobile()?cur+1:Math.floor(cur/2)+1;
   var totalPages=_isMobile()?total:Math.ceil(total/2);
-  document.getElementById('alb-page-label').textContent=T('albPage')+' '+pageNum+' / '+totalPages;
+  document.getElementById('alb-page-label').textContent=abT('albPage')+' '+pageNum+' / '+totalPages;
   document.getElementById('alb-prev-btn').style.opacity=cur>0?'1':'0.3';
-  document.getElementById('alb-next-btn').style.opacity=(cur<total-1)?'1':'0.3';
-  var book=document.getElementById('alb-book-wrap');
+  document.getElementById('alb-next-btn').style.opacity=cur<total-1?'1':'0.3';
+  var wrap=document.getElementById('alb-book-wrap');
   var sx=0;
-  book.ontouchstart=function(ev){sx=ev.touches[0].clientX;};
-  book.ontouchend=function(ev){var dx=ev.changedTouches[0].clientX-sx;if(Math.abs(dx)>45){if(dx<0)window.albumNext();else window.albumPrev();}};
+  wrap.ontouchstart=function(ev){sx=ev.touches[0].clientX;};
+  wrap.ontouchend=function(ev){
+    var dx=ev.changedTouches[0].clientX-sx;
+    if(Math.abs(dx)>45){dx<0?window.albumNext():window.albumPrev();}
+  };
 }
 
 window.albumNext=function(){
   var step=_isMobile()?1:2;
   if(_albCur>=_albPages.length-1)return;
-  document.querySelectorAll('.alb-leaf').forEach(function(l){l.style.transition='transform 0.42s cubic-bezier(.645,.045,.355,1),opacity 0.42s';l.style.transform='rotateY(-8deg)';l.style.opacity='0.4';});
-  setTimeout(function(){_albCur=Math.min(_albCur+step,_albPages.length-1);_renderSpread(true);},210);
+  var leaves=document.querySelectorAll('.alb-leaf');
+  leaves.forEach(function(l){l.style.transition='transform 0.35s ease,opacity 0.35s';l.style.transform='translateX(-30px)';l.style.opacity='0';});
+  setTimeout(function(){_albCur=Math.min(_albCur+step,_albPages.length-1);_renderSpread(true);},180);
 };
 
 window.albumPrev=function(){
   var step=_isMobile()?1:2;
   if(_albCur<=0)return;
-  document.querySelectorAll('.alb-leaf').forEach(function(l){l.style.transition='transform 0.42s cubic-bezier(.645,.045,.355,1),opacity 0.42s';l.style.transform='rotateY(8deg)';l.style.opacity='0.4';});
-  setTimeout(function(){_albCur=Math.max(_albCur-step,0);_renderSpread(false);},210);
+  var leaves=document.querySelectorAll('.alb-leaf');
+  leaves.forEach(function(l){l.style.transition='transform 0.35s ease,opacity 0.35s';l.style.transform='translateX(30px)';l.style.opacity='0';});
+  setTimeout(function(){_albCur=Math.max(_albCur-step,0);_renderSpread(false);},180);
 };
 
 window.shareAlbum=function(){
   if(!_albPages.length)return;
   var total=_albPages.length;
-  var avg=Math.round(_albPages.reduce(function(a,b){return a+b.score;},0)/total);
+  var avg=Math.round(_albPages.reduce(function(a,b){return a+(b.score||0);},0)/total);
   var em=avg>=80?'\uD83C\uDF1F':avg>=60?'\uD83D\uDE0A':avg>=40?'\uD83D\uDE10':'\uD83D\uDC99';
-  var msg=encodeURIComponent(em+' '+T('albShareMsg')+'\n'
-    +'\uD83D\uDCC5 '+abDateStr(_albPages[0].date)+' — '+abDateStr(_albPages[total-1].date)+'\n'
-    +'\uD83D\uDCCA '+total+' '+T('albDays')+' · '+T('albShareStats')+': '+avg+'\n'
+  var msg=encodeURIComponent(em+' '+abT('albShareMsg')+'\n'
+    +'\uD83D\uDCC5 '+abDateStr(_albPages[0].date)+' \u2014 '+abDateStr(_albPages[total-1].date)+'\n'
+    +'\uD83D\uDCCA '+total+' '+abT('albDays')+' \u00B7 '+abT('albShareStats')+': '+avg+'\n'
     +'\uD83C\uDF0D happiness-eta-ochre.vercel.app');
   window.open('https://wa.me/?text='+msg,'_blank');
 };
