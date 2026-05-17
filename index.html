@@ -1377,10 +1377,8 @@ window.renderGallery=function(){
   var to=toEl?toEl.value:'';
   var grid=document.getElementById('gallery-grid');
   grid.innerHTML='<div style="color:#66a;font-size:14px;text-align:center;grid-column:1/-1;padding:40px">טוען...</div>';
-  var _sb=window._sb||sb;
-  var _cu=window._getCU?window._getCU():null;
-  var query=_sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
-  if(_cu)query=query.eq('user_id',_cu.id);
+  var query=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  if(currentUser)query=query.eq('user_id',currentUser.id);
   query.then(function(res){
     var all=[];
     if(res.data&&res.data.length){
@@ -1745,10 +1743,8 @@ function renderGallery_OLD_DISABLED(){
   var stored=localStorage.getItem('whi-entries');
   var local={};
   try{if(stored)local=JSON.parse(stored);}catch(e){}
-  var _sb=window._sb||sb;
-  var _cu=window._getCU?window._getCU():null;
-  var query=_sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
-  if(_cu)query=query.eq('user_id',_cu.id);
+  var query=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  if(currentUser)query=query.eq('user_id',currentUser.id);
   query.then(function(res){
     var all=[];
     if(res.data&&res.data.length){
@@ -1893,7 +1889,7 @@ function renderGallery_OLD_DISABLED(){
 </div>
 
 <script>
-(function(){
+window.addEventListener('load', function(){
 var _abAll=[], _abSelected=[], _albPages=[], _albCur=0;
 
 /* Use the existing t() function from the site */
@@ -1946,10 +1942,8 @@ window.openAlbumBuilder=function(){
   var stored=localStorage.getItem('whi-entries');
   var local={};
   try{if(stored)local=JSON.parse(stored);}catch(e){}
-  var _sb=window._sb||sb;
-  var _cu=window._getCU?window._getCU():null;
-  var query=_sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
-  if(_cu)query=query.eq('user_id',_cu.id);
+  var query=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  if(currentUser)query=query.eq('user_id',currentUser.id);
   query.then(function(res){
     if(res.data&&res.data.length){
       _abAll=res.data.map(function(e){
@@ -2108,7 +2102,7 @@ window.shareAlbum=function(){
     +'\uD83C\uDF0D happiness-eta-ochre.vercel.app');
   window.open('https://wa.me/?text='+msg,'_blank');
 };
-})();
+});
 </script>
 </body>
 </html>
