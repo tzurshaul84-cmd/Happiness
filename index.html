@@ -228,7 +228,7 @@ input:focus,textarea:focus{border-color:#4444aa}
   <div class="hdr">
     <div>
       <div style="display:flex;align-items:center;gap:8px"><div class="htitle" id="app-title">מדד האושר 🌍</div><span class="online-dot" id="onlinedot" style="width:12px;height:12px;flex-shrink:0"></span></div>
-      <button id="album-btn" style="background:#1a1a35;border:1px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;margin-top:4px;display:inline-flex;align-items:center;gap:4px">📸 <span id="album-btn-txt">להכנת אלבום</span></button>
+      <button id="album-btn" onclick="if(typeof window.openAlbumBuilder==='function'){window.openAlbumBuilder();}else{document.getElementById('album-builder-modal').style.display='flex';}" style="background:#1a1a35;border:1px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;margin-top:4px;display:inline-flex;align-items:center;gap:4px">📸 <span id="album-btn-txt">להכנת אלבום</span></button>
       <div class="hsub" id="hdate"></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end">
@@ -1285,7 +1285,7 @@ window.addEventListener('DOMContentLoaded',function(){
   // Mood recommendations button - placeholder for future feature
   var mrb=el('mood-rec-btn');
   var alb=el('album-btn');
-  if(alb)alb.addEventListener('click',function(){window.openAlbumBuilder();});
+  // album-btn handled by onclick in HTML
   if(mrb)mrb.addEventListener('click',function(){showToast(currentLang==='he'?'בקרוב! 🔮':currentLang==='ar'?'قريباً! 🔮':currentLang==='ru'?'Скоро! 🔮':'Coming soon! 🔮');});
   el('modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 });
@@ -1889,7 +1889,7 @@ function renderGallery_OLD_DISABLED(){
 </div>
 
 <script>
-window.addEventListener('load', function(){
+window.addEventListener('load',function(){
 var _abAll=[], _abSelected=[], _albPages=[], _albCur=0;
 
 /* Use the existing t() function from the site */
