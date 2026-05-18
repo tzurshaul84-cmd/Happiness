@@ -1655,10 +1655,11 @@ window._drawMap=function(cm){
 
 
 
-// ===== ALBUM BUILDER =====
-var _abAll=[], _abSelected=[], _albPages=[], _albCur=0, _abFlipping=false;
 
-function abColor(s){return s>=80?'#27ae60':s>=60?'#f39c12':s>=40?'#e67e22':'#e74c3c';}
+// ===== ALBUM BUILDER =====
+var _abAll=[], _abSelected=[], _albPages=[], _albCur=0, _abBusy=false;
+
+function abColor(s){return s>=80?'#27ae60':s>=60?'#e67e22':s>=40?'#c0392b':'#8e44ad';}
 function abEmoji(s){if(s>=90)return'😁';if(s>=80)return'😊';if(s>=70)return'🙂';if(s>=60)return'😐';if(s>=50)return'😟';if(s>=40)return'😞';return'😢';}
 function abDateStr(d){return d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4);}
 function abDateFull(d){
@@ -1674,7 +1675,7 @@ function abSetTexts(){
   ['album-builder-modal','album-viewer-modal'].forEach(function(id){
     var el=document.getElementById(id);if(el)el.setAttribute('dir',dir);
   });
-  var ids={
+  var map={
     'ab-modal-title':'📸 '+t('albTitle'),
     'ab-label-choose':t('albChooseDays'),
     'ab-q-month':t('albThisMonth'),
@@ -1689,8 +1690,8 @@ function abSetTexts(){
     'alb-edit-btn':t('albEdit'),
     'alb-swipe-hint':t('albSwipe')
   };
-  Object.keys(ids).forEach(function(id){
-    var el=document.getElementById(id);if(el)el.textContent=ids[id];
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);if(el)el.textContent=map[id];
   });
 }
 
@@ -1701,9 +1702,9 @@ window.openAlbumBuilder=function(){
   abSetTexts();
   var stored=localStorage.getItem('whi-entries'),local={};
   try{if(stored)local=JSON.parse(stored);}catch(e){}
-  var query=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
-  if(currentUser)query=query.eq('user_id',currentUser.id);
-  query.then(function(res){
+  var q=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  if(currentUser)q=q.eq('user_id',currentUser.id);
+  q.then(function(res){
     if(res.data&&res.data.length){
       _abAll=res.data.map(function(e){
         var lc=local[e.date]||{};
@@ -1715,9 +1716,9 @@ window.openAlbumBuilder=function(){
     window.abFilterAndRender();
   });
   var now=new Date();
-  var toEl=document.getElementById('ab-to'),fromEl=document.getElementById('ab-from');
-  if(toEl)toEl.value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  if(fromEl){var f=new Date(now.getFullYear(),now.getMonth()-2,1);fromEl.value=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0');}
+  var te=document.getElementById('ab-to'),fe=document.getElementById('ab-from');
+  if(te)te.value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  if(fe){var f=new Date(now.getFullYear(),now.getMonth()-2,1);fe.value=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0');}
   window.abFilterAndRender();
 };
 
@@ -1725,14 +1726,8 @@ window.abQuick=function(mode){
   var now=new Date(),to=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'),from=to;
   if(mode==='last3'){var f=new Date(now.getFullYear(),now.getMonth()-2,1);from=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0');}
   else if(mode==='year'){from=now.getFullYear()+'-01';}
-  else if(mode==='best'){
-    var ms=document.getElementById('ab-minscore'),mv=document.getElementById('ab-minscore-val');
-    if(ms)ms.value=80;if(mv)mv.textContent='80';
-    from=now.getFullYear()+'-01';
-  } else if(mode==='all'){
-    var sorted=_abAll.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
-    from=sorted.length?sorted[0].date.slice(0,7):now.getFullYear()+'-01';
-  }
+  else if(mode==='best'){var ms=document.getElementById('ab-minscore'),mv=document.getElementById('ab-minscore-val');if(ms)ms.value=80;if(mv)mv.textContent='80';from=now.getFullYear()+'-01';}
+  else if(mode==='all'){var s=_abAll.slice().sort(function(a,b){return a.date.localeCompare(b.date);});from=s.length?s[0].date.slice(0,7):now.getFullYear()+'-01';}
   var fe=document.getElementById('ab-from'),te=document.getElementById('ab-to');
   if(fe)fe.value=from;if(te)te.value=to;
   window.abFilterAndRender();
@@ -1749,19 +1744,16 @@ window.abFilterAndRender=function(){
     if((e.score||0)<min)return false;
     return true;
   }).sort(function(a,b){return a.date.localeCompare(b.date);});
-  var countEl=document.getElementById('ab-count');
-  if(countEl)countEl.textContent=_abSelected.length+' '+t('albDays');
+  var ce=document.getElementById('ab-count');
+  if(ce)ce.textContent=_abSelected.length+' '+t('albDays');
   var list=document.getElementById('ab-days-list');
   if(!list)return;
-  if(!_abSelected.length){
-    list.innerHTML='<div style="color:#446;font-size:13px;text-align:center;padding:20px">'+t('albPickRange')+'</div>';
-    return;
-  }
+  if(!_abSelected.length){list.innerHTML='<div style="color:#446;font-size:13px;text-align:center;padding:20px">'+t('albPickRange')+'</div>';return;}
   list.innerHTML=_abSelected.map(function(e){
     var c=abColor(e.score);
-    var mediaSrc=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
-    var thumb=mediaSrc
-      ?'<img src="'+mediaSrc+'" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0" loading="lazy">'
+    var src=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
+    var thumb=src
+      ?'<img src="'+src+'" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0" loading="lazy">'
       :'<div style="width:52px;height:52px;border-radius:8px;background:linear-gradient(135deg,'+c+'22,'+c+'55);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">'+abEmoji(e.score)+'</div>';
     return '<div style="display:flex;align-items:center;gap:10px;background:#0d0d20;border-radius:10px;padding:8px;border:1px solid #1a1a35">'
       +thumb
@@ -1776,128 +1768,154 @@ window.abFilterAndRender=function(){
 
 window.createAlbum=function(){
   if(!_abSelected.length)return;
-  _albPages=_abSelected.slice();
+  // Prepend a cover page (null entry) + actual pages
+  _albPages=[null].concat(_abSelected.slice());
+  // Pad to even number so spreads work
+  if(_albPages.length%2!==0)_albPages.push(null);
   _albCur=0;
-  _abFlipping=false;
+  _abBusy=false;
   var bm=document.getElementById('album-builder-modal');
   var vm=document.getElementById('album-viewer-modal');
   if(bm)bm.style.display='none';
   if(vm)vm.style.display='flex';
   abSetTexts();
-  setTimeout(function(){abRenderBook();},50);
+  setTimeout(function(){abDrawSpread();abWireTouch();},60);
 };
 
-function abPageFaceHTML(entry, pageIndex){
-  if(!entry){
-    return '<div class="ab-empty-page">📖</div>';
+// Build inner HTML for a single page face
+function abPageHTML(e, idx){
+  if(!e){
+    // Cover page (idx===0) or empty filler
+    if(idx===0){
+      var total=_albPages.filter(function(x){return x!==null;}).length;
+      var first=_albPages.find(function(x){return x!==null;});
+      var last=null;
+      for(var i=_albPages.length-1;i>=0;i--){if(_albPages[i]!==null){last=_albPages[i];break;}}
+      return '<div class="ab-pg ab-pg-cover">'
+        +'<div class="ab-pg-cover-icon">📖</div>'
+        +'<div class="ab-pg-cover-title">'+t('albShareMsg')+'</div>'
+        +(first&&last?'<div class="ab-pg-cover-sub">'+abDateStr(first.date)+' — '+abDateStr(last.date)+'</div>':'')
+        +'<div class="ab-pg-cover-sub">'+total+' '+t('albDays')+'</div>'
+        +'</div>';
+    }
+    return '<div class="ab-pg-empty">📄</div>';
   }
-  var c=abColor(entry.score);
-  var mediaSrc=entry.media_url||(entry.mediaType==='image'?entry.mediaPreview:null);
-  var mediaHtml=mediaSrc
-    ?'<img class="ab-page-img" src="'+mediaSrc+'" loading="lazy">'
-    :'<div class="ab-page-emoji-bg" style="background:linear-gradient(135deg,'+c+'22,'+c+'44)">'+abEmoji(entry.score)+'</div>';
-  return '<div class="ab-page-content">'
-    +'<div class="ab-page-date">'+abDateFull(entry.date)+'</div>'
+  var c=abColor(e.score);
+  var src=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
+  var mediaHtml=src
+    ?'<img class="ab-pg-media" src="'+src+'" loading="lazy">'
+    :'<div class="ab-pg-emoji" style="background:linear-gradient(135deg,'+c+'18,'+c+'30)">'+abEmoji(e.score)+'</div>';
+  return '<div class="ab-pg">'
+    +'<div class="ab-pg-date">'+abDateFull(e.date)+'</div>'
     +mediaHtml
-    +'<div class="ab-page-score-row">'
-    +'<div class="ab-page-score-num" style="color:'+c+'">'+entry.score+'</div>'
-    +'<div style="font-size:14px">'+abEmoji(entry.score)+'</div>'
-    +'<div class="ab-page-bar-wrap"><div class="ab-page-bar-fill" style="width:'+entry.score+'%;background:'+c+'"></div></div>'
+    +'<div class="ab-pg-score-row">'
+    +'<div class="ab-pg-score" style="color:'+c+'">'+e.score+'</div>'
+    +'<div style="font-size:12px">'+abEmoji(e.score)+'</div>'
+    +'<div class="ab-pg-bar"><div class="ab-pg-bar-fill" style="width:'+e.score+'%;background:'+c+'"></div></div>'
     +'</div>'
-    +'<div class="ab-page-label" style="color:'+c+'">'+abDayLabel(entry.score)+'</div>'
-    +(entry.special?'<div class="ab-page-special">'+entry.special+'</div>':'')
-    +'<div class="ab-page-num">'+(pageIndex+1)+' / '+_albPages.length+'</div>'
+    +'<div class="ab-pg-label" style="color:'+c+'">'+abDayLabel(e.score)+'</div>'
+    +(e.special?'<div class="ab-pg-note">'+e.special+'</div>':'')
+    +'<div class="ab-pg-num">'+(idx)+' / '+(_albPages.length-1)+'</div>'
     +'</div>';
 }
 
-function abIsMobile(){return window.innerWidth<=520;}
+function abDrawSpread(){
+  var L=document.getElementById('ab-left');
+  var R=document.getElementById('ab-right');
+  var FF=document.getElementById('ab-flip-front');
+  var FB=document.getElementById('ab-flip-back');
+  var flip=document.getElementById('ab-flip');
+  if(!L||!R||!FF||!FB||!flip)return;
 
-function abRenderBook(){
-  var leftEl=document.getElementById('ab-left-page');
-  var rightArea=document.getElementById('ab-right-area');
-  if(!leftEl||!rightArea)return;
+  var cur=_albCur; // cur is always even
   var total=_albPages.length;
-  var cur=_albCur;
-  var mob=abIsMobile();
-  if(mob){
-    leftEl.style.display='none';
-    rightArea.innerHTML='<div style="width:100%;height:100%;background:#f5f0e8;border-radius:8px;overflow:hidden">'
-      +abPageFaceHTML(_albPages[cur]||null, cur)+'</div>';
-  } else {
-    leftEl.style.display='';
-    leftEl.innerHTML=abPageFaceHTML(_albPages[cur]||null, cur);
-    rightArea.innerHTML=
-      '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#f5f0e8;border-radius:0 4px 4px 0;overflow:hidden">'
-        +abPageFaceHTML(_albPages[cur+2]||null, cur+2)
-      +'</div>'
-      +'<div class="ab-flip-page" id="ab-flip-page">'
-        +'<div class="ab-face ab-face-front">'+abPageFaceHTML(_albPages[cur+1]||null, cur+1)+'</div>'
-        +'<div class="ab-face ab-face-back">'+abPageFaceHTML(_albPages[cur+3]||null, cur+3)+'</div>'
-      +'</div>';
-  }
-  var spread=mob?cur+1:Math.floor(cur/2)+1;
-  var totalSpreads=mob?total:Math.ceil(total/2);
+
+  // Layout:
+  // Left  page = pages[cur]
+  // Flip-front = pages[cur+1]  (visible right page)
+  // Flip-back  = pages[cur+3]  (back of flip = left page of NEXT spread)
+  // Right (behind flip) = pages[cur+2]  (right page of NEXT spread)
+
+  L.innerHTML  = abPageHTML(_albPages[cur]||null,   cur);
+  FF.innerHTML = abPageHTML(_albPages[cur+1]||null, cur+1);
+  FB.innerHTML = abPageHTML(_albPages[cur+3]||null, cur+3);
+  R.innerHTML  = abPageHTML(_albPages[cur+2]||null, cur+2);
+
+  // Reset flip position (no animation)
+  flip.style.transition='none';
+  flip.classList.remove('flipping');
+
+  // Update nav label
+  var spread=Math.floor(cur/2)+1;
+  var totalSpreads=Math.floor(total/2);
   var pl=document.getElementById('alb-page-label');
   if(pl)pl.textContent=t('albPage')+' '+spread+' / '+totalSpreads;
+
+  // Update button opacity
   var pb=document.getElementById('alb-prev-btn'),nb=document.getElementById('alb-next-btn');
   if(pb)pb.style.opacity=cur>0?'1':'0.3';
-  if(nb)nb.style.opacity=cur+(mob?1:2)<total?'1':'0.3';
-  var scene=document.getElementById('ab-book-scene');
-  if(scene){
-    var sx=0;
-    scene.ontouchstart=function(ev){sx=ev.touches[0].clientX;};
-    scene.ontouchend=function(ev){
-      var dx=ev.changedTouches[0].clientX-sx;
-      if(Math.abs(dx)>40){if(dx<0)window.albumNext();else window.albumPrev();}
-    };
-  }
+  if(nb)nb.style.opacity=cur+2<total?'1':'0.3';
+}
+
+function abWireTouch(){
+  var scene=document.getElementById('ab-scene');
+  if(!scene)return;
+  var sx=0;
+  scene.ontouchstart=function(ev){sx=ev.touches[0].clientX;};
+  scene.ontouchend=function(ev){
+    var dx=ev.changedTouches[0].clientX-sx;
+    if(Math.abs(dx)>40){if(dx<0)window.albumNext();else window.albumPrev();}
+  };
 }
 
 window.albumNext=function(){
-  if(_abFlipping)return;
+  if(_abBusy)return;
   var total=_albPages.length;
-  var step=abIsMobile()?1:2;
-  if(_albCur+step>total-1)return;
-  if(abIsMobile()){_albCur+=step;abRenderBook();return;}
-  var fp=document.getElementById('ab-flip-page');
-  if(!fp)return;
-  _abFlipping=true;
-  fp.classList.add('is-flipping');
+  if(_albCur+2>=total)return;
+  var flip=document.getElementById('ab-flip');
+  if(!flip)return;
+  _abBusy=true;
+
+  // Restore transition and flip
+  flip.style.transition='';
+  flip.classList.add('flipping');
+
   setTimeout(function(){
-    _albCur+=step;
-    _abFlipping=false;
-    abRenderBook();
-  },700);
+    _albCur+=2;
+    abDrawSpread();
+    _abBusy=false;
+  },750);
 };
 
 window.albumPrev=function(){
-  if(_abFlipping)return;
-  var step=abIsMobile()?1:2;
-  if(_albCur-step<0)return;
-  _albCur-=step;
-  abRenderBook();
-  if(!abIsMobile()){
-    var fp=document.getElementById('ab-flip-page');
-    if(fp){
-      fp.style.transition='none';
-      fp.classList.add('is-flipping');
+  if(_abBusy)return;
+  if(_albCur<=0)return;
+  _albCur-=2;
+  // Draw new spread with flip pre-flipped, then animate back
+  abDrawSpread();
+  var flip=document.getElementById('ab-flip');
+  if(flip){
+    flip.style.transition='none';
+    flip.classList.add('flipping');
+    requestAnimationFrame(function(){
       requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          fp.style.transition='';
-          fp.classList.remove('is-flipping');
-        });
+        flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
+        flip.classList.remove('flipping');
       });
-    }
+    });
   }
+  _abBusy=true;
+  setTimeout(function(){_abBusy=false;},760);
 };
 
 window.shareAlbum=function(){
-  if(!_albPages.length)return;
-  var total=_albPages.length;
-  var avg=Math.round(_albPages.reduce(function(a,b){return a+(b.score||0);},0)/total);
+  var pages=_albPages.filter(function(e){return e!==null;});
+  if(!pages.length)return;
+  var total=pages.length;
+  var avg=Math.round(pages.reduce(function(a,b){return a+(b.score||0);},0)/total);
   var em=avg>=80?'🌟':avg>=60?'😊':avg>=40?'😐':'💙';
   var msg=encodeURIComponent(em+' '+t('albShareMsg')+'\n'
-    +'📅 '+abDateStr(_albPages[0].date)+' — '+abDateStr(_albPages[total-1].date)+'\n'
+    +'📅 '+abDateStr(pages[0].date)+' — '+abDateStr(pages[total-1].date)+'\n'
     +'📊 '+total+' '+t('albDays')+' · '+t('albShareStats')+': '+avg+'\n'
     +'🌍 happiness-eta-ochre.vercel.app');
   window.open('https://wa.me/?text='+msg,'_blank');
@@ -2102,50 +2120,280 @@ function renderGallery_OLD_DISABLED(){
 </div>
 
 <!-- ===== ALBUM VIEWER ===== -->
-<div id="album-viewer-modal" style="display:none;position:fixed;inset:0;background:#0a0510;z-index:7000;flex-direction:column;overflow:hidden;font-family:Heebo,sans-serif">
+<div id="album-viewer-modal" style="display:none;position:fixed;inset:0;z-index:7000;flex-direction:column;overflow:hidden;background:#1a0e05;font-family:Heebo,sans-serif">
+
 <style>
-#ab-book-scene{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;overflow:hidden;perspective:2000px}
-#ab-book{position:relative;display:flex;width:100%;max-width:680px;height:min(460px,72vw);filter:drop-shadow(0 20px 40px rgba(0,0,0,0.7))}
-#ab-left-page{flex:1;height:100%;background:#f5f0e8;border-radius:4px 0 0 4px;overflow:hidden;position:relative;box-shadow:inset -4px 0 12px rgba(0,0,0,0.15)}
-#ab-right-area{flex:1;height:100%;position:relative}
-.ab-flip-page{position:absolute;top:0;left:0;width:100%;height:100%;transform-style:preserve-3d;transform-origin:left center;transition:transform 0.7s cubic-bezier(0.645,0.045,0.355,1.000);will-change:transform}
-.ab-flip-page.is-flipping{transform:rotateY(-180deg)}
-.ab-face{position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;overflow:hidden}
-.ab-face-front{background:#f5f0e8;border-radius:0 4px 4px 0;box-shadow:inset 4px 0 12px rgba(0,0,0,0.08),2px 0 6px rgba(0,0,0,0.2)}
-.ab-face-back{background:#f5f0e8;border-radius:4px 0 0 4px;transform:rotateY(180deg);box-shadow:inset -4px 0 12px rgba(0,0,0,0.08)}
-#ab-spine{position:absolute;top:0;left:50%;transform:translateX(-50%);width:12px;height:100%;background:linear-gradient(to right,rgba(0,0,0,0.18),rgba(0,0,0,0.05),rgba(0,0,0,0.18));z-index:5;pointer-events:none}
-.ab-page-content{width:100%;height:100%;display:flex;flex-direction:column;padding:14px;box-sizing:border-box;background:#f5f0e8}
-.ab-page-img{width:100%;flex:1;object-fit:cover;border-radius:4px;display:block;margin-bottom:10px;min-height:0}
-.ab-page-emoji-bg{width:100%;flex:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:10px;min-height:0}
-.ab-page-date{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:4px}
-.ab-page-score-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.ab-page-score-num{font-size:20px;font-weight:900;line-height:1}
-.ab-page-bar-wrap{flex:1;height:4px;background:#ddd;border-radius:2px;overflow:hidden}
-.ab-page-bar-fill{height:100%;border-radius:2px}
-.ab-page-label{font-size:11px;font-weight:700;color:#555;margin-bottom:3px}
-.ab-page-special{font-size:11px;color:#444;font-style:italic;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.ab-page-num{font-size:9px;color:#bbb;text-align:center;margin-top:auto;padding-top:4px}
-.ab-empty-page{width:100%;height:100%;background:#f0ebe0;display:flex;align-items:center;justify-content:center;font-size:40px;opacity:0.2}
-@media(max-width:520px){#ab-left-page{display:none}#ab-spine{display:none}#ab-book{max-width:100%;height:min(500px,90vw)}}
+/* ── BOOK VIEWER ─────────────────────────────── */
+#ab-scene {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #2a1a08 0%, #0d0805 100%);
+  padding: 16px 8px;
+}
+
+/* The open book */
+#ab-book {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 1.5 / 1;
+  perspective: 2500px;
+  perspective-origin: 50% 45%;
+}
+
+/* Book shadow on table */
+#ab-book::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 5%;
+  width: 90%;
+  height: 24px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* Spine in the middle */
+#ab-spine {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 100%;
+  background: linear-gradient(to right,
+    #2a1505 0%,
+    #5c3010 30%,
+    #7a4520 50%,
+    #5c3010 70%,
+    #2a1505 100%);
+  z-index: 20;
+  box-shadow: 0 0 8px rgba(0,0,0,0.6);
+}
+
+/* Left half of book (static, shows "back" of turned page) */
+#ab-left {
+  position: absolute;
+  top: 0; left: 0;
+  width: 50%; height: 100%;
+  overflow: hidden;
+  border-radius: 4px 0 0 4px;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+  transform-origin: right center;
+  background: #f0ebe2;
+}
+
+/* Right half of book (static, shows next page behind flip) */
+#ab-right {
+  position: absolute;
+  top: 0; right: 0;
+  width: 50%; height: 100%;
+  overflow: hidden;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+  background: #f0ebe2;
+}
+
+/* The flipping page – sits over the right side */
+#ab-flip {
+  position: absolute;
+  top: 0; left: 50%;
+  width: 50%; height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 0.75s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+  z-index: 10;
+  cursor: pointer;
+}
+#ab-flip.flipping {
+  transform: rotateY(-180deg);
+}
+
+/* Dynamic curl shadow on flip */
+#ab-flip::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 30px; height: 100%;
+  background: linear-gradient(to left, rgba(0,0,0,0.12), transparent);
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 0 4px 4px 0;
+}
+
+.ab-face {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+.ab-face-front {
+  background: #f5f0e8;
+  border-radius: 0 4px 4px 0;
+  box-shadow: inset 4px 0 8px rgba(0,0,0,0.06);
+}
+.ab-face-back {
+  background: #f0ebe2;
+  transform: rotateY(180deg);
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset -4px 0 8px rgba(0,0,0,0.06);
+}
+
+/* Page content */
+.ab-pg {
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  background: #f5f0e8;
+  font-family: Heebo, sans-serif;
+}
+.ab-pg-date {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 6px;
+}
+.ab-pg-media {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border-radius: 3px;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 8px;
+}
+.ab-pg-emoji {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+.ab-pg-score-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.ab-pg-score {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+.ab-pg-bar {
+  flex: 1;
+  height: 3px;
+  background: #ddd;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ab-pg-bar-fill { height: 100%; border-radius: 2px; }
+.ab-pg-label {
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.ab-pg-note {
+  font-size: 10px;
+  color: #555;
+  font-style: italic;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.ab-pg-num {
+  font-size: 8px;
+  color: #ccc;
+  text-align: center;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.ab-pg-empty {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; opacity: 0.15;
+  background: #f0ebe0;
+}
+
+/* Cover page (first page) - special styling */
+.ab-pg-cover {
+  background: linear-gradient(160deg, #1a3a5c 0%, #0d2035 60%, #051020 100%);
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.ab-pg-cover-icon { font-size: 36px; }
+.ab-pg-cover-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.ab-pg-cover-sub {
+  font-size: 9px;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Mobile: still show 2-page spread but smaller */
+@media (max-width: 480px) {
+  #ab-book {
+    aspect-ratio: 1.2 / 1;
+    max-width: 100%;
+  }
+  .ab-pg { padding: 8px 10px; }
+  .ab-pg-date { font-size: 7px; }
+  .ab-pg-score { font-size: 14px; }
+  .ab-pg-label { font-size: 9px; }
+  .ab-pg-note { font-size: 9px; -webkit-line-clamp: 1; }
+  .ab-pg-emoji { font-size: 36px; }
+}
 </style>
-<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(6,2,15,0.97);border-bottom:1px solid #150d25;flex-shrink:0">
-  <button onclick="window.albumPrev()" id="alb-prev-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900">&#8249;</button>
+
+<!-- Top bar -->
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(10,6,2,0.97);border-bottom:1px solid #2a1a05;flex-shrink:0">
+  <button onclick="window.albumPrev()" id="alb-prev-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900;transition:opacity 0.2s">&#8249;</button>
   <div style="text-align:center">
-    <div id="alb-page-label" style="font-size:13px;font-weight:900;color:#fff"></div>
-    <div id="alb-swipe-hint" style="font-size:10px;color:#443366"></div>
+    <div id="alb-page-label" style="font-size:13px;font-weight:900;color:#e8d5a0"></div>
+    <div id="alb-swipe-hint" style="font-size:10px;color:#5a4020"></div>
   </div>
-  <button onclick="window.albumNext()" id="alb-next-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900">&#8250;</button>
+  <button onclick="window.albumNext()" id="alb-next-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900;transition:opacity 0.2s">&#8250;</button>
 </div>
-<div id="ab-book-scene">
+
+<!-- Book scene -->
+<div id="ab-scene">
   <div id="ab-book">
-    <div id="ab-left-page"></div>
+    <div id="ab-left"></div>
     <div id="ab-spine"></div>
-    <div id="ab-right-area"></div>
+    <div id="ab-right"></div>
+    <div id="ab-flip">
+      <div class="ab-face ab-face-front" id="ab-flip-front"></div>
+      <div class="ab-face ab-face-back"  id="ab-flip-back"></div>
+    </div>
   </div>
 </div>
-<div style="padding:10px 14px 22px;display:flex;gap:10px;background:rgba(6,2,15,0.97);border-top:1px solid #150d25;flex-shrink:0">
-  <button onclick="window.shareAlbum()" id="alb-share-btn" style="flex:1;background:linear-gradient(135deg,#25D36622,#128C7E22);border:2px solid #25D36666;color:#25D366;border-radius:12px;font-size:14px;font-weight:900;padding:12px;cursor:pointer"></button>
-  <button onclick="document.getElementById('album-viewer-modal').style.display='none';document.getElementById('album-builder-modal').style.display='flex';" id="alb-edit-btn" style="background:#13132a;border:2px solid #2a2a4a;color:#88c;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer"></button>
-  <button onclick="document.getElementById('album-viewer-modal').style.display='none'" style="background:#13132a;border:2px solid #2a2a4a;color:#88c;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer">&#10005;</button>
+
+<!-- Bottom bar -->
+<div style="padding:10px 14px 24px;display:flex;gap:10px;background:rgba(10,6,2,0.97);border-top:1px solid #2a1a05;flex-shrink:0">
+  <button onclick="window.shareAlbum()" id="alb-share-btn" style="flex:1;background:linear-gradient(135deg,#25D36618,#128C7E18);border:2px solid #25D36655;color:#25D366;border-radius:12px;font-size:14px;font-weight:900;padding:12px;cursor:pointer"></button>
+  <button onclick="document.getElementById('album-viewer-modal').style.display='none';document.getElementById('album-builder-modal').style.display='flex';" id="alb-edit-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer"></button>
+  <button onclick="document.getElementById('album-viewer-modal').style.display='none'" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer">&#10005;</button>
 </div>
+
 </div>>
