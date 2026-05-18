@@ -1654,17 +1654,26 @@ window._drawMap=function(cm){
 
 
 
-// ===== ALBUM BUILDER =====
-var _abAll=[], _abSelected=[], _albPages=[], _albCur=0;
 
-function abColor(s){return s>=80?'#00ff88':s>=60?'#ffcc00':s>=40?'#ff8844':'#ff4466';}
+// ===== ALBUM BUILDER =====
+var _abAll=[], _abSelected=[], _albPages=[], _albCur=0, _abFlipping=false;
+
+function abColor(s){return s>=80?'#27ae60':s>=60?'#f39c12':s>=40?'#e67e22':'#e74c3c';}
 function abEmoji(s){if(s>=90)return'😁';if(s>=80)return'😊';if(s>=70)return'🙂';if(s>=60)return'😐';if(s>=50)return'😟';if(s>=40)return'😞';return'😢';}
 function abDateStr(d){return d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4);}
-function abDateFull(d){try{var lm={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU','es':'es-ES','pt':'pt-BR','fr':'fr-FR','de':'de-DE','it':'it-IT','hi':'hi-IN','zh':'zh-CN','ja':'ja-JP'};return new Date(d+'T12:00:00').toLocaleDateString(lm[currentLang]||'en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch(e){return d;}}
+function abDateFull(d){
+  try{
+    var lm={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU','es':'es-ES','pt':'pt-BR','fr':'fr-FR','de':'de-DE','it':'it-IT','hi':'hi-IN','zh':'zh-CN','ja':'ja-JP'};
+    return new Date(d+'T12:00:00').toLocaleDateString(lm[currentLang]||'en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  }catch(e){return d;}
+}
+function abDayLabel(s){if(s>=80)return t('albDayGreat');if(s>=60)return t('albDayGood');if(s>=40)return t('albDayAvg');return t('albDayHard');}
 
 function abSetTexts(){
   var dir=(currentLang==='he'||currentLang==='ar')?'rtl':'ltr';
-  ['album-builder-modal','album-viewer-modal'].forEach(function(id){var el=document.getElementById(id);if(el)el.setAttribute('dir',dir);});
+  ['album-builder-modal','album-viewer-modal'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.setAttribute('dir',dir);
+  });
   var ids={
     'ab-modal-title':'📸 '+t('albTitle'),
     'ab-label-choose':t('albChooseDays'),
@@ -1680,7 +1689,9 @@ function abSetTexts(){
     'alb-edit-btn':t('albEdit'),
     'alb-swipe-hint':t('albSwipe')
   };
-  Object.keys(ids).forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=ids[id];});
+  Object.keys(ids).forEach(function(id){
+    var el=document.getElementById(id);if(el)el.textContent=ids[id];
+  });
 }
 
 window.openAlbumBuilder=function(){
@@ -1694,7 +1705,10 @@ window.openAlbumBuilder=function(){
   if(currentUser)query=query.eq('user_id',currentUser.id);
   query.then(function(res){
     if(res.data&&res.data.length){
-      _abAll=res.data.map(function(e){var lc=local[e.date]||{};return{date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:lc.mediaPreview||null,mediaType:lc.mediaType||null};});
+      _abAll=res.data.map(function(e){
+        var lc=local[e.date]||{};
+        return{date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:lc.mediaPreview||null,mediaType:lc.mediaType||null};
+      });
     } else {
       _abAll=Object.values(local).sort(function(a,b){return b.date.localeCompare(a.date);});
     }
@@ -1711,8 +1725,14 @@ window.abQuick=function(mode){
   var now=new Date(),to=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'),from=to;
   if(mode==='last3'){var f=new Date(now.getFullYear(),now.getMonth()-2,1);from=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0');}
   else if(mode==='year'){from=now.getFullYear()+'-01';}
-  else if(mode==='best'){var ms=document.getElementById('ab-minscore'),mv=document.getElementById('ab-minscore-val');if(ms)ms.value=80;if(mv)mv.textContent='80';from=now.getFullYear()+'-01';}
-  else if(mode==='all'){var sorted=_abAll.slice().sort(function(a,b){return a.date.localeCompare(b.date);});from=sorted.length?sorted[0].date.slice(0,7):now.getFullYear()+'-01';}
+  else if(mode==='best'){
+    var ms=document.getElementById('ab-minscore'),mv=document.getElementById('ab-minscore-val');
+    if(ms)ms.value=80;if(mv)mv.textContent='80';
+    from=now.getFullYear()+'-01';
+  } else if(mode==='all'){
+    var sorted=_abAll.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+    from=sorted.length?sorted[0].date.slice(0,7):now.getFullYear()+'-01';
+  }
   var fe=document.getElementById('ab-from'),te=document.getElementById('ab-to');
   if(fe)fe.value=from;if(te)te.value=to;
   window.abFilterAndRender();
@@ -1733,18 +1753,20 @@ window.abFilterAndRender=function(){
   if(countEl)countEl.textContent=_abSelected.length+' '+t('albDays');
   var list=document.getElementById('ab-days-list');
   if(!list)return;
-  if(!_abSelected.length){list.innerHTML='<div style="color:#446;font-size:13px;text-align:center;padding:20px;font-family:Heebo,sans-serif">'+t('albPickRange')+'</div>';return;}
-  // Day list WITH thumbnails
+  if(!_abSelected.length){
+    list.innerHTML='<div style="color:#446;font-size:13px;text-align:center;padding:20px">'+t('albPickRange')+'</div>';
+    return;
+  }
   list.innerHTML=_abSelected.map(function(e){
     var c=abColor(e.score);
     var mediaSrc=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
     var thumb=mediaSrc
-      ?'<img src="'+mediaSrc+'" style="width:48px;height:48px;object-fit:cover;border-radius:8px;flex-shrink:0" loading="lazy">'
-      :'<div style="width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,'+c+'22,'+c+'44);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+abEmoji(e.score)+'</div>';
+      ?'<img src="'+mediaSrc+'" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0" loading="lazy">'
+      :'<div style="width:52px;height:52px;border-radius:8px;background:linear-gradient(135deg,'+c+'22,'+c+'55);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">'+abEmoji(e.score)+'</div>';
     return '<div style="display:flex;align-items:center;gap:10px;background:#0d0d20;border-radius:10px;padding:8px;border:1px solid #1a1a35">'
       +thumb
       +'<div style="flex:1;min-width:0">'
-      +'<div style="font-size:12px;color:#88c;font-family:Heebo,sans-serif">'+abDateStr(e.date)+'</div>'
+      +'<div style="font-size:11px;color:#88c;font-family:Heebo,sans-serif">'+abDateStr(e.date)+'</div>'
       +(e.special?'<div style="font-size:11px;color:#ccd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:Heebo,sans-serif">'+e.special+'</div>':'')
       +'</div>'
       +'<div style="font-size:17px;font-weight:900;color:'+c+';font-family:Heebo,sans-serif">'+e.score+'</div>'
@@ -1754,96 +1776,98 @@ window.abFilterAndRender=function(){
 
 window.createAlbum=function(){
   if(!_abSelected.length)return;
-  _albPages=_abSelected.slice();_albCur=0;
+  _albPages=_abSelected.slice();
+  _albCur=0;
+  _abFlipping=false;
   var bm=document.getElementById('album-builder-modal');
   var vm=document.getElementById('album-viewer-modal');
   if(bm)bm.style.display='none';
   if(vm)vm.style.display='flex';
   abSetTexts();
-  abInitFlip();
+  setTimeout(function(){abRenderBook(false);},50);
 };
 
-function abDayLabel(s){if(s>=80)return t('albDayGreat');if(s>=60)return t('albDayGood');if(s>=40)return t('albDayAvg');return t('albDayHard');}
-
-// ---- 3D FLIP ENGINE ----
-var _abFlipStyle = null;
-
-function abInitFlip(){
-  // Inject CSS once
-  if(!_abFlipStyle){
-    _abFlipStyle=document.createElement('style');
-    _abFlipStyle.textContent=
-      '.ab-book{width:100%;max-width:420px;height:520px;position:relative;margin:0 auto;perspective:1200px}'
-      +'.ab-page{position:absolute;top:0;left:0;width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.7s cubic-bezier(0.645,0.045,0.355,1.000);cursor:pointer}'
-      +'.ab-page-front,.ab-page-back{position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;border-radius:4px 12px 12px 4px;overflow:hidden;background:#13132a}'
-      +'.ab-page-back{transform:rotateY(180deg);border-radius:12px 4px 4px 12px}'
-      +'.ab-page.flipped{transform:rotateY(-180deg)}'
-      +'.ab-spine{position:absolute;top:0;left:0;width:8px;height:100%;background:linear-gradient(180deg,#2a1a4a,#1a0a35,#2a1a4a);border-radius:3px 0 0 3px;z-index:10}'
-      +'.ab-page-inner{padding:16px;height:100%;box-sizing:border-box;display:flex;flex-direction:column}'
-      +'.ab-date-tag{background:rgba(0,212,255,0.12);border:1px solid #00d4ff33;border-radius:6px;padding:3px 9px;font-size:10px;color:#00d4ff;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;font-family:Heebo,sans-serif}'
-      +'@keyframes abPageIn{from{opacity:0}to{opacity:1}}'
-      +'.ab-page-in{animation:abPageIn 0.3s ease}';
-    document.head.appendChild(_abFlipStyle);
+// Build the HTML content of one page face
+function abPageFaceHTML(entry){
+  if(!entry){
+    return '<div class="ab-empty-page">📖</div>';
   }
-  abRenderBook();
-}
-
-function abMakeFaceHTML(e){
-  if(!e)return'<div class="ab-page-inner" style="align-items:center;justify-content:center;opacity:0.1;font-size:60px">📖</div>';
-  var c=abColor(e.score);
-  var mediaSrc=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
-  var mh=mediaSrc
-    ?'<img src="'+mediaSrc+'" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:10px;display:block" loading="lazy">'
-    :'<div style="width:100%;height:130px;background:linear-gradient(135deg,'+c+'18,'+c+'33);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:70px;margin-bottom:10px">'+abEmoji(e.score)+'</div>';
-  return '<div class="ab-page-inner">'
-    +'<div class="ab-date-tag">'+abDateFull(e.date)+'</div>'
-    +mh
-    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
-    +'<div style="width:52px;height:52px;border-radius:50%;border:2.5px solid '+c+';display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">'
-    +'<div style="font-size:19px;font-weight:900;color:'+c+';font-family:Heebo,sans-serif;line-height:1">'+e.score+'</div>'
-    +'<div style="font-size:12px">'+abEmoji(e.score)+'</div>'
+  var c=abColor(entry.score);
+  var mediaSrc=entry.media_url||(entry.mediaType==='image'?entry.mediaPreview:null);
+  var mediaHtml=mediaSrc
+    ?'<img class="ab-page-img" src="'+mediaSrc+'" loading="lazy" onerror="this.parentNode.innerHTML='<div class=ab-page-emoji-bg style=background:'+encodeURIComponent('linear-gradient(135deg,'+c+'22,'+c+'44)')+'>'+abEmoji('+entry.score+')+'</div>'">'
+    :'<div class="ab-page-emoji-bg" style="background:linear-gradient(135deg,'+c+'22,'+c+'44)">'+abEmoji(entry.score)+'</div>';
+  return '<div class="ab-page-content">'
+    +'<div class="ab-page-date">'+abDateFull(entry.date)+'</div>'
+    +mediaHtml
+    +'<div class="ab-page-score-row">'
+    +'<div class="ab-page-score-num" style="color:'+c+'">'+entry.score+'</div>'
+    +'<div style="font-size:14px">'+abEmoji(entry.score)+'</div>'
+    +'<div class="ab-page-bar-wrap"><div class="ab-page-bar-fill" style="width:'+entry.score+'%;background:'+c+'"></div></div>'
     +'</div>'
-    +'<div style="flex:1">'
-    +'<div style="font-size:12px;color:'+c+';font-weight:900;font-family:Heebo,sans-serif;margin-bottom:3px">'+abDayLabel(e.score)+'</div>'
-    +'<div style="height:4px;background:#1a1a35;border-radius:2px"><div style="height:100%;width:'+e.score+'%;background:'+c+';border-radius:2px"></div></div>'
-    +'</div></div>'
-    +(e.special?'<div style="background:#0a0a20;border:1px solid #1a1a30;border-radius:8px;padding:9px 11px;font-size:12px;line-height:1.65;color:#ccd;font-style:italic;font-family:Heebo,sans-serif;flex:1;overflow:hidden">'+e.special+'</div>':'')
+    +'<div class="ab-page-label" style="color:'+c+'">'+abDayLabel(entry.score)+'</div>'
+    +(entry.special?'<div class="ab-page-special">'+entry.special+'</div>':'')
+    +'<div class="ab-page-num">'+((_albPages.indexOf(entry)+1))+' / '+_albPages.length+'</div>'
     +'</div>';
 }
 
-function abRenderBook(){
-  var wrap=document.getElementById('alb-book-wrap');
-  if(!wrap)return;
+var _abIsMobile=function(){return window.innerWidth<=520;};
+
+function abRenderBook(animated){
+  var leftEl=document.getElementById('ab-left-page');
+  var rightArea=document.getElementById('ab-right-area');
+  if(!leftEl||!rightArea)return;
+
   var total=_albPages.length;
   var cur=_albCur;
+  var isMob=_abIsMobile();
 
-  // Build book: show current page (front) and next page (back of same leaf = back face)
-  var frontEntry=_albPages[cur]||null;
-  var backEntry=_albPages[cur+1]||null;
+  // On mobile: single page mode
+  if(isMob){
+    leftEl.style.display='none';
+    var entry=_albPages[cur]||null;
+    rightArea.innerHTML='<div style="width:100%;height:100%;background:#f5f0e8;border-radius:8px;overflow:hidden">'+abPageFaceHTML(entry)+'</div>';
+  } else {
+    leftEl.style.display='';
+    // Left page: current (even index)
+    // Right page front: next page
+    // Right page back (revealed after flip): the one after that
+    var leftEntry  = _albPages[cur]   || null;
+    var rightEntry = _albPages[cur+1] || null;
+    var nextEntry  = _albPages[cur+2] || null;
+    var nextNext   = _albPages[cur+3] || null;
 
-  wrap.innerHTML=
-    '<div class="ab-book" id="ab-book">'
-    +'<div class="ab-spine"></div>'
-    +'<div class="ab-page" id="ab-cur-page">'
-    +'<div class="ab-page-front">'+abMakeFaceHTML(frontEntry)+'</div>'
-    +'<div class="ab-page-back">'+abMakeFaceHTML(backEntry)+'</div>'
-    +'</div>'
-    +'</div>';
+    // Left static page
+    leftEl.innerHTML = abPageFaceHTML(leftEntry);
 
-  // Update nav
-  var pn=Math.floor(cur/2)+1,tp=Math.ceil(total/2);
+    // Right area: two stacked pages (current on top, next below)
+    rightArea.innerHTML =
+      // Behind page (revealed after flip)
+      '<div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#f5f0e8;border-radius:0 4px 4px 0;overflow:hidden" id="ab-behind-page">'
+        + abPageFaceHTML(nextEntry)
+      +'</div>'
+      // Flipping page
+      +'<div class="ab-flip-page" id="ab-flip-page">'
+        +'<div class="ab-face ab-face-front">' + abPageFaceHTML(rightEntry) + '</div>'
+        +'<div class="ab-face ab-face-back">'  + abPageFaceHTML(nextNext)   + '</div>'
+      +'</div>';
+  }
+
+  // Update label and buttons
+  var spread = isMob ? cur+1 : Math.floor(cur/2)+1;
+  var total_spreads = isMob ? total : Math.ceil(total/2);
   var pl=document.getElementById('alb-page-label');
-  if(pl)pl.textContent=t('albPage')+' '+pn+' / '+tp;
+  if(pl)pl.textContent=t('albPage')+' '+spread+' / '+total_spreads;
   var pb=document.getElementById('alb-prev-btn'),nb=document.getElementById('alb-next-btn');
   if(pb)pb.style.opacity=cur>0?'1':'0.3';
-  if(nb)nb.style.opacity=cur+2<total?'1':'0.3';
+  if(nb)nb.style.opacity=cur+(isMob?1:2)<total?'1':'0.3';
 
-  // Touch swipe
-  var book=document.getElementById('ab-book');
-  if(book){
+  // Swipe support
+  var scene=document.getElementById('ab-book-scene');
+  if(scene){
     var sx=0;
-    book.ontouchstart=function(ev){sx=ev.touches[0].clientX;};
-    book.ontouchend=function(ev){
+    scene.ontouchstart=function(ev){sx=ev.touches[0].clientX;};
+    scene.ontouchend=function(ev){
       var dx=ev.changedTouches[0].clientX-sx;
       if(Math.abs(dx)>40){if(dx<0)window.albumNext();else window.albumPrev();}
     };
@@ -1851,30 +1875,50 @@ function abRenderBook(){
 }
 
 window.albumNext=function(){
-  if(_albCur+2>_albPages.length-1)return;
-  var page=document.getElementById('ab-cur-page');
-  if(page){
-    page.classList.add('flipped');
-    setTimeout(function(){
-      _albCur+=2;
-      abRenderBook();
-    },350);
+  if(_abFlipping)return;
+  var total=_albPages.length;
+  var step=_abIsMobile()?1:2;
+  if(_albCur+step>total-1)return;
+
+  if(_abIsMobile()){
+    _albCur+=step;
+    abRenderBook(true);
+    return;
   }
+
+  // 3D flip animation
+  var flipPage=document.getElementById('ab-flip-page');
+  if(!flipPage)return;
+  _abFlipping=true;
+  flipPage.classList.add('is-flipping');
+
+  setTimeout(function(){
+    _albCur+=step;
+    _abFlipping=false;
+    abRenderBook(false);
+  },700);
 };
 
 window.albumPrev=function(){
-  if(_albCur<=0)return;
-  _albCur-=2;
-  abRenderBook();
-  // Animate from flipped state
-  var page=document.getElementById('ab-cur-page');
-  if(page){
-    page.style.transition='none';
-    page.classList.add('flipped');
-    setTimeout(function(){
-      page.style.transition='';
-      page.classList.remove('flipped');
-    },20);
+  if(_abFlipping)return;
+  var step=_abIsMobile()?1:2;
+  if(_albCur-step<0)return;
+  _albCur-=step;
+  // Reverse: render first then animate back from flipped
+  abRenderBook(false);
+  if(!_abIsMobile()){
+    var flipPage=document.getElementById('ab-flip-page');
+    if(flipPage){
+      // Start flipped, animate back
+      flipPage.style.transition='none';
+      flipPage.classList.add('is-flipping');
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          flipPage.style.transition='';
+          flipPage.classList.remove('is-flipping');
+        });
+      });
+    }
   }
 };
 
@@ -2085,40 +2129,216 @@ function renderGallery_OLD_DISABLED(){
 </div>
 
 <!-- ===== ALBUM VIEWER ===== -->
-<div id="album-viewer-modal" style="display:none;position:fixed;inset:0;background:#06020f;z-index:7000;flex-direction:column;overflow:hidden">
-  <style>
-  .alb-book{perspective:1400px;width:100%;position:relative;display:flex;justify-content:center}
-  .alb-spread{display:flex;width:100%;max-width:800px;position:relative}
-  .alb-leaf{flex:1;min-height:460px;background:#13132a;border-radius:0 12px 12px 0;overflow:hidden;position:relative}
-  .alb-leaf.left-page{border-radius:12px 0 0 12px;border-right:1px solid #0a0a20}
-  .alb-leaf-inner{padding:18px;height:100%;box-sizing:border-box}
-  .alb-date-tag{background:rgba(0,212,255,0.12);border:1px solid #00d4ff33;border-radius:6px;padding:3px 9px;font-size:10px;color:#00d4ff;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:8px;font-family:Heebo,sans-serif}
-  .alb-score-ring{width:56px;height:56px;border-radius:50%;border:2.5px solid currentColor;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-  @keyframes albPageIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-  @keyframes albPageInLeft{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
-  .alb-page-in{animation:albPageIn 0.3s ease forwards}
-  .alb-page-in-left{animation:albPageInLeft 0.3s ease forwards}
-  @media(max-width:480px){.alb-spread{flex-direction:column}.alb-leaf.left-page{display:none}.alb-leaf{border-radius:12px;min-height:400px}}
-  </style>
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(6,2,15,0.97);border-bottom:1px solid #150d25;flex-shrink:0">
-    <button onclick="window.albumPrev()" id="alb-prev-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900">&#8249;</button>
-    <div style="text-align:center">
-      <div id="alb-page-label" style="font-size:13px;font-weight:900;color:#fff;font-family:Heebo,sans-serif"></div>
-      <div id="alb-swipe-hint" style="font-size:10px;color:#332255;font-family:Heebo,sans-serif"></div>
-    </div>
-    <button onclick="window.albumNext()" id="alb-next-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900">&#8250;</button>
+<div id="album-viewer-modal" style="display:none;position:fixed;inset:0;background:#0a0510;z-index:7000;flex-direction:column;overflow:hidden;font-family:Heebo,sans-serif">
+
+<style>
+/* ── Book container ── */
+#ab-book-scene{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  overflow:hidden;
+  perspective:2000px;
+  perspective-origin:50% 50%;
+}
+#ab-book{
+  position:relative;
+  display:flex;
+  width:100%;
+  max-width:680px;
+  height:min(460px,72vw);
+  filter:drop-shadow(0 20px 40px rgba(0,0,0,0.7));
+}
+
+/* ── Left page (always visible, static) ── */
+#ab-left-page{
+  flex:1;
+  height:100%;
+  background:#f5f0e8;
+  border-radius:4px 0 0 4px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:inset -4px 0 12px rgba(0,0,0,0.15);
+}
+
+/* ── Right side: stacking area for flip ── */
+#ab-right-area{
+  flex:1;
+  height:100%;
+  position:relative;
+}
+
+/* ── Pages that flip ── */
+.ab-flip-page{
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  transform-style:preserve-3d;
+  transform-origin:left center;
+  transition:transform 0.7s cubic-bezier(0.645,0.045,0.355,1.000);
+  cursor:pointer;
+  will-change:transform;
+}
+.ab-flip-page.is-flipping{
+  transform:rotateY(-180deg);
+}
+.ab-face{
+  position:absolute;
+  top:0;left:0;width:100%;height:100%;
+  backface-visibility:hidden;
+  overflow:hidden;
+}
+.ab-face-front{
+  background:#f5f0e8;
+  border-radius:0 4px 4px 0;
+  box-shadow:inset 4px 0 12px rgba(0,0,0,0.08), 2px 0 6px rgba(0,0,0,0.2);
+}
+.ab-face-back{
+  background:#f5f0e8;
+  border-radius:4px 0 0 4px;
+  transform:rotateY(180deg);
+  box-shadow:inset -4px 0 12px rgba(0,0,0,0.08);
+}
+
+/* ── Spine shadow ── */
+#ab-spine{
+  position:absolute;
+  top:0; left:50%; transform:translateX(-50%);
+  width:12px; height:100%;
+  background:linear-gradient(to right, rgba(0,0,0,0.18), rgba(0,0,0,0.05), rgba(0,0,0,0.18));
+  z-index:5;
+  pointer-events:none;
+}
+
+/* ── Page content ── */
+.ab-page-content{
+  width:100%; height:100%;
+  display:flex;
+  flex-direction:column;
+  padding:14px;
+  box-sizing:border-box;
+  background:#f5f0e8;
+}
+.ab-page-img{
+  width:100%;
+  flex:1;
+  object-fit:cover;
+  border-radius:4px;
+  display:block;
+  margin-bottom:10px;
+  min-height:0;
+}
+.ab-page-emoji-bg{
+  width:100%;
+  flex:1;
+  border-radius:4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:56px;
+  margin-bottom:10px;
+  min-height:0;
+}
+.ab-page-date{
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#888;
+  margin-bottom:4px;
+}
+.ab-page-score-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:5px;
+}
+.ab-page-score-num{
+  font-size:20px;
+  font-weight:900;
+  line-height:1;
+}
+.ab-page-bar-wrap{
+  flex:1;
+  height:4px;
+  background:#ddd;
+  border-radius:2px;
+  overflow:hidden;
+}
+.ab-page-bar-fill{
+  height:100%;
+  border-radius:2px;
+}
+.ab-page-label{
+  font-size:11px;
+  font-weight:700;
+  color:#555;
+  margin-bottom:4px;
+}
+.ab-page-special{
+  font-size:11px;
+  color:#444;
+  font-style:italic;
+  line-height:1.5;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+}
+.ab-page-num{
+  font-size:9px;
+  color:#bbb;
+  text-align:center;
+  margin-top:auto;
+  padding-top:4px;
+}
+.ab-empty-page{
+  width:100%;height:100%;
+  background:#f0ebe0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:40px;
+  opacity:0.2;
+}
+
+/* Mobile: single page */
+@media(max-width:520px){
+  #ab-left-page{ display:none; }
+  #ab-right-area{ border-radius:8px; overflow:hidden; }
+  #ab-spine{ display:none; }
+  #ab-book{ max-width:100%; height:min(500px,90vw); }
+}
+</style>
+
+<!-- Top bar -->
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(6,2,15,0.97);border-bottom:1px solid #150d25;flex-shrink:0">
+  <button onclick="window.albumPrev()" id="alb-prev-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900">&#8249;</button>
+  <div style="text-align:center">
+    <div id="alb-page-label" style="font-size:13px;font-weight:900;color:#fff"></div>
+    <div id="alb-swipe-hint" style="font-size:10px;color:#443366"></div>
   </div>
-  <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:14px 12px 0">
-    <div class="alb-book" id="alb-book-wrap" style="width:100%">
-      <div class="alb-spread" id="alb-spread"></div>
+  <button onclick="window.albumNext()" id="alb-next-btn" style="background:#1a1235;border:2px solid #2a1a4a;color:#fff;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900">&#8250;</button>
+</div>
+
+<!-- Book -->
+<div id="ab-book-scene">
+  <div id="ab-book">
+    <div id="ab-left-page"></div>
+    <div id="ab-spine"></div>
+    <div id="ab-right-area">
+      <!-- Pages rendered here by JS -->
     </div>
-  </div>
-  <div style="padding:10px 14px 22px;display:flex;gap:10px;background:rgba(6,2,15,0.97);border-top:1px solid #150d25;flex-shrink:0">
-    <button onclick="window.shareAlbum()" id="alb-share-btn" style="flex:1;background:linear-gradient(135deg,#25D36622,#128C7E22);border:2px solid #25D36666;color:#25D366;border-radius:12px;font-family:Heebo,sans-serif;font-size:14px;font-weight:900;padding:12px;cursor:pointer"></button>
-    <button onclick="document.getElementById('album-viewer-modal').style.display='none';document.getElementById('album-builder-modal').style.display='flex';" id="alb-edit-btn" style="background:#13132a;border:2px solid #2a2a4a;color:#88c;border-radius:12px;font-family:Heebo,sans-serif;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer"></button>
-    <button onclick="document.getElementById('album-viewer-modal').style.display='none'" style="background:#13132a;border:2px solid #2a2a4a;color:#88c;border-radius:12px;font-family:Heebo,sans-serif;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer">&#10005;</button>
   </div>
 </div>
 
-</body>
-</html>
+<!-- Bottom bar -->
+<div style="padding:10px 14px 22px;display:flex;gap:10px;background:rgba(6,2,15,0.97);border-top:1px solid #150d25;flex-shrink:0">
+  <button onclick="window.shareAlbum()" id="alb-share-btn" style="flex:1;background:linear-gradient(135deg,#25D36622,#128C7E22);border:2px solid #25D36666;color:#25D366;border-radius:12px;font-size:14px;font-weight:900;padding:12px;cursor:pointer"></button>
+  <button onclick="document.getElementById('album-viewer-modal').style.display='none';document.getElementById('album-builder-modal').style.display='flex';" id="alb-edit-btn" style="background:#13132a;border:2px solid #2a2a4a;color:#88c;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer"></button>
+  <button onclick="document.getElementById('album-viewer-modal').style.display='none'" style="background:#13132a;border:2px solid #2a2a4a;color:#88c;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer">&#10005;</button>
+</div>
+
+</div>>
