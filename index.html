@@ -1768,16 +1768,70 @@ window.abFilterAndRender=function(){
 
 window.createAlbum=function(){
   if(!_abSelected.length)return;
-  // Build page slots: each slot holds {a, b, pgNum}
-  // Cover = null, then pairs of entries
+
+  // Helper: check if an entry has a landscape (wide) image
+  function isLandscapeEntry(e){
+    var src=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
+    return !!src; // we'll probe below; default assume portrait until checked
+  }
+
+  // Load all images to get their natural dimensions, then build pages
+  var entries=_abSelected.slice();
+  var pending=entries.length;
+  var orientations=[]; // true = landscape (wide), false = portrait/square or no image
+
+  if(!pending){buildAlbumPages(entries,orientations);return;}
+
+  entries.forEach(function(e,i){
+    var src=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
+    if(!src){orientations[i]=false;if(--pending===0)buildAlbumPages(entries,orientations);return;}
+    var img=new Image();
+    img.onload=function(){
+      orientations[i]=(img.naturalWidth>img.naturalHeight*1.2); // clearly wider = landscape
+      if(--pending===0)buildAlbumPages(entries,orientations);
+    };
+    img.onerror=function(){
+      orientations[i]=false;
+      if(--pending===0)buildAlbumPages(entries,orientations);
+    };
+    img.src=src;
+  });
+};
+
+function buildAlbumPages(entries,orientations){
+  // Build page slots: cover = null, then pack entries
+  // Landscape image → solo slot (b = null)
+  // Portrait/no-image → try to pair with next portrait
   _albPages=[null]; // cover
   var pgNum=1;
-  for(var i=0;i<_abSelected.length;i+=2){
-    _albPages.push({a:_abSelected[i]||null, b:_abSelected[i+1]||null, pgNum:pgNum});
-    pgNum++;
+  var i=0;
+  while(i<entries.length){
+    var e=entries[i];
+    var isLand=orientations[i];
+    if(isLand){
+      // Solo page
+      _albPages.push({a:e, b:null, pgNum:pgNum, solo:true});
+      pgNum++;
+      i++;
+    } else {
+      // Try to pair with next portrait
+      var next=entries[i+1];
+      var nextLand=orientations[i+1];
+      if(next&&!nextLand){
+        _albPages.push({a:e, b:next, pgNum:pgNum});
+        pgNum++;
+        i+=2;
+      } else {
+        // Next is landscape or doesn't exist → solo
+        _albPages.push({a:e, b:null, pgNum:pgNum});
+        pgNum++;
+        i++;
+      }
+    }
   }
-  // Pad to even so spreads work (null at end if needed)
+  // Pad to even
   if(_albPages.length%2!==0)_albPages.push(null);
+
   _albCur=0;
   _abBusy=false;
   var bm=document.getElementById('album-builder-modal');
@@ -1786,7 +1840,7 @@ window.createAlbum=function(){
   if(vm)vm.style.display='flex';
   abSetTexts();
   setTimeout(function(){abDrawSpread();abWireTouch();},60);
-};
+}
 
 // Build inner HTML for a single page face (holds 2 entries)
 // _albPages now stores PAIRS: each "page slot" = [entry, entry] or null (cover)
@@ -1826,10 +1880,10 @@ function abPageHTML(pageSlot, slotIdx){
       +'</div>';
   }
   var totalReal=_albPages.filter(function(x){return x!==null;}).length;
-  return '<div class="ab-pg ab-pg-dual">'
+  var soloClass=pageSlot.solo?' ab-pg-solo':'';
+  return '<div class="ab-pg ab-pg-dual'+soloClass+'">'
     +abSingleEntry(pageSlot.a, pageSlot.pgNum, totalReal)
-    +'<div class="ab-slot-divider"></div>'
-    +abSingleEntry(pageSlot.b, pageSlot.pgNum, totalReal)
+    +(pageSlot.b!==null&&pageSlot.b!==undefined?'<div class="ab-slot-divider"></div>'+abSingleEntry(pageSlot.b, pageSlot.pgNum, totalReal):'')
     +'<div class="ab-pg-num">'+pageSlot.pgNum+' / '+totalReal+'</div>'
     +'</div>';
 }
@@ -1891,13 +1945,39 @@ window.albumNext=function(){
   if(!flip)return;
   _abBusy=true;
 
-  // Restore transition and flip
+  // Start flip animation
   flip.style.transition='';
   flip.classList.add('flipping');
 
   setTimeout(function(){
+    // Flip is now at -180deg (fully turned).
+    // Advance the spread counter
     _albCur+=2;
-    abDrawSpread();
+
+    // Update L, R, FF, FB content while flip is still rotated (invisible transition)
+    var L=document.getElementById('ab-left');
+    var R=document.getElementById('ab-right');
+    var FF=document.getElementById('ab-flip-front');
+    var FB=document.getElementById('ab-flip-back');
+    var cur=_albCur;
+    if(L)  L.innerHTML  = abPageHTML(_albPages[cur]   ||null, cur);
+    if(FF) FF.innerHTML = abPageHTML(_albPages[cur+1] ||null, cur+1);
+    if(FB) FB.innerHTML = abPageHTML(_albPages[cur+3] ||null, cur+3);
+    if(R)  R.innerHTML  = abPageHTML(_albPages[cur+2] ||null, cur+2);
+
+    // Snap flip back to 0 without animation (still invisible because content just changed)
+    flip.style.transition='none';
+    flip.classList.remove('flipping');
+
+    // Update labels & buttons
+    var spread=Math.floor(cur/2)+1;
+    var totalSpreads=Math.floor(total/2);
+    var pl=document.getElementById('alb-page-label');
+    if(pl)pl.textContent=t('albPage')+' '+spread+' / '+totalSpreads;
+    var pb=document.getElementById('alb-prev-btn'),nb=document.getElementById('alb-next-btn');
+    if(pb)pb.style.opacity=cur>0?'1':'0.3';
+    if(nb)nb.style.opacity=cur+2<total?'1':'0.3';
+
     _abBusy=false;
   },750);
 };
@@ -2449,6 +2529,14 @@ function renderGallery_OLD_DISABLED(){
   flex-shrink: 0;
 }
 
+/* Solo slot (landscape image alone on page) */
+.ab-pg-solo .ab-slot {
+  flex: 1;
+}
+.ab-pg-solo .ab-slot-img {
+  object-fit: contain;
+  background: #111;
+}
 .ab-slot-empty {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
