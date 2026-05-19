@@ -1900,10 +1900,12 @@ function abPageHTML(pageSlot, slotIdx){
 function abSetSpread(cur){
   var L  = document.getElementById('ab-left');
   var FF = document.getElementById('ab-flip-front');
+  var FB = document.getElementById('ab-flip-back');
   var R  = document.getElementById('ab-right');
   if(L)  L.innerHTML  = abPageHTML(_albPages[cur]   || null, cur);
   if(FF) FF.innerHTML = abPageHTML(_albPages[cur+1] || null, cur+1);
   if(R)  R.innerHTML  = abPageHTML(_albPages[cur+1] || null, cur+1); // mirrors FF
+  if(FB) FB.innerHTML = ''; // always clear FB at rest — stale content causes flash
   var total=_albPages.length;
   var spread=Math.floor(cur/2)+1;
   var totalSpreads=Math.floor(total/2);
@@ -1932,13 +1934,12 @@ window.albumNext=function(){
   var total=_albPages.length;
   if(_albCur+2>=total)return;
   var flip=document.getElementById('ab-flip');
-  var R=document.getElementById('ab-right');
+  var FB=document.getElementById('ab-flip-back');
   if(!flip)return;
   _abBusy=true;
 
-  // ab-right content is same as FF (mirror), so hide it during flip
-  // to prevent it from showing through the 90-degree edge
-  if(R) R.style.visibility='hidden';
+  // FB must be invisible during Next — it's the back face and contains stale content
+  if(FB){ FB.innerHTML=''; FB.style.opacity='0'; }
 
   flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
   flip.classList.add('flipping');
@@ -1948,8 +1949,8 @@ window.albumNext=function(){
     flip.style.transition='none';
     flip.classList.remove('flipping');
     void flip.offsetWidth;
+    if(FB) FB.style.opacity='';
     abSetSpread(_albCur);
-    if(R) R.style.visibility='';
     _abBusy=false;
   },760);
 };
@@ -1962,11 +1963,6 @@ window.albumPrev=function(){
   _abBusy=true;
   var prevCur=_albCur-2;
 
-  // Setup panels for reverse flip:
-  //   L  = prevCur      (prev left, stays visible on left)
-  //   FF = _albCur+1    (current right, stays visible on right during flip)
-  //   R  = _albCur+1    (mirrors FF)
-  //   FB = prevCur+1    (prev right — revealed by flip returning to 0)
   var L  = document.getElementById('ab-left');
   var FF = document.getElementById('ab-flip-front');
   var FB = document.getElementById('ab-flip-back');
@@ -1977,15 +1973,15 @@ window.albumPrev=function(){
   if(R)  R.innerHTML  = abPageHTML(_albPages[_albCur+1] || null, _albCur+1);
   if(FB) FB.innerHTML = abPageHTML(_albPages[prevCur+1] || null, prevCur+1);
 
-  // Hide ab-left during animation — flip sweeps through left side
+  // FB is intentionally visible for Prev — it's the page being revealed
+  if(FB) FB.style.opacity='1';
+  // Hide L during animation — flip sweeps through left side
   if(L) L.style.visibility='hidden';
 
-  // Snap flip to fully-turned
   flip.style.transition='none';
   flip.classList.add('flipping');
   void flip.offsetWidth;
 
-  // Animate back to 0 — FB (prev right) appears
   flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
   flip.classList.remove('flipping');
 
@@ -2447,10 +2443,14 @@ function renderGallery_OLD_DISABLED(){
   flex-shrink: 0;
 }
 
-/* Landscape: slots side by side */
+/* Landscape: slots side by side — LTR so first slot is on left */
 @media (orientation: landscape) {
   .ab-pg-dual {
     flex-direction: row;
+    direction: ltr;
+  }
+  .ab-slot {
+    direction: rtl;
   }
   .ab-slot-divider {
     width: 1px;
