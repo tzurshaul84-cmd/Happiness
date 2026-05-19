@@ -1938,13 +1938,12 @@ window.albumNext=function(){
   if(!flip)return;
   _abBusy=true;
 
-  // FB must be invisible during Next — it's the back face and contains stale content
   if(FB){ FB.innerHTML=''; FB.style.opacity='0'; }
 
   flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
-  flip.classList.add('flipping');
 
-  setTimeout(function(){
+  function onDone(){
+    flip.removeEventListener('transitionend',onDone);
     _albCur+=2;
     flip.style.transition='none';
     flip.classList.remove('flipping');
@@ -1952,7 +1951,9 @@ window.albumNext=function(){
     if(FB) FB.style.opacity='';
     abSetSpread(_albCur);
     _abBusy=false;
-  },760);
+  }
+  flip.addEventListener('transitionend',onDone);
+  flip.classList.add('flipping');
 };
 
 window.albumPrev=function(){
@@ -1972,20 +1973,16 @@ window.albumPrev=function(){
   if(FF) FF.innerHTML = abPageHTML(_albPages[_albCur+1] || null, _albCur+1);
   if(R)  R.innerHTML  = abPageHTML(_albPages[_albCur+1] || null, _albCur+1);
   if(FB) FB.innerHTML = abPageHTML(_albPages[prevCur+1] || null, prevCur+1);
-
-  // FB is intentionally visible for Prev — it's the page being revealed
   if(FB) FB.style.opacity='1';
-  // Hide L during animation — flip sweeps through left side
-  if(L) L.style.visibility='hidden';
+  if(L)  L.style.visibility='hidden';
 
+  // Snap to fully-flipped
   flip.style.transition='none';
   flip.classList.add('flipping');
   void flip.offsetWidth;
 
-  flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
-  flip.classList.remove('flipping');
-
-  setTimeout(function(){
+  function onDone(){
+    flip.removeEventListener('transitionend',onDone);
     _albCur=prevCur;
     flip.style.transition='none';
     flip.classList.remove('flipping');
@@ -1993,7 +1990,12 @@ window.albumPrev=function(){
     abSetSpread(_albCur);
     if(L) L.style.visibility='';
     _abBusy=false;
-  },760);
+  }
+  flip.addEventListener('transitionend',onDone);
+
+  // Animate back to 0
+  flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
+  flip.classList.remove('flipping');
 };
 
 function abWireTouch(){
