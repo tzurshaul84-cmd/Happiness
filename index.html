@@ -1888,17 +1888,22 @@ function abPageHTML(pageSlot, slotIdx){
     +'</div>';
 }
 
-// ── ALBUM NAVIGATION — Simple 2-panel crossfade ──────────────────
-// No 3D flip complexity. Just fade between spreads.
-// Each "spread" shows pages[cur] on left and pages[cur+1] on right.
-// ab-left and ab-flip-front are the two visible panels.
-// ab-right and ab-flip-back are unused (hidden).
+// ── ALBUM NAVIGATION ─────────────────────────────────────────────
+// Layout at rest:
+//   ab-left       = pages[cur]   — left page
+//   ab-flip-front = pages[cur+1] — right page (visible, on top of ab-right)
+//   ab-flip-back  = pages[cur-1] — used only for Prev animation
+//   ab-right      = pages[cur+1] — same as FF (so peek-through is invisible)
+//
+// ab-right z-index is kept BELOW ab-spine so it can never be seen during flip.
 
 function abSetSpread(cur){
   var L  = document.getElementById('ab-left');
   var FF = document.getElementById('ab-flip-front');
+  var R  = document.getElementById('ab-right');
   if(L)  L.innerHTML  = abPageHTML(_albPages[cur]   || null, cur);
   if(FF) FF.innerHTML = abPageHTML(_albPages[cur+1] || null, cur+1);
+  if(R)  R.innerHTML  = abPageHTML(_albPages[cur+1] || null, cur+1); // mirrors FF
   var total=_albPages.length;
   var spread=Math.floor(cur/2)+1;
   var totalSpreads=Math.floor(total/2);
@@ -1910,79 +1915,89 @@ function abSetSpread(cur){
 }
 
 function abDrawSpread(){
-  // Hide the flip element entirely — we don't use 3D flip
   var flip=document.getElementById('ab-flip');
   var R=document.getElementById('ab-right');
-  if(flip){ flip.style.transition='none'; flip.style.display='none'; }
-  if(R){ R.style.display='none'; }
+  if(flip){ flip.style.transition='none'; flip.classList.remove('flipping'); }
   abSetSpread(_albCur);
 }
 
-function abUpdateContent(cur){ abSetSpread(cur); }
-
-function abAnimate(dir, cb){
-  // dir: 'next' or 'prev'
-  var book=document.getElementById('ab-book');
-  if(!book){cb();return;}
-  var L=document.getElementById('ab-left');
-  var FF=document.getElementById('ab-flip-front');
-  // Slide animation: move both panels out, update, slide back in
-  var outX = dir==='next' ? '-100%' : '100%';
-  var inX  = dir==='next' ? '100%'  : '-100%';
-  var dur  = '0.35s';
-  var ease = 'cubic-bezier(0.4,0,0.2,1)';
-  [L,FF].forEach(function(el){
-    if(el){
-      el.style.transition='transform '+dur+' '+ease+', opacity '+dur+' '+ease;
-      el.style.transform='translateX('+outX+')';
-      el.style.opacity='0';
-    }
-  });
-  setTimeout(function(){
-    cb(); // update content
-    [L,FF].forEach(function(el){
-      if(el){
-        el.style.transition='none';
-        el.style.transform='translateX('+inX+')';
-        el.style.opacity='0';
-      }
-    });
-    void (L&&L.offsetWidth); // reflow
-    [L,FF].forEach(function(el){
-      if(el){
-        el.style.transition='transform '+dur+' '+ease+', opacity '+dur+' '+ease;
-        el.style.transform='translateX(0)';
-        el.style.opacity='1';
-      }
-    });
-    setTimeout(function(){
-      [L,FF].forEach(function(el){
-        if(el){ el.style.transition=''; el.style.transform=''; el.style.opacity=''; }
-      });
-      _abBusy=false;
-    },360);
-  },360);
+function abUpdateContent(cur){
+  var flip=document.getElementById('ab-flip');
+  if(flip){ flip.style.transition='none'; flip.classList.remove('flipping'); }
+  abSetSpread(cur);
 }
 
 window.albumNext=function(){
   if(_abBusy)return;
   var total=_albPages.length;
   if(_albCur+2>=total)return;
+  var flip=document.getElementById('ab-flip');
+  var R=document.getElementById('ab-right');
+  if(!flip)return;
   _abBusy=true;
-  abAnimate('next',function(){
+
+  // ab-right content is same as FF (mirror), so hide it during flip
+  // to prevent it from showing through the 90-degree edge
+  if(R) R.style.visibility='hidden';
+
+  flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
+  flip.classList.add('flipping');
+
+  setTimeout(function(){
     _albCur+=2;
+    flip.style.transition='none';
+    flip.classList.remove('flipping');
+    void flip.offsetWidth;
     abSetSpread(_albCur);
-  });
+    if(R) R.style.visibility='';
+    _abBusy=false;
+  },760);
 };
 
 window.albumPrev=function(){
   if(_abBusy)return;
   if(_albCur<=0)return;
+  var flip=document.getElementById('ab-flip');
+  if(!flip)return;
   _abBusy=true;
-  abAnimate('prev',function(){
-    _albCur-=2;
+  var prevCur=_albCur-2;
+
+  // Setup panels for reverse flip:
+  //   L  = prevCur      (prev left, stays visible on left)
+  //   FF = _albCur+1    (current right, stays visible on right during flip)
+  //   R  = _albCur+1    (mirrors FF)
+  //   FB = prevCur+1    (prev right — revealed by flip returning to 0)
+  var L  = document.getElementById('ab-left');
+  var FF = document.getElementById('ab-flip-front');
+  var FB = document.getElementById('ab-flip-back');
+  var R  = document.getElementById('ab-right');
+
+  if(L)  L.innerHTML  = abPageHTML(_albPages[prevCur]   || null, prevCur);
+  if(FF) FF.innerHTML = abPageHTML(_albPages[_albCur+1] || null, _albCur+1);
+  if(R)  R.innerHTML  = abPageHTML(_albPages[_albCur+1] || null, _albCur+1);
+  if(FB) FB.innerHTML = abPageHTML(_albPages[prevCur+1] || null, prevCur+1);
+
+  // Hide ab-left during animation — flip sweeps through left side
+  if(L) L.style.visibility='hidden';
+
+  // Snap flip to fully-turned
+  flip.style.transition='none';
+  flip.classList.add('flipping');
+  void flip.offsetWidth;
+
+  // Animate back to 0 — FB (prev right) appears
+  flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
+  flip.classList.remove('flipping');
+
+  setTimeout(function(){
+    _albCur=prevCur;
+    flip.style.transition='none';
+    flip.classList.remove('flipping');
+    void flip.offsetWidth;
     abSetSpread(_albCur);
-  });
+    if(L) L.style.visibility='';
+    _abBusy=false;
+  },760);
 };
 
 function abWireTouch(){
@@ -2337,9 +2352,10 @@ function renderGallery_OLD_DISABLED(){
   box-shadow: -4px 0 20px rgba(0,0,0,0.5);
   transform-origin: right center;
   background: #f0ebe2;
+  z-index: 2;
 }
 
-/* Right half (behind flip) */
+/* Right half (always below flip) */
 #ab-right {
   position: absolute;
   top: 0; right: 0;
@@ -2348,6 +2364,7 @@ function renderGallery_OLD_DISABLED(){
   border-radius: 0 4px 4px 0;
   box-shadow: 4px 0 20px rgba(0,0,0,0.5);
   background: #f0ebe2;
+  z-index: 2;
 }
 
 /* Flipping page */
