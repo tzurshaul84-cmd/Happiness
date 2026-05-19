@@ -1905,20 +1905,14 @@ function abSetSpread(cur){
   var FF = document.getElementById('ab-flip-front');
   var FB = document.getElementById('ab-flip-back');
   var R  = document.getElementById('ab-right');
-  var flip = document.getElementById('ab-flip');
 
-  var curPage  = abPageHTML(_albPages[cur]   || null, cur);
-  var rightPage= abPageHTML(_albPages[cur+1] || null, cur+1);
-  var nextLeft = abPageHTML(_albPages[cur+3] || null, cur+3);
-  var nextRight= abPageHTML(_albPages[cur+2] || null, cur+2);
+  var curPage   = abPageHTML(_albPages[cur]   || null, cur);
+  var rightPage = abPageHTML(_albPages[cur+1] || null, cur+1);
 
   if(L)  L.innerHTML  = curPage;
   if(FF) FF.innerHTML = rightPage;
-  // ab-right mirrors flip-front so it's invisible even if peek-through happens
-  if(R)  R.innerHTML  = rightPage;
-  if(FB) FB.innerHTML = nextLeft;
-
-  if(flip){ flip.style.transition='none'; flip.classList.remove('flipping'); }
+  if(R)  R.innerHTML  = rightPage;  // mirrors FF — no bleed-through
+  // FB is set only when needed for animation, not here
 
   var total=_albPages.length;
   var spread=Math.floor(cur/2)+1;
@@ -1930,30 +1924,44 @@ function abSetSpread(cur){
   if(nb) nb.style.opacity=cur+2<total?'1':'0.3';
 }
 
-function abDrawSpread(){ abSetSpread(_albCur); }
-function abUpdateContent(cur){ abSetSpread(cur); }
+function abDrawSpread(){
+  var flip=document.getElementById('ab-flip');
+  if(flip){ flip.style.transition='none'; flip.classList.remove('flipping'); }
+  abSetSpread(_albCur);
+}
+
+function abUpdateContent(cur){
+  var flip=document.getElementById('ab-flip');
+  if(flip){ flip.style.transition='none'; flip.classList.remove('flipping'); }
+  abSetSpread(cur);
+}
 
 window.albumNext=function(){
   if(_abBusy)return;
   var total=_albPages.length;
   if(_albCur+2>=total)return;
   var flip=document.getElementById('ab-flip');
-  var R=document.getElementById('ab-right');
   if(!flip)return;
   _abBusy=true;
 
-  // Pre-load next spread's right page into ab-right BEFORE animating
-  // so that when flip passes 90deg and R peeks through, it shows the correct next page
-  var nextCur=_albCur+2;
-  if(R) R.innerHTML=abPageHTML(_albPages[nextCur+1]||null, nextCur+1);
+  // At rest before animation:
+  //   L  = cur     (current left  — must NOT change during animation)
+  //   FF = cur+1   (current right — this is what flips away)
+  //   R  = cur+1   (mirrors FF)
+  //   FB = already has next-left from abSetSpread, but we don't care — it's hidden
+  // We only need to make sure L stays untouched until the end.
+  // abSetSpread already set everything correctly. Just animate.
 
   flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
   flip.classList.add('flipping');
 
   setTimeout(function(){
-    _albCur=nextCur;
-    abSetSpread(_albCur);
+    _albCur+=2;
+    // Reset flip silently BEFORE updating content
+    flip.style.transition='none';
+    flip.classList.remove('flipping');
     void flip.offsetWidth;
+    abSetSpread(_albCur);
     _abBusy=false;
   },760);
 };
@@ -1967,30 +1975,37 @@ window.albumPrev=function(){
 
   var prevCur=_albCur-2;
 
+  // For Prev animation, we need:
+  //   L  = prev-left  (will be visible throughout — load it now)
+  //   FF = cur+1      (current right — stays visible on right side while flip comes back)
+  //   FB = prevCur+1  (prev right — this is what the flip reveals as it returns)
+  //   R  = cur+1      (mirrors FF so no bleed-through)
   var L  = document.getElementById('ab-left');
   var FF = document.getElementById('ab-flip-front');
   var FB = document.getElementById('ab-flip-back');
   var R  = document.getElementById('ab-right');
 
-  // Set up as if flip is already done:
-  // L = prev-left, FF = prev-right (will be revealed), FB = current-right (flipping away)
-  // R mirrors FF so no peek-through artifact
-  if(L)  L.innerHTML  = abPageHTML(_albPages[prevCur]   || null, prevCur);
-  if(FF) FF.innerHTML = abPageHTML(_albPages[prevCur+1] || null, prevCur+1);
-  if(R)  R.innerHTML  = abPageHTML(_albPages[prevCur+1] || null, prevCur+1);
-  if(FB) FB.innerHTML = abPageHTML(_albPages[_albCur+1] || null, _albCur+1);
+  if(L)  L.innerHTML  = abPageHTML(_albPages[prevCur]    || null, prevCur);
+  if(FF) FF.innerHTML = abPageHTML(_albPages[_albCur+1]  || null, _albCur+1);
+  if(R)  R.innerHTML  = abPageHTML(_albPages[_albCur+1]  || null, _albCur+1);
+  if(FB) FB.innerHTML = abPageHTML(_albPages[prevCur+1]  || null, prevCur+1);
 
+  // Snap flip to fully-flipped (FB is now visible on left side)
   flip.style.transition='none';
   flip.classList.add('flipping');
   void flip.offsetWidth;
 
+  // Animate back to 0 — FB rotates into view as the new right page
   flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
   flip.classList.remove('flipping');
 
   setTimeout(function(){
     _albCur=prevCur;
-    abSetSpread(_albCur);
+    // Reset flip silently BEFORE updating content
+    flip.style.transition='none';
+    flip.classList.remove('flipping');
     void flip.offsetWidth;
+    abSetSpread(_albCur);
     _abBusy=false;
   },760);
 };
