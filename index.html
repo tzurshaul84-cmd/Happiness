@@ -1961,28 +1961,27 @@ window.albumNext=function(){
   var total=_albPages.length;
   if(_albCur+2>=total)return;
   var flip=document.getElementById('ab-flip');
+  var R=document.getElementById('ab-right');
   if(!flip)return;
   _abBusy=true;
 
-  // 1. Load NEXT spread content into FB and R (hidden behind flip or under it)
-  var nextCur=_albCur+2;
-  var R=document.getElementById('ab-right');
-  var FB=document.getElementById('ab-flip-back');
-  if(FB) FB.innerHTML = abPageHTML(_albPages[nextCur+1]||null, nextCur+1);
-  if(R)  R.innerHTML  = abPageHTML(_albPages[nextCur+2]||null, nextCur+2);
+  // Hide ab-right during animation — it would show through when flip is edge-on at 90deg
+  if(R) R.style.visibility='hidden';
 
-  // 2. Start flip animation (FF=current right page, L=current left page still visible)
+  // Start flip
   flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
   flip.classList.add('flipping');
 
   setTimeout(function(){
-    // 3. Flip is fully rotated. Now: snap everything to new spread WITHOUT transition
-    _albCur=nextCur;
+    _albCur+=2;
+    // Snap flip back silently
     flip.style.transition='none';
     flip.classList.remove('flipping');
-    // Force reflow so transition:none takes effect THIS frame
     void flip.offsetWidth;
+    // Update all content
     abUpdateContent(_albCur);
+    // Restore ab-right visibility
+    if(R) R.style.visibility='';
     _abBusy=false;
   },760);
 };
@@ -1991,37 +1990,41 @@ window.albumPrev=function(){
   if(_abBusy)return;
   if(_albCur<=0)return;
   var flip=document.getElementById('ab-flip');
+  var L=document.getElementById('ab-left');
   if(!flip)return;
   _abBusy=true;
 
   var prevCur=_albCur-2;
 
-  // 1. Load PREV spread — but place it so flip starts pre-flipped (showing prev right page on back)
-  var L=document.getElementById('ab-left');
+  // Pre-load content for the prev spread into flip-back and left
   var FF=document.getElementById('ab-flip-front');
   var FB=document.getElementById('ab-flip-back');
   var R=document.getElementById('ab-right');
-  // Left = prev left, FB(back of flip) = prev right, FF(front) = current right, R = current right-behind
+  // ab-left shows prev-left, flip-back shows prev-right (will animate into view)
+  // flip-front shows current-right (flipping away), ab-right shows current-right-behind
   if(L)  L.innerHTML  = abPageHTML(_albPages[prevCur]  ||null, prevCur);
   if(FB) FB.innerHTML = abPageHTML(_albPages[prevCur+1]||null, prevCur+1);
   if(FF) FF.innerHTML = abPageHTML(_albPages[_albCur+1]||null, _albCur+1);
   if(R)  R.innerHTML  = abPageHTML(_albPages[_albCur+2]||null, _albCur+2);
 
-  // 2. Snap flip to -180 (no animation), so it looks like page is already turned
+  // Hide ab-left during animation to prevent bleed-through at 90deg
+  if(L) L.style.visibility='hidden';
+
+  // Snap flip to fully-turned position (no anim)
   flip.style.transition='none';
   flip.classList.add('flipping');
-  void flip.offsetWidth; // force reflow
+  void flip.offsetWidth;
 
-  // 3. Animate back to 0
+  // Animate back to 0
   flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
   flip.classList.remove('flipping');
 
   setTimeout(function(){
     _albCur=prevCur;
-    // Snap to clean state
     flip.style.transition='none';
     void flip.offsetWidth;
     abUpdateContent(_albCur);
+    if(L) L.style.visibility='';
     _abBusy=false;
   },760);
 };
