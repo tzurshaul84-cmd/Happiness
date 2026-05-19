@@ -2334,14 +2334,16 @@ function renderGallery_OLD_DISABLED(){
   position: relative;
 }
 
-/* Dual-slot page */
+/* Dual-slot page — portrait: stacked, landscape: side by side */
 .ab-pg-dual {
+  flex-direction: column;
   gap: 0;
 }
 
 .ab-slot {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2349,9 +2351,26 @@ function renderGallery_OLD_DISABLED(){
 
 .ab-slot-divider {
   height: 1px;
+  width: 100%;
   background: linear-gradient(to right, transparent, #c8b898, transparent);
   margin: 3px 0;
   flex-shrink: 0;
+}
+
+/* Landscape: slots side by side */
+@media (orientation: landscape) {
+  .ab-pg-dual {
+    flex-direction: row;
+  }
+  .ab-slot-divider {
+    width: 1px;
+    height: 100%;
+    margin: 0 4px;
+    background: linear-gradient(to bottom, transparent, #c8b898, transparent);
+  }
+  .ab-slot-date { font-size: 7px; }
+  .ab-slot-score { font-size: 16px; }
+  .ab-slot-note { -webkit-line-clamp: 2; }
 }
 
 .ab-slot-date {
@@ -2485,7 +2504,51 @@ function renderGallery_OLD_DISABLED(){
   height: 100%;
 }
 #album-viewer-modal.ab-fullscreen #ab-scene {
-  padding: 8px 4px;
+  padding: 4px 2px;
+}
+/* Hide top and bottom bars in fullscreen */
+#album-viewer-modal.ab-fullscreen #alb-topbar {
+  display: none !important;
+}
+#album-viewer-modal.ab-fullscreen #alb-bottombar {
+  display: none !important;
+}
+/* Show floating nav + close in fullscreen */
+#album-viewer-modal.ab-fullscreen #alb-fs-overlay {
+  display: flex !important;
+}
+
+/* Floating overlay for fullscreen: prev / X / next */
+#alb-fs-overlay {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 50;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+}
+#alb-fs-overlay > button {
+  pointer-events: all;
+  background: rgba(10,6,2,0.75);
+  border: 1.5px solid #3a2010;
+  color: #c8a060;
+  border-radius: 10px;
+  font-size: 22px;
+  font-weight: 900;
+  padding: 8px 14px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+#alb-fs-close {
+  position: absolute !important;
+  top: 8px;
+  right: 8px;
+  font-size: 16px !important;
+  padding: 6px 10px !important;
+  opacity: 0.8;
 }
 
 /* Mobile */
@@ -2502,7 +2565,7 @@ function renderGallery_OLD_DISABLED(){
 </style>
 
 <!-- Top bar -->
-<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(10,6,2,0.97);border-bottom:1px solid #2a1a05;flex-shrink:0">
+<div id="alb-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(10,6,2,0.97);border-bottom:1px solid #2a1a05;flex-shrink:0">
   <button onclick="window.albumPrev()" id="alb-prev-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:10px;padding:9px 18px;font-size:20px;cursor:pointer;font-weight:900;transition:opacity 0.2s">&#8249;</button>
   <div style="text-align:center">
     <div id="alb-page-label" style="font-size:13px;font-weight:900;color:#e8d5a0"></div>
@@ -2512,7 +2575,7 @@ function renderGallery_OLD_DISABLED(){
 </div>
 
 <!-- Book scene -->
-<div id="ab-scene">
+<div id="ab-scene" style="position:relative">
   <div id="ab-book">
     <div id="ab-left"></div>
     <div id="ab-spine"></div>
@@ -2522,10 +2585,17 @@ function renderGallery_OLD_DISABLED(){
       <div class="ab-face ab-face-back"  id="ab-flip-back"></div>
     </div>
   </div>
+  <!-- Fullscreen floating overlay: prev / close / next -->
+  <div id="alb-fs-overlay">
+    <button onclick="window.albumPrev()">&#8249;</button>
+    <div style="flex:1"></div>
+    <button onclick="window.albumNext()">&#8250;</button>
+    <button id="alb-fs-close" onclick="window.albumFullscreen()">&#10005;</button>
+  </div>
 </div>
 
 <!-- Bottom bar -->
-<div style="padding:10px 14px 24px;display:flex;gap:10px;background:rgba(10,6,2,0.97);border-top:1px solid #2a1a05;flex-shrink:0">
+<div id="alb-bottombar" style="padding:10px 14px 24px;display:flex;gap:10px;background:rgba(10,6,2,0.97);border-top:1px solid #2a1a05;flex-shrink:0">
   <button onclick="window.shareAlbum()" id="alb-share-btn" style="flex:1;background:linear-gradient(135deg,#25D36618,#128C7E18);border:2px solid #25D36655;color:#25D366;border-radius:12px;font-size:14px;font-weight:900;padding:12px;cursor:pointer"></button>
   <button onclick="window.albumFullscreen()" id="alb-fs-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:18px;font-weight:700;padding:12px 14px;cursor:pointer" title="מסך מלא">⛶</button>
   <button onclick="document.getElementById('album-viewer-modal').style.display='none';document.getElementById('album-builder-modal').style.display='flex';" id="alb-edit-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer"></button>
