@@ -1768,9 +1768,15 @@ window.abFilterAndRender=function(){
 
 window.createAlbum=function(){
   if(!_abSelected.length)return;
-  // Prepend a cover page (null entry) + actual pages
-  _albPages=[null].concat(_abSelected.slice());
-  // Pad to even number so spreads work
+  // Build page slots: each slot holds {a, b, pgNum}
+  // Cover = null, then pairs of entries
+  _albPages=[null]; // cover
+  var pgNum=1;
+  for(var i=0;i<_abSelected.length;i+=2){
+    _albPages.push({a:_abSelected[i]||null, b:_abSelected[i+1]||null, pgNum:pgNum});
+    pgNum++;
+  }
+  // Pad to even so spreads work (null at end if needed)
   if(_albPages.length%2!==0)_albPages.push(null);
   _albCur=0;
   _abBusy=false;
@@ -1782,40 +1788,49 @@ window.createAlbum=function(){
   setTimeout(function(){abDrawSpread();abWireTouch();},60);
 };
 
-// Build inner HTML for a single page face
-function abPageHTML(e, idx){
-  if(!e){
-    // Cover page (idx===0) or empty filler
-    if(idx===0){
-      var total=_albPages.filter(function(x){return x!==null;}).length;
-      var first=_albPages.find(function(x){return x!==null;});
-      var last=null;
-      for(var i=_albPages.length-1;i>=0;i--){if(_albPages[i]!==null){last=_albPages[i];break;}}
-      return '<div class="ab-pg ab-pg-cover">'
-        +'<div class="ab-pg-cover-icon">📖</div>'
-        +'<div class="ab-pg-cover-title">'+t('albShareMsg')+'</div>'
-        +(first&&last?'<div class="ab-pg-cover-sub">'+abDateStr(first.date)+' — '+abDateStr(last.date)+'</div>':'')
-        +'<div class="ab-pg-cover-sub">'+total+' '+t('albDays')+'</div>'
-        +'</div>';
-    }
-    return '<div class="ab-pg-empty">📄</div>';
-  }
+// Build inner HTML for a single page face (holds 2 entries)
+// _albPages now stores PAIRS: each "page slot" = [entry, entry] or null (cover)
+function abSingleEntry(e, pgNum, totalReal){
+  if(!e) return '<div class="ab-slot-empty">📄</div>';
   var c=abColor(e.score);
   var src=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
   var mediaHtml=src
-    ?'<img class="ab-pg-media" src="'+src+'" loading="lazy">'
-    :'<div class="ab-pg-emoji" style="background:linear-gradient(135deg,'+c+'18,'+c+'30)">'+abEmoji(e.score)+'</div>';
-  return '<div class="ab-pg">'
-    +'<div class="ab-pg-date">'+abDateFull(e.date)+'</div>'
+    ?'<img class="ab-slot-img" src="'+src+'" loading="lazy">'
+    :'<div class="ab-slot-emoji" style="background:linear-gradient(135deg,'+c+'15,'+c+'28)">'+abEmoji(e.score)+'</div>';
+  return '<div class="ab-slot">'
+    +'<div class="ab-slot-date">'+abDateFull(e.date)+'</div>'
     +mediaHtml
-    +'<div class="ab-pg-score-row">'
-    +'<div class="ab-pg-score" style="color:'+c+'">'+e.score+'</div>'
-    +'<div style="font-size:12px">'+abEmoji(e.score)+'</div>'
-    +'<div class="ab-pg-bar"><div class="ab-pg-bar-fill" style="width:'+e.score+'%;background:'+c+'"></div></div>'
+    +'<div class="ab-slot-bottom">'
+    +'<div class="ab-slot-score" style="color:'+c+'">'+e.score+'</div>'
+    +'<div class="ab-slot-emo">'+abEmoji(e.score)+'</div>'
+    +'<div class="ab-slot-bar"><div class="ab-slot-bar-fill" style="width:'+e.score+'%;background:'+c+'"></div></div>'
     +'</div>'
-    +'<div class="ab-pg-label" style="color:'+c+'">'+abDayLabel(e.score)+'</div>'
-    +(e.special?'<div class="ab-pg-note">'+e.special+'</div>':'')
-    +'<div class="ab-pg-num">'+(idx)+' / '+(_albPages.length-1)+'</div>'
+    +(e.special?'<div class="ab-slot-note">'+e.special+'</div>':'')
+    +'</div>';
+}
+
+function abPageHTML(pageSlot, slotIdx){
+  // pageSlot: null = cover, or {a: entry|null, b: entry|null, pgNum: number}
+  if(pageSlot===null){
+    // cover page
+    var allReal=_albPages.filter(function(x){return x!==null;});
+    var total=allReal.reduce(function(s,p){return s+(p.a?1:0)+(p.b?1:0);},0);
+    var firstEntry=null, lastEntry=null;
+    for(var i=0;i<allReal.length;i++){if(allReal[i].a){firstEntry=allReal[i].a;break;}}
+    for(var j=allReal.length-1;j>=0;j--){if(allReal[j].b){lastEntry=allReal[j].b;break;}else if(allReal[j].a){lastEntry=allReal[j].a;break;}}
+    return '<div class="ab-pg ab-pg-cover">'
+      +'<div class="ab-pg-cover-icon">📖</div>'
+      +'<div class="ab-pg-cover-title">'+t('albShareMsg')+'</div>'
+      +(firstEntry&&lastEntry?'<div class="ab-pg-cover-sub">'+abDateStr(firstEntry.date)+' — '+abDateStr(lastEntry.date)+'</div>':'')
+      +'<div class="ab-pg-cover-sub">'+total+' '+t('albDays')+'</div>'
+      +'</div>';
+  }
+  var totalReal=_albPages.filter(function(x){return x!==null;}).length;
+  return '<div class="ab-pg ab-pg-dual">'
+    +abSingleEntry(pageSlot.a, pageSlot.pgNum, totalReal)
+    +'<div class="ab-slot-divider"></div>'
+    +abSingleEntry(pageSlot.b, pageSlot.pgNum, totalReal)
+    +'<div class="ab-pg-num">'+pageSlot.pgNum+' / '+totalReal+'</div>'
     +'</div>';
 }
 
@@ -1909,7 +1924,8 @@ window.albumPrev=function(){
 };
 
 window.shareAlbum=function(){
-  var pages=_albPages.filter(function(e){return e!==null;});
+  var pages=[];
+  _albPages.forEach(function(s){if(s&&s.a)pages.push(s.a);if(s&&s.b)pages.push(s.b);});
   if(!pages.length)return;
   var total=pages.length;
   var avg=Math.round(pages.reduce(function(a,b){return a+(b.score||0);},0)/total);
@@ -1920,6 +1936,71 @@ window.shareAlbum=function(){
     +'🌍 happiness-eta-ochre.vercel.app');
   window.open('https://wa.me/?text='+msg,'_blank');
 };
+// ===== FULLSCREEN =====
+window.albumFullscreen=function(){
+  var vm=document.getElementById('album-viewer-modal');
+  var fsBtn=document.getElementById('alb-fs-btn');
+  if(!vm)return;
+  var isFs=vm.classList.contains('ab-fullscreen');
+  if(isFs){
+    // exit fullscreen
+    vm.classList.remove('ab-fullscreen');
+    if(fsBtn)fsBtn.textContent='⛶';
+    if(document.exitFullscreen)document.exitFullscreen();
+    else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
+    // try to unlock orientation
+    try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch(e){}
+  } else {
+    // enter fullscreen
+    vm.classList.add('ab-fullscreen');
+    if(fsBtn)fsBtn.textContent='✕';
+    var el=vm;
+    if(el.requestFullscreen)el.requestFullscreen().catch(function(){});
+    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+    // force landscape on mobile
+    try{
+      if(screen.orientation&&screen.orientation.lock){
+        screen.orientation.lock('landscape').catch(function(){});
+      }
+    }catch(e){}
+  }
+  // redraw book after layout settles
+  setTimeout(function(){abDrawSpread();},200);
+};
+
+window.albumExitAll=function(){
+  // exit fullscreen if active
+  var vm=document.getElementById('album-viewer-modal');
+  if(vm&&vm.classList.contains('ab-fullscreen')){
+    vm.classList.remove('ab-fullscreen');
+    if(document.exitFullscreen)document.exitFullscreen();
+    else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
+    try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch(e){}
+  }
+  if(vm)vm.style.display='none';
+};
+
+// Listen for native fullscreen exit (user pressed Esc)
+document.addEventListener('fullscreenchange',function(){
+  if(!document.fullscreenElement){
+    var vm=document.getElementById('album-viewer-modal');
+    var fsBtn=document.getElementById('alb-fs-btn');
+    if(vm)vm.classList.remove('ab-fullscreen');
+    if(fsBtn)fsBtn.textContent='⛶';
+    try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch(e){}
+    setTimeout(function(){abDrawSpread();},200);
+  }
+});
+document.addEventListener('webkitfullscreenchange',function(){
+  if(!document.webkitFullscreenElement){
+    var vm=document.getElementById('album-viewer-modal');
+    var fsBtn=document.getElementById('alb-fs-btn');
+    if(vm)vm.classList.remove('ab-fullscreen');
+    if(fsBtn)fsBtn.textContent='⛶';
+    try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch(e){}
+    setTimeout(function(){abDrawSpread();},200);
+  }
+});
 // ===== END ALBUM BUILDER =====
 
 })();
@@ -2173,7 +2254,7 @@ function renderGallery_OLD_DISABLED(){
   box-shadow: 0 0 8px rgba(0,0,0,0.6);
 }
 
-/* Left half of book (static, shows "back" of turned page) */
+/* Left half of book (static) */
 #ab-left {
   position: absolute;
   top: 0; left: 0;
@@ -2185,7 +2266,7 @@ function renderGallery_OLD_DISABLED(){
   background: #f0ebe2;
 }
 
-/* Right half of book (static, shows next page behind flip) */
+/* Right half (behind flip) */
 #ab-right {
   position: absolute;
   top: 0; right: 0;
@@ -2196,7 +2277,7 @@ function renderGallery_OLD_DISABLED(){
   background: #f0ebe2;
 }
 
-/* The flipping page – sits over the right side */
+/* Flipping page */
 #ab-flip {
   position: absolute;
   top: 0; left: 50%;
@@ -2211,7 +2292,6 @@ function renderGallery_OLD_DISABLED(){
   transform: rotateY(-180deg);
 }
 
-/* Dynamic curl shadow on flip */
 #ab-flip::before {
   content: '';
   position: absolute;
@@ -2242,34 +2322,61 @@ function renderGallery_OLD_DISABLED(){
   box-shadow: inset -4px 0 8px rgba(0,0,0,0.06);
 }
 
-/* Page content */
+/* ── PAGE with 2 slots ── */
 .ab-pg {
   width: 100%; height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px 14px;
+  padding: 6px 8px 4px;
   box-sizing: border-box;
   background: #f5f0e8;
   font-family: Heebo, sans-serif;
+  position: relative;
 }
-.ab-pg-date {
-  font-size: 8px;
+
+/* Dual-slot page */
+.ab-pg-dual {
+  gap: 0;
+}
+
+.ab-slot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ab-slot-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #c8b898, transparent);
+  margin: 3px 0;
+  flex-shrink: 0;
+}
+
+.ab-slot-date {
+  font-size: 6px;
   font-weight: 700;
-  letter-spacing: 1.2px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  color: #999;
-  margin-bottom: 6px;
+  color: #aaa;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.ab-pg-media {
+
+.ab-slot-img {
   width: 100%;
   flex: 1;
   min-height: 0;
   border-radius: 3px;
   object-fit: cover;
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 3px;
 }
-.ab-pg-emoji {
+
+.ab-slot-emoji {
   width: 100%;
   flex: 1;
   min-height: 0;
@@ -2277,50 +2384,66 @@ function renderGallery_OLD_DISABLED(){
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
-  margin-bottom: 8px;
-}
-.ab-pg-score-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 28px;
   margin-bottom: 3px;
 }
-.ab-pg-score {
-  font-size: 18px;
+
+.ab-slot-bottom {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ab-slot-score {
+  font-size: 14px;
   font-weight: 900;
   line-height: 1;
 }
-.ab-pg-bar {
+
+.ab-slot-emo {
+  font-size: 10px;
+}
+
+.ab-slot-bar {
   flex: 1;
-  height: 3px;
+  height: 2px;
   background: #ddd;
-  border-radius: 2px;
+  border-radius: 1px;
   overflow: hidden;
 }
-.ab-pg-bar-fill { height: 100%; border-radius: 2px; }
-.ab-pg-label {
-  font-size: 10px;
-  font-weight: 700;
-  margin-bottom: 3px;
+
+.ab-slot-bar-fill {
+  height: 100%;
+  border-radius: 1px;
 }
-.ab-pg-note {
-  font-size: 10px;
-  color: #555;
+
+.ab-slot-note {
+  font-size: 8px;
+  color: #666;
   font-style: italic;
-  line-height: 1.4;
+  line-height: 1.3;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
+  flex-shrink: 0;
 }
+
+.ab-slot-empty {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; opacity: 0.12;
+}
+
 .ab-pg-num {
-  font-size: 8px;
+  font-size: 7px;
   color: #ccc;
   text-align: center;
-  margin-top: auto;
-  padding-top: 4px;
+  padding-top: 2px;
+  flex-shrink: 0;
 }
+
 .ab-pg-empty {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
@@ -2328,7 +2451,7 @@ function renderGallery_OLD_DISABLED(){
   background: #f0ebe0;
 }
 
-/* Cover page (first page) - special styling */
+/* Cover page */
 .ab-pg-cover {
   background: linear-gradient(160deg, #1a3a5c 0%, #0d2035 60%, #051020 100%);
   align-items: center;
@@ -2351,18 +2474,30 @@ function renderGallery_OLD_DISABLED(){
   text-transform: uppercase;
 }
 
-/* Mobile: still show 2-page spread but smaller */
+/* ── FULLSCREEN MODE ── */
+#album-viewer-modal.ab-fullscreen {
+  background: #0d0805;
+}
+#album-viewer-modal.ab-fullscreen #ab-book {
+  max-width: 100%;
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+}
+#album-viewer-modal.ab-fullscreen #ab-scene {
+  padding: 8px 4px;
+}
+
+/* Mobile */
 @media (max-width: 480px) {
   #ab-book {
     aspect-ratio: 1.2 / 1;
     max-width: 100%;
   }
-  .ab-pg { padding: 8px 10px; }
-  .ab-pg-date { font-size: 7px; }
-  .ab-pg-score { font-size: 14px; }
-  .ab-pg-label { font-size: 9px; }
-  .ab-pg-note { font-size: 9px; -webkit-line-clamp: 1; }
-  .ab-pg-emoji { font-size: 36px; }
+  .ab-pg { padding: 5px 7px 3px; }
+  .ab-slot-date { font-size: 5.5px; }
+  .ab-slot-score { font-size: 12px; }
+  .ab-slot-emoji { font-size: 22px; }
 }
 </style>
 
@@ -2392,8 +2527,9 @@ function renderGallery_OLD_DISABLED(){
 <!-- Bottom bar -->
 <div style="padding:10px 14px 24px;display:flex;gap:10px;background:rgba(10,6,2,0.97);border-top:1px solid #2a1a05;flex-shrink:0">
   <button onclick="window.shareAlbum()" id="alb-share-btn" style="flex:1;background:linear-gradient(135deg,#25D36618,#128C7E18);border:2px solid #25D36655;color:#25D366;border-radius:12px;font-size:14px;font-weight:900;padding:12px;cursor:pointer"></button>
+  <button onclick="window.albumFullscreen()" id="alb-fs-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:18px;font-weight:700;padding:12px 14px;cursor:pointer" title="מסך מלא">⛶</button>
   <button onclick="document.getElementById('album-viewer-modal').style.display='none';document.getElementById('album-builder-modal').style.display='flex';" id="alb-edit-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer"></button>
-  <button onclick="document.getElementById('album-viewer-modal').style.display='none'" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer">&#10005;</button>
+  <button onclick="window.albumExitAll()" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer">&#10005;</button>
 </div>
 
-</div>>
+</div>
