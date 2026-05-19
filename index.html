@@ -1937,6 +1937,25 @@ function abWireTouch(){
   };
 }
 
+function abUpdateContent(cur){
+  var total=_albPages.length;
+  var L=document.getElementById('ab-left');
+  var R=document.getElementById('ab-right');
+  var FF=document.getElementById('ab-flip-front');
+  var FB=document.getElementById('ab-flip-back');
+  if(L)  L.innerHTML  = abPageHTML(_albPages[cur]   ||null, cur);
+  if(FF) FF.innerHTML = abPageHTML(_albPages[cur+1] ||null, cur+1);
+  if(FB) FB.innerHTML = abPageHTML(_albPages[cur+3] ||null, cur+3);
+  if(R)  R.innerHTML  = abPageHTML(_albPages[cur+2] ||null, cur+2);
+  var spread=Math.floor(cur/2)+1;
+  var totalSpreads=Math.floor(total/2);
+  var pl=document.getElementById('alb-page-label');
+  if(pl)pl.textContent=t('albPage')+' '+spread+' / '+totalSpreads;
+  var pb=document.getElementById('alb-prev-btn'),nb=document.getElementById('alb-next-btn');
+  if(pb)pb.style.opacity=cur>0?'1':'0.3';
+  if(nb)nb.style.opacity=cur+2<total?'1':'0.3';
+}
+
 window.albumNext=function(){
   if(_abBusy)return;
   var total=_albPages.length;
@@ -1945,62 +1964,66 @@ window.albumNext=function(){
   if(!flip)return;
   _abBusy=true;
 
-  // Start flip animation
-  flip.style.transition='';
+  // 1. Load NEXT spread content into FB and R (hidden behind flip or under it)
+  var nextCur=_albCur+2;
+  var R=document.getElementById('ab-right');
+  var FB=document.getElementById('ab-flip-back');
+  if(FB) FB.innerHTML = abPageHTML(_albPages[nextCur+1]||null, nextCur+1);
+  if(R)  R.innerHTML  = abPageHTML(_albPages[nextCur+2]||null, nextCur+2);
+
+  // 2. Start flip animation (FF=current right page, L=current left page still visible)
+  flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
   flip.classList.add('flipping');
 
   setTimeout(function(){
-    // Flip is now at -180deg (fully turned).
-    // Advance the spread counter
-    _albCur+=2;
-
-    // Update L, R, FF, FB content while flip is still rotated (invisible transition)
-    var L=document.getElementById('ab-left');
-    var R=document.getElementById('ab-right');
-    var FF=document.getElementById('ab-flip-front');
-    var FB=document.getElementById('ab-flip-back');
-    var cur=_albCur;
-    if(L)  L.innerHTML  = abPageHTML(_albPages[cur]   ||null, cur);
-    if(FF) FF.innerHTML = abPageHTML(_albPages[cur+1] ||null, cur+1);
-    if(FB) FB.innerHTML = abPageHTML(_albPages[cur+3] ||null, cur+3);
-    if(R)  R.innerHTML  = abPageHTML(_albPages[cur+2] ||null, cur+2);
-
-    // Snap flip back to 0 without animation (still invisible because content just changed)
+    // 3. Flip is fully rotated. Now: snap everything to new spread WITHOUT transition
+    _albCur=nextCur;
     flip.style.transition='none';
     flip.classList.remove('flipping');
-
-    // Update labels & buttons
-    var spread=Math.floor(cur/2)+1;
-    var totalSpreads=Math.floor(total/2);
-    var pl=document.getElementById('alb-page-label');
-    if(pl)pl.textContent=t('albPage')+' '+spread+' / '+totalSpreads;
-    var pb=document.getElementById('alb-prev-btn'),nb=document.getElementById('alb-next-btn');
-    if(pb)pb.style.opacity=cur>0?'1':'0.3';
-    if(nb)nb.style.opacity=cur+2<total?'1':'0.3';
-
+    // Force reflow so transition:none takes effect THIS frame
+    void flip.offsetWidth;
+    abUpdateContent(_albCur);
     _abBusy=false;
-  },750);
+  },760);
 };
 
 window.albumPrev=function(){
   if(_abBusy)return;
   if(_albCur<=0)return;
-  _albCur-=2;
-  // Draw new spread with flip pre-flipped, then animate back
-  abDrawSpread();
   var flip=document.getElementById('ab-flip');
-  if(flip){
-    flip.style.transition='none';
-    flip.classList.add('flipping');
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
-        flip.classList.remove('flipping');
-      });
-    });
-  }
+  if(!flip)return;
   _abBusy=true;
-  setTimeout(function(){_abBusy=false;},760);
+
+  var prevCur=_albCur-2;
+
+  // 1. Load PREV spread — but place it so flip starts pre-flipped (showing prev right page on back)
+  var L=document.getElementById('ab-left');
+  var FF=document.getElementById('ab-flip-front');
+  var FB=document.getElementById('ab-flip-back');
+  var R=document.getElementById('ab-right');
+  // Left = prev left, FB(back of flip) = prev right, FF(front) = current right, R = current right-behind
+  if(L)  L.innerHTML  = abPageHTML(_albPages[prevCur]  ||null, prevCur);
+  if(FB) FB.innerHTML = abPageHTML(_albPages[prevCur+1]||null, prevCur+1);
+  if(FF) FF.innerHTML = abPageHTML(_albPages[_albCur+1]||null, _albCur+1);
+  if(R)  R.innerHTML  = abPageHTML(_albPages[_albCur+2]||null, _albCur+2);
+
+  // 2. Snap flip to -180 (no animation), so it looks like page is already turned
+  flip.style.transition='none';
+  flip.classList.add('flipping');
+  void flip.offsetWidth; // force reflow
+
+  // 3. Animate back to 0
+  flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
+  flip.classList.remove('flipping');
+
+  setTimeout(function(){
+    _albCur=prevCur;
+    // Snap to clean state
+    flip.style.transition='none';
+    void flip.offsetWidth;
+    abUpdateContent(_albCur);
+    _abBusy=false;
+  },760);
 };
 
 window.shareAlbum=function(){
