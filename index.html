@@ -1963,50 +1963,45 @@ window.albumPrev=function(){
   if(_abBusy)return;
   if(_albCur<=0)return;
   var flip=document.getElementById('ab-flip');
+  var FF=document.getElementById('ab-flip-front');
+  var FB=document.getElementById('ab-flip-back');
+  var L =document.getElementById('ab-left');
+  var R =document.getElementById('ab-right');
   if(!flip)return;
   _abBusy=true;
   var prevCur=_albCur-2;
 
-  var L  = document.getElementById('ab-left');
-  var FF = document.getElementById('ab-flip-front');
-  var FB = document.getElementById('ab-flip-back');
-  var R  = document.getElementById('ab-right');
-
+  // FF = prev-right (flips in from left)
+  // L  = prev-left (already in place)
+  // R  = current right (stays visible on right)
+  // FB = empty/hidden
   if(L)  L.innerHTML  = abPageHTML(_albPages[prevCur]   || null, prevCur);
-  if(FF) FF.innerHTML = abPageHTML(_albPages[_albCur+1] || null, _albCur+1);
+  if(FF) FF.innerHTML = abPageHTML(_albPages[prevCur+1] || null, prevCur+1);
   if(R)  R.innerHTML  = abPageHTML(_albPages[_albCur+1] || null, _albCur+1);
-  if(FB) FB.innerHTML = abPageHTML(_albPages[prevCur+1] || null, prevCur+1);
-  if(FB) FB.style.opacity='1';
-  if(L)  L.style.visibility='hidden';
+  if(FB){ FB.innerHTML=''; FB.style.opacity='0'; }
 
-  // Snap to fully-flipped
-  // Snap to fully-flipped with no animation
+  // Snap flip to -180 (fully left), then animate to 0 — same mechanism as Next
   flip.style.transition='none';
-  flip.classList.add('flipping');
+  flip.style.transform='rotateY(-180deg)';
   void flip.offsetWidth;
 
-  // Double rAF ensures browser commits the snap before starting the return animation
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      var done=false;
-      function onDone(e){
-        if(e && e.propertyName && e.propertyName.indexOf('transform')===-1) return;
-        if(done) return; done=true;
-        flip.removeEventListener('transitionend',onDone);
-        _albCur=prevCur;
-        flip.style.transition='none';
-        flip.classList.remove('flipping');
-        void flip.offsetWidth;
-        abSetSpread(_albCur);
-        if(L) L.style.visibility='';
-        _abBusy=false;
-      }
-      flip.addEventListener('transitionend',onDone);
-      // Now start the return animation
-      flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
-      flip.classList.remove('flipping');
-    });
-  });
+  flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
+
+  var done=false;
+  function onDone(e){
+    if(e && e.propertyName && e.propertyName.indexOf('transform')===-1) return;
+    if(done) return; done=true;
+    flip.removeEventListener('transitionend',onDone);
+    _albCur=prevCur;
+    flip.style.transition='none';
+    flip.style.transform='';
+    void flip.offsetWidth;
+    if(FB) FB.style.opacity='';
+    abSetSpread(_albCur);
+    _abBusy=false;
+  }
+  flip.addEventListener('transitionend',onDone);
+  flip.style.transform='rotateY(0deg)';
 };
 
 function abWireTouch(){
