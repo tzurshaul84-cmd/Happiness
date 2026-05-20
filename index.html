@@ -115,6 +115,176 @@ input:focus,textarea:focus{border-color:#4444aa}
 .ai-card{background:linear-gradient(135deg,#0d0d2e,#1a0a35);border:2px solid #00d4ff;border-radius:16px;padding:20px;box-shadow:0 0 20px rgba(0,212,255,0.15)}
 .pwa-banner{background:#13132a;border:2px solid #00d4ff33;border-radius:13px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:4px}
 .chart-wrap{width:100%;overflow-x:auto}
+
+/* ═══════════════════════════════════════════
+   UI UPGRADE — visual only, no logic changes
+   ═══════════════════════════════════════════ */
+
+/* Screen fade-in animation */
+@keyframes screenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.screen.on{animation:screenIn 0.28s ease both}
+
+/* Cards — softer shadow instead of sharp border */
+.card{
+  border-color:#1e1e3a;
+  box-shadow:0 4px 24px rgba(0,0,0,0.45),0 1px 0 rgba(255,255,255,0.04) inset;
+  transition:box-shadow 0.2s ease;
+}
+.card:hover{box-shadow:0 6px 32px rgba(0,0,0,0.55),0 1px 0 rgba(255,255,255,0.05) inset;}
+
+/* Entry rows — floating feel */
+.erow{
+  border-color:#1e1e3a;
+  box-shadow:0 3px 14px rgba(0,0,0,0.4);
+  transition:transform 0.18s ease,box-shadow 0.18s ease;
+}
+.erow:active{transform:scale(0.98);box-shadow:0 1px 6px rgba(0,0,0,0.5);}
+
+/* Leaderboard rows */
+.lrow{
+  border-color:#1e1e3a;
+  box-shadow:0 2px 10px rgba(0,0,0,0.35);
+}
+
+/* Stat boxes */
+.sbox{
+  border-color:#1e1e3a;
+  box-shadow:0 2px 12px rgba(0,0,0,0.4);
+}
+
+/* Save button — micro-interaction */
+.sbtn{
+  transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.sbtn:active{transform:scale(0.96);box-shadow:0 2px 8px rgba(0,0,0,0.5);filter:brightness(0.92);}
+
+/* Main sub-tabs (stabs) */
+.stab{
+  border-color:#1e1e3a;
+  transition:all 0.18s ease;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.stab:active{transform:scale(0.95);}
+.stab.on{box-shadow:0 0 12px rgba(68,68,170,0.3);}
+
+/* Nav bar — deeper shadow, subtle top highlight */
+.nav{
+  background:#07071a;
+  border-top-color:#1a1a32;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.6);
+}
+
+/* Nav buttons — press feedback */
+.nb{
+  transition:all 0.16s ease;
+  border-radius:10px;
+}
+.nb:active{transform:scale(0.92);}
+.nb.on{
+  background:#191936;
+  box-shadow:0 0 14px rgba(68,68,170,0.2);
+}
+
+/* Settings items — hover/press */
+.settings-item{
+  border-color:#1e1e3a;
+  box-shadow:0 2px 12px rgba(0,0,0,0.35);
+  transition:transform 0.16s ease,box-shadow 0.16s ease;
+}
+.settings-item:active{transform:scale(0.98);box-shadow:0 1px 6px rgba(0,0,0,0.5);}
+
+/* Modal box — more depth */
+.mbox{
+  border-color:#1e1e3a;
+  box-shadow:0 8px 48px rgba(0,0,0,0.7),0 1px 0 rgba(255,255,255,0.04) inset;
+}
+
+/* Modal backdrop — slightly lighter so mbox pops */
+.mbg{background:rgba(0,0,0,0.88);}
+
+/* Onboarding button */
+.ob-btn{
+  transition:transform 0.18s ease,box-shadow 0.18s ease;
+  box-shadow:0 4px 20px rgba(0,212,255,0.2);
+}
+.ob-btn:active{transform:scale(0.96);}
+
+/* Google login button */
+.google-btn{
+  transition:transform 0.18s ease,box-shadow 0.18s ease;
+  box-shadow:0 4px 20px rgba(0,0,0,0.35);
+}
+.google-btn:active{transform:scale(0.97);}
+
+/* Lang options */
+.lang-opt{
+  transition:all 0.16s ease;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.lang-opt:active{transform:scale(0.95);}
+.lang-opt.on{box-shadow:0 0 12px rgba(0,212,255,0.2);}
+
+/* Status options */
+.status-opt{
+  transition:all 0.16s ease;
+}
+.status-opt:active{transform:scale(0.95);}
+.status-opt.on{box-shadow:0 0 12px rgba(0,212,255,0.2);}
+
+/* Header area — subtle breathing room */
+.hdr{padding:20px 0 14px;}
+
+/* Gear button */
+.gear-btn{
+  transition:transform 0.18s ease;
+  box-shadow:0 2px 10px rgba(0,0,0,0.4);
+}
+.gear-btn:active{transform:rotate(45deg) scale(0.92);}
+
+/* PWA banner */
+.pwa-banner{
+  border-color:#00d4ff22;
+  box-shadow:0 2px 12px rgba(0,212,255,0.06);
+}
+
+/* AI card — enhanced glow */
+.ai-card{
+  box-shadow:0 0 28px rgba(0,212,255,0.12),0 4px 20px rgba(0,0,0,0.5);
+}
+
+/* Toast — smoother show */
+.toast{
+  box-shadow:0 4px 24px rgba(0,0,0,0.5);
+  border-radius:32px;
+  padding:13px 26px;
+}
+
+/* Input fields — focus glow instead of just border */
+input:focus,textarea:focus{
+  border-color:#5555bb;
+  box-shadow:0 0 0 3px rgba(85,85,187,0.15);
+}
+
+/* Upload zone */
+.uzone{
+  transition:border-color 0.2s ease,background 0.2s ease;
+}
+.uzone:active{background:#111128;}
+
+/* Loc button */
+.loc-btn{
+  transition:all 0.18s ease;
+}
+.loc-btn:active{transform:scale(0.97);}
+
+/* Settings panel slide-in */
+@keyframes settingsIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.settings-panel.on{animation:settingsIn 0.25s ease both;}
+
+/* Onboard fade */
+@keyframes onboardIn{from{opacity:0}to{opacity:1}}
+.onboard.on{animation:onboardIn 0.3s ease both;}
 </style>
 </head>
 <body>
