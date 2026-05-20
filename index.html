@@ -165,22 +165,18 @@ input:focus,textarea:focus{border-color:#4444aa}
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  transition: background 2s ease;
-  background: radial-gradient(ellipse at 20% 20%, #1a0a35 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 80%, #001a35 0%, transparent 60%),
-              radial-gradient(ellipse at 50% 50%, #0a0a1a 0%, transparent 100%),
-              #060610;
+  background: #060610;
 }
 #app-bg::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 70% 10%, rgba(0,212,255,0.06) 0%, transparent 50%),
-              radial-gradient(ellipse at 20% 90%, rgba(102,126,234,0.08) 0%, transparent 50%);
-  animation: bgPulse 8s ease-in-out infinite alternate;
+  background: radial-gradient(ellipse at 70% 10%, rgba(0,212,255,0.12) 0%, transparent 50%),
+              radial-gradient(ellipse at 20% 90%, rgba(102,126,234,0.14) 0%, transparent 50%);
+  animation: bgPulse 6s ease-in-out infinite alternate;
 }
 @keyframes bgPulse {
-  from { opacity: 0.6; }
+  from { opacity: 0.7; }
   to   { opacity: 1; }
 }
 
@@ -188,20 +184,31 @@ input:focus,textarea:focus{border-color:#4444aa}
 #bg-orb1, #bg-orb2 {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.18;
-  transition: background 2s ease, transform 2s ease;
+  filter: blur(70px);
+  opacity: 0.45;
+  transition: background 2s ease;
   pointer-events: none;
 }
 #bg-orb1 {
-  width: 60vw; height: 60vw;
-  top: -20vw; left: -10vw;
-  background: #4444cc;
+  width: 80vw; height: 80vw;
+  top: -30vw; left: -20vw;
+  background: #3322bb;
 }
 #bg-orb2 {
+  width: 70vw; height: 70vw;
+  bottom: -20vw; right: -20vw;
+  background: #0066bb;
+}
+#bg-orb3 {
+  position: absolute;
   width: 50vw; height: 50vw;
-  bottom: -10vw; right: -10vw;
-  background: #0088cc;
+  top: 35%; left: 25%;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.2;
+  background: rgba(0,212,255,0.6);
+  animation: bgPulse 9s ease-in-out infinite alternate-reverse;
+  pointer-events: none;
 }
 
 /* Screen fade-in animation */
@@ -372,7 +379,7 @@ input:focus,textarea:focus{
 </style>
 </head>
 <body>
-<div id="app-bg"><div id="bg-orb1"></div><div id="bg-orb2"></div></div>
+<div id="app-bg"><div id="bg-orb1"></div><div id="bg-orb2"></div><div id="bg-orb3"></div></div>
 <div class="stars" id="stars"></div>
 <div class="toast" id="toast"></div>
 
@@ -932,8 +939,13 @@ function uploadToCloudinary(dataUrl, userId, date, callback){
   fd.append('file', blob);
   fd.append('upload_preset', CLOUDINARY_PRESET);
   fd.append('public_id', (userId||'anon')+'_'+date+'_'+Date.now());
-
-  fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/image/upload', {method:'POST', body:fd})
+  // auto quality + limit dimensions to save storage
+  if(mime.startsWith('image')){
+    fd.append('quality', 'auto:good');
+    fd.append('fetch_format', 'auto');
+  }
+  var endpoint=mime.startsWith('video')?'video':'image';
+  fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/'+endpoint+'/upload', {method:'POST', body:fd})
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.secure_url) callback(null, data.secure_url);
@@ -1510,9 +1522,12 @@ window.addEventListener('DOMContentLoaded',function(){
   el('uzone-btn').addEventListener('click',function(){el('finput').click();});
   el('finput').addEventListener('change',function(){
     var file=this.files[0];if(!file)return;el('verr').style.display='none';
-    if(file.type.startsWith('video/')){var url=URL.createObjectURL(file);var v=document.createElement('video');v.src=url;v.onloadedmetadata=function(){URL.revokeObjectURL(url);if(v.duration>10){el('verr').textContent=t('videoErr');el('verr').style.display='block';return;}var fr=new FileReader();fr.onload=function(ev){curMedia=ev.target.result;curMediaType='video';showPreview();};fr.readAsDataURL(file);};}
+    var MAX_IMG=5*1024*1024,MAX_VID=15*1024*1024;
+    if(file.type.startsWith('video/')){
+      if(file.size>MAX_VID){el('verr').textContent='הסרטון גדול מדי (מקסימום 15MB)';el('verr').style.display='block';this.value='';return;}
+      var url=URL.createObjectURL(file);var v=document.createElement('video');v.src=url;v.onloadedmetadata=function(){URL.revokeObjectURL(url);if(v.duration>10){el('verr').textContent=t('videoErr');el('verr').style.display='block';return;}var fr=new FileReader();fr.onload=function(ev){curMedia=ev.target.result;curMediaType='video';showPreview();};fr.readAsDataURL(file);};}
     else if(file.type.startsWith('image/')){
-      // Compress image before storing
+      if(file.size>MAX_IMG){el('verr').textContent='התמונה גדולה מדי (מקסימום 5MB)';el('verr').style.display='block';this.value='';return;}
       var img=new Image();
       var objUrl=URL.createObjectURL(file);
       img.onload=function(){
