@@ -20,7 +20,7 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a14;font-family:Heebo,sans-serif;color:#fff;font-weight:600;padding-bottom:70px;min-height:100vh}
+body{background:#060610;font-family:Heebo,sans-serif;color:#fff;font-weight:600;padding-bottom:70px;min-height:100vh}
 .wrap{max-width:480px;margin:0 auto;padding:0 16px}
 .hdr{padding:16px 0 12px;display:flex;justify-content:space-between;align-items:flex-start}
 .htitle{font-size:22px;font-weight:900}
@@ -119,6 +119,90 @@ input:focus,textarea:focus{border-color:#4444aa}
 /* ═══════════════════════════════════════════
    UI UPGRADE — visual only, no logic changes
    ═══════════════════════════════════════════ */
+
+/* ── GLASSMORPHISM ── */
+.card{
+  background: rgba(19,19,42,0.65) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(255,255,255,0.07) !important;
+}
+
+.nav{
+  background: rgba(6,6,20,0.75) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+
+.mbox{
+  background: rgba(19,19,42,0.82) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.erow, .lrow, .sbox{
+  background: rgba(13,13,32,0.6) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.settings-item{
+  background: rgba(19,19,42,0.6) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.pwa-banner{
+  background: rgba(19,19,42,0.6) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+#app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transition: background 2s ease;
+  background: radial-gradient(ellipse at 20% 20%, #1a0a35 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, #001a35 0%, transparent 60%),
+              radial-gradient(ellipse at 50% 50%, #0a0a1a 0%, transparent 100%),
+              #060610;
+}
+#app-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 10%, rgba(0,212,255,0.06) 0%, transparent 50%),
+              radial-gradient(ellipse at 20% 90%, rgba(102,126,234,0.08) 0%, transparent 50%);
+  animation: bgPulse 8s ease-in-out infinite alternate;
+}
+@keyframes bgPulse {
+  from { opacity: 0.6; }
+  to   { opacity: 1; }
+}
+
+/* Score-reactive bg orbs */
+#bg-orb1, #bg-orb2 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+  transition: background 2s ease, transform 2s ease;
+  pointer-events: none;
+}
+#bg-orb1 {
+  width: 60vw; height: 60vw;
+  top: -20vw; left: -10vw;
+  background: #4444cc;
+}
+#bg-orb2 {
+  width: 50vw; height: 50vw;
+  bottom: -10vw; right: -10vw;
+  background: #0088cc;
+}
 
 /* Screen fade-in animation */
 @keyframes screenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -288,6 +372,7 @@ input:focus,textarea:focus{
 </style>
 </head>
 <body>
+<div id="app-bg"><div id="bg-orb1"></div><div id="bg-orb2"></div></div>
 <div class="stars" id="stars"></div>
 <div class="toast" id="toast"></div>
 
@@ -813,6 +898,12 @@ function updateUI(s){
   el('srange').style.background='linear-gradient(to right,'+c+' '+curScore+'%,#1a1a35 '+curScore+'%)';
   var st=el('thumb-s');if(!st){st=document.createElement('style');st.id='thumb-s';document.head.appendChild(st);}
   st.textContent='input[type=range]::-webkit-slider-thumb{box-shadow:0 0 0 3px '+c+'!important}';
+  // update bg orbs
+  var o1=document.getElementById('bg-orb1'),o2=document.getElementById('bg-orb2');
+  if(o1&&o2){
+    var orbColors=curScore<=20?['#440011','#220033']:curScore<=40?['#331100','#440022']:curScore<=60?['#002244','#003344']:curScore<=80?['#001a44','#004433']:['#002a44','#003a22'];
+    o1.style.background=orbColors[0];o2.style.background=orbColors[1];
+  }
 }
 
 function goTo(name,skipHistory){
