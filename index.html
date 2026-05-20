@@ -1942,7 +1942,10 @@ window.albumNext=function(){
 
   flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
 
-  function onDone(){
+  var done=false;
+  function onDone(e){
+    if(e && e.propertyName && e.propertyName.indexOf('transform')===-1) return;
+    if(done) return; done=true;
     flip.removeEventListener('transitionend',onDone);
     _albCur+=2;
     flip.style.transition='none';
@@ -1981,7 +1984,10 @@ window.albumPrev=function(){
   flip.classList.add('flipping');
   void flip.offsetWidth;
 
-  function onDone(){
+  var done=false;
+  function onDone(e){
+    if(e && e.propertyName && e.propertyName.indexOf('transform')===-1) return;
+    if(done) return; done=true;
     flip.removeEventListener('transitionend',onDone);
     _albCur=prevCur;
     flip.style.transition='none';
