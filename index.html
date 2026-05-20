@@ -1980,28 +1980,33 @@ window.albumPrev=function(){
   if(L)  L.style.visibility='hidden';
 
   // Snap to fully-flipped
+  // Snap to fully-flipped with no animation
   flip.style.transition='none';
   flip.classList.add('flipping');
   void flip.offsetWidth;
 
-  var done=false;
-  function onDone(e){
-    if(e && e.propertyName && e.propertyName.indexOf('transform')===-1) return;
-    if(done) return; done=true;
-    flip.removeEventListener('transitionend',onDone);
-    _albCur=prevCur;
-    flip.style.transition='none';
-    flip.classList.remove('flipping');
-    void flip.offsetWidth;
-    abSetSpread(_albCur);
-    if(L) L.style.visibility='';
-    _abBusy=false;
-  }
-  flip.addEventListener('transitionend',onDone);
-
-  // Animate back to 0
-  flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
-  flip.classList.remove('flipping');
+  // Double rAF ensures browser commits the snap before starting the return animation
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      var done=false;
+      function onDone(e){
+        if(e && e.propertyName && e.propertyName.indexOf('transform')===-1) return;
+        if(done) return; done=true;
+        flip.removeEventListener('transitionend',onDone);
+        _albCur=prevCur;
+        flip.style.transition='none';
+        flip.classList.remove('flipping');
+        void flip.offsetWidth;
+        abSetSpread(_albCur);
+        if(L) L.style.visibility='';
+        _abBusy=false;
+      }
+      flip.addEventListener('transitionend',onDone);
+      // Now start the return animation
+      flip.style.transition='transform 0.75s cubic-bezier(0.645,0.045,0.355,1.000)';
+      flip.classList.remove('flipping');
+    });
+  });
 };
 
 function abWireTouch(){
