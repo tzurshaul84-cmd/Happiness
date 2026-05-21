@@ -1493,7 +1493,7 @@ window.addEventListener('popstate',function(e){
       var m=document.getElementById(id);if(m)m.style.display='none';
     });
     var mbg=el('modal');if(mbg)mbg.classList.remove('on');
-    var sp=el('settings-panel');if(sp)sp.classList.remove('on');sp&&(sp.style.display='none');
+    var sp=el('settings-panel');if(sp)sp.classList.remove('on');
   }
 
   if(s.screen==='album-viewer'){
@@ -1514,7 +1514,7 @@ window.addEventListener('popstate',function(e){
     var mbg2=el('modal');if(mbg2)mbg2.classList.remove('on');
     goTo('history',true);
   } else if(s.screen==='settings'){
-    var sp2=el('settings-panel');if(sp2){sp2.classList.remove('on');sp2.style.display='none';}
+    var sp2=el('settings-panel');if(sp2){sp2.classList.remove('on');}
   } else if(s.screen){
     closeAllModals();
     goTo(s.screen,true);
