@@ -1512,14 +1512,15 @@ window.addEventListener('popstate',function(e){
       goTo('today',true);
     }
   } else if(s.screen==='about'){
+  } else if(s.screen==='about'){
     var am=document.getElementById('about-modal');if(am)am.style.display='none';
   } else if(s.screen==='gallery-item'){
     var m=document.getElementById('gitem-modal');if(m)m.style.display='none';
     document.getElementById('gallery-modal').style.display='block';
   } else if(s.screen==='gallery'){
-    var gm=document.getElementById('gallery-modal');if(gm)gm.style.display='none';
+    // we ARE on gallery — gitem was closed, gallery should be visible
     var gitem2=document.getElementById('gitem-modal');if(gitem2)gitem2.style.display='none';
-    goTo('history',true);
+    document.getElementById('gallery-modal').style.display='block';
   } else if(s.screen==='modal'){
     var mbg2=el('modal');if(mbg2)mbg2.classList.remove('on');
     goTo('history',true);
@@ -2566,7 +2567,7 @@ function renderGallery_OLD_DISABLED(){
 <div id="about-modal" style="display:none;position:fixed;inset:0;background:#07071a;z-index:5000;flex-direction:column;overflow-y:auto">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(10,10,30,0.95);border-bottom:1px solid #1a1a40;position:sticky;top:0;backdrop-filter:blur(10px)">
     <div id="about-modal-title" style="font-size:18px;font-weight:900;color:#fff;letter-spacing:0.5px"></div>
-    <button onclick="document.getElementById('about-modal').style.display='none'" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button>
+    <button onclick="history.back()" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button>
   </div>
   <div id="about-modal-body" style="padding:0 0 40px 0;max-width:560px;margin:0 auto;width:100%"></div>
 </div>
