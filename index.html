@@ -924,7 +924,6 @@ function goTo(name,skipHistory){
   var sc=el('s-'+name);if(sc){sc.classList.add('on');sc.style.display='flex';}
   if(name==='world'){worldDataLoading=false;loadWorldData();}
   if(name==='history')renderHistory();
-  localStorage.setItem('whi-screen',name);
   if(!skipHistory)history.pushState({screen:name},'',window.location.pathname);
 }
 
@@ -1484,10 +1483,9 @@ function initApp(){
 
 window.addEventListener('popstate',function(e){
   var s=e.state;
-  console.log('popstate:', JSON.stringify(s));
-  if(!s){
-    // no state = reached the bottom of the stack, just hide everything
-    var am2=document.getElementById('about-modal');if(am2)am2.style.display='none';
+  if(!s||s.screen==='__base__'){
+    showExitModal();
+    history.pushState({screen:'today'},'',window.location.pathname);
     return;
   }
 
