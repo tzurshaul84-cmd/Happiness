@@ -544,12 +544,12 @@ input:focus,textarea:focus{
     <div>
       <span class="lbl" id="lbl-media">תמונה</span>
       <div id="uarea">
-        <div class="uzone" id="uzone-btn" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px">
-          <div style="font-size:28px">📷</div>
-          <div style="font-size:14px;color:#88c;font-weight:700" id="uzone-txt">לחץ להעלאת תמונה</div>
+        <div class="uzone" id="uzone-btn" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px;cursor:default">
+          <div style="font-size:32px">📷</div>
+          <div style="font-size:13px;color:#66a;font-weight:600" id="uzone-txt">בחר תמונה</div>
           <div style="display:flex;gap:10px;width:100%">
-            <button type="button" id="btn-gallery" style="flex:1;background:#1a1a35;border:1px solid #2a2a4a;color:#aac;border-radius:10px;padding:9px;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;cursor:pointer">🖼️ גלריה</button>
-            <button type="button" id="btn-camera" style="flex:1;background:#1a1a35;border:1px solid #2a2a4a;color:#aac;border-radius:10px;padding:9px;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;cursor:pointer">📸 מצלמה</button>
+            <button type="button" id="btn-gallery" style="flex:1;background:linear-gradient(135deg,#1e1e40,#2a2a55);border:1px solid #3a3a6a;color:#aac;border-radius:12px;padding:12px 8px;font-family:Heebo,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s ease">🖼️ גלריה</button>
+            <button type="button" id="btn-camera" style="flex:1;background:linear-gradient(135deg,#1e1e40,#2a2a55);border:1px solid #3a3a6a;color:#aac;border-radius:12px;padding:12px 8px;font-family:Heebo,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s ease">📸 מצלמה</button>
           </div>
         </div>
       </div>
@@ -1453,7 +1453,7 @@ function renderVsCard(){
 }
 
 function showPreview(){el('uarea').innerHTML='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" id="mrem-btn">✕</button></div>';var rb=el('mrem-btn');if(rb)rb.addEventListener('click',resetUpload);}
-function resetUpload(){curMedia=null;curMediaType=null;el('uarea').innerHTML='<div class="uzone" id="uzone-btn" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px"><div style="font-size:28px">📷</div><div style="font-size:14px;color:#88c;font-weight:700" id="uzone-txt">'+t('upload')+'</div><div style="display:flex;gap:10px;width:100%"><button type="button" id="btn-gallery" style="flex:1;background:#1a1a35;border:1px solid #2a2a4a;color:#aac;border-radius:10px;padding:9px;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;cursor:pointer">🖼️ גלריה</button><button type="button" id="btn-camera" style="flex:1;background:#1a1a35;border:1px solid #2a2a4a;color:#aac;border-radius:10px;padding:9px;font-family:Heebo,sans-serif;font-size:13px;font-weight:700;cursor:pointer">📸 מצלמה</button></div></div>';el('btn-gallery').addEventListener('click',function(){el('finput').click();});el('btn-camera').addEventListener('click',function(){el('finput-camera').click();});el('finput').value='';el('finput-camera').value='';}
+function resetUpload(){curMedia=null;curMediaType=null;el('uarea').innerHTML='<div class="uzone" id="uzone-btn" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px;cursor:default"><div style="font-size:32px">📷</div><div style="font-size:13px;color:#66a;font-weight:600" id="uzone-txt">'+t('upload')+'</div><div style="display:flex;gap:10px;width:100%"><button type="button" id="btn-gallery" style="flex:1;background:linear-gradient(135deg,#1e1e40,#2a2a55);border:1px solid #3a3a6a;color:#aac;border-radius:12px;padding:12px 8px;font-family:Heebo,sans-serif;font-size:14px;font-weight:700;cursor:pointer">🖼️ גלריה</button><button type="button" id="btn-camera" style="flex:1;background:linear-gradient(135deg,#1e1e40,#2a2a55);border:1px solid #3a3a6a;color:#aac;border-radius:12px;padding:12px 8px;font-family:Heebo,sans-serif;font-size:14px;font-weight:700;cursor:pointer">📸 מצלמה</button></div></div>';el('btn-gallery').addEventListener('click',function(){el('finput').click();});el('btn-camera').addEventListener('click',function(){el('finput-camera').click();});el('finput').value='';el('finput-camera').value='';}
 
 function openM(date){
   var e=entries[date];if(!e)return;modalDate=date;var c=gc(e.score);
@@ -1523,7 +1523,6 @@ window.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.nb').forEach(function(btn){btn.addEventListener('click',function(){goTo(this.getAttribute('data-screen'));});});
   el('srange').addEventListener('input',function(){updateUI(this.value);});
   el('savebtn').addEventListener('click',saveEntry);
-  el('uzone-btn').addEventListener('click',function(e){if(e.target===this||e.target.id==='uzone-txt'){el('finput').click();}});
   el('btn-gallery').addEventListener('click',function(){el('finput').click();});
   el('btn-camera').addEventListener('click',function(){el('finput-camera').click();});
 
