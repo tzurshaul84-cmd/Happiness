@@ -1502,13 +1502,23 @@ window.addEventListener('popstate',function(e){
     var bm=document.getElementById('album-builder-modal');if(bm)bm.style.display='flex';
   } else if(s.screen==='album-builder'){
     // back from builder → close it, go to today
-    var bm2=document.getElementById('album-builder-modal');if(bm2)bm2.style.display='none';
-    goTo('today',true);
+    // but first check if viewer is open (user backed from viewer to builder state)
+    var viewerOpen=document.getElementById('album-viewer-modal');
+    if(viewerOpen&&viewerOpen.style.display!=='none'){
+      viewerOpen.style.display='none';
+      var bm3=document.getElementById('album-builder-modal');if(bm3)bm3.style.display='flex';
+    } else {
+      var bm2=document.getElementById('album-builder-modal');if(bm2)bm2.style.display='none';
+      goTo('today',true);
+    }
+  } else if(s.screen==='about'){
+    var am=document.getElementById('about-modal');if(am)am.style.display='none';
   } else if(s.screen==='gallery-item'){
     var m=document.getElementById('gitem-modal');if(m)m.style.display='none';
     document.getElementById('gallery-modal').style.display='block';
   } else if(s.screen==='gallery'){
     var gm=document.getElementById('gallery-modal');if(gm)gm.style.display='none';
+    var gitem2=document.getElementById('gitem-modal');if(gitem2)gitem2.style.display='none';
     goTo('history',true);
   } else if(s.screen==='modal'){
     var mbg2=el('modal');if(mbg2)mbg2.classList.remove('on');
@@ -1778,6 +1788,7 @@ window._getAboutSections=function(L,isRtl){
 window.openAbout=function(){
   var modal=document.getElementById('about-modal');
   modal.style.display='flex';
+  history.pushState({screen:'about'},'',window.location.pathname);
   var L=T[currentLang]||T['he'];
   var isRtl=(currentLang==='he'||currentLang==='ar');
   var dir=isRtl?'rtl':'ltr';
@@ -2307,11 +2318,17 @@ window.albumPrev=function(){
 function abWireTouch(){
   var scene=document.getElementById('ab-scene');
   if(!scene)return;
-  var sx=0;
-  scene.ontouchstart=function(ev){sx=ev.touches[0].clientX;};
+  var sx=0,sy=0;
+  scene.ontouchstart=function(ev){sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;};
   scene.ontouchend=function(ev){
     var dx=ev.changedTouches[0].clientX-sx;
-    if(Math.abs(dx)>40){if(dx<0)window.albumNext();else window.albumPrev();}
+    var dy=ev.changedTouches[0].clientY-sy;
+    // only handle horizontal swipes that are clearly horizontal (not edge back gesture)
+    if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)*1.5){
+      // ignore if swipe starts from left edge (Android back gesture zone ~30px)
+      if(sx<30 && dx>0)return;
+      if(dx<0)window.albumNext();else window.albumPrev();
+    }
   };
 }
 
@@ -2408,7 +2425,7 @@ document.addEventListener('webkitfullscreenchange',function(){
 
 <div id="gitem-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:3000;flex-direction:column;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
   <div id="gitem-card" style="background:#13132a;border-radius:20px;overflow:hidden;width:100%;max-width:400px;position:relative">
-    <button onclick="document.getElementById('gitem-modal').style.display='none'" style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.5);border:none;color:#fff;font-size:18px;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:10">✕</button>
+    <button onclick="history.back()" style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.5);border:none;color:#fff;font-size:18px;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:10">✕</button>
     <div id="gitem-counter" style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.5);color:#aac;font-size:12px;padding:4px 8px;border-radius:10px;z-index:10"></div>
     <div id="gitem-media"></div>
     <div style="padding:16px">
