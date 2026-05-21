@@ -1474,12 +1474,11 @@ function makestars(){var html='';for(var i=0;i<50;i++){var x=((i*137.5)%100),y=(
 
 function initApp(){
   try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(err){}
-  var lastScreen=localStorage.getItem('whi-screen')||'today';
-  // push initial state so first back press goes to today
-  history.replaceState({screen:lastScreen},'',window.location.pathname);
-  var _ls=localStorage.getItem('whi-screen')||'today';
+  // always start on today screen
+  history.replaceState({screen:'__base__'},'',window.location.pathname);
+  history.pushState({screen:'today'},'',window.location.pathname);
   fillDL();renderHeader();updateUI(70);renderWeekCard();renderVsCard();renderGlobe(68);
-  goTo(_ls,true);
+  goTo('today',true);
   if(allE().length>0)loadAI();
 }
 
@@ -1503,6 +1502,13 @@ window.addEventListener('popstate',function(e){
 
   // always close about modal on any back navigation
   var _am=document.getElementById('about-modal');if(_am&&_am.style.display!=='none')_am.style.display='none';
+
+  if(!s||s.screen==='__base__'){
+    // reached bottom of stack - show exit dialog and re-push today
+    showExitModal();
+    history.pushState({screen:'today'},'',window.location.pathname);
+    return;
+  }
 
   if(s.screen==='album-viewer'){
     // back from viewer → show builder
@@ -1535,10 +1541,6 @@ window.addEventListener('popstate',function(e){
     var sp2=el('settings-panel');if(sp2){sp2.classList.remove('on');}
   } else if(s.screen==='world'||s.screen==='history'){
     goTo('today',true);
-  } else if(s.screen==='today'){
-    showExitModal();
-    // re-push today so back still works after closing dialog
-    history.pushState({screen:'today'},'',window.location.pathname);
   } else if(s.screen){
     closeAllModals();
     goTo(s.screen,true);
