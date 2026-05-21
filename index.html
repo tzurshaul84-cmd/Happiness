@@ -1485,7 +1485,12 @@ function initApp(){
 
 window.addEventListener('popstate',function(e){
   var s=e.state;
-  if(!s){return;}
+  console.log('popstate:', JSON.stringify(s));
+  if(!s){
+    // no state = reached the bottom of the stack, just hide everything
+    var am2=document.getElementById('about-modal');if(am2)am2.style.display='none';
+    return;
+  }
 
   // Helper: close all modals
   function closeAllModals(){
@@ -1495,6 +1500,9 @@ window.addEventListener('popstate',function(e){
     var mbg=el('modal');if(mbg)mbg.classList.remove('on');
     var sp=el('settings-panel');if(sp)sp.classList.remove('on');
   }
+
+  // always close about modal on any back navigation
+  var _am=document.getElementById('about-modal');if(_am&&_am.style.display!=='none')_am.style.display='none';
 
   if(s.screen==='album-viewer'){
     // back from viewer → show builder
