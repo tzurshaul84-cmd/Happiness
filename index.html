@@ -924,7 +924,11 @@ function goTo(name,skipHistory){
   var sc=el('s-'+name);if(sc){sc.classList.add('on');sc.style.display='flex';}
   if(name==='world'){worldDataLoading=false;loadWorldData();}
   if(name==='history')renderHistory();
-  if(!skipHistory)history.pushState({screen:name},'',window.location.pathname);
+  if(!skipHistory){
+    // today always replaces current state to prevent stack accumulation
+    if(name==='today') history.replaceState({screen:'today'},'',window.location.pathname);
+    else history.pushState({screen:name},'',window.location.pathname);
+  }
 }
 
 // SAVE
@@ -1485,12 +1489,12 @@ function initApp(){
 window.addEventListener('popstate',function(e){
   var s=e.state;
 
-  // always close about modal
+  // always close about modal on any back
   var _am=document.getElementById('about-modal');
   if(_am&&_am.style.display!=='none')_am.style.display='none';
 
-  // bottom of stack OR today → exit dialog
-  if(!s||s.screen==='__base__'||s.screen==='today'){
+  // no state or base = truly at bottom → exit dialog
+  if(!s||s.screen==='__base__'){
     if(window._exitReady){
       showExitModal();
       history.pushState({screen:'today'},'',window.location.pathname);
@@ -1498,7 +1502,12 @@ window.addEventListener('popstate',function(e){
     return;
   }
 
-  if(s.screen==='album-viewer'){
+  if(s.screen==='today'){
+    // arrived at today from world/history → nothing to do, already on today
+    // but if settings or modals are open, close them
+    var _sp=el('settings-panel');if(_sp)_sp.classList.remove('on');
+    var _mb=el('modal');if(_mb)_mb.classList.remove('on');
+  } else if(s.screen==='album-viewer'){
     var vm=document.getElementById('album-viewer-modal');if(vm)vm.style.display='none';
     var bm=document.getElementById('album-builder-modal');if(bm)bm.style.display='flex';
   } else if(s.screen==='album-builder'){
@@ -1513,26 +1522,21 @@ window.addEventListener('popstate',function(e){
   } else if(s.screen==='about'){
     var am=document.getElementById('about-modal');if(am)am.style.display='none';
   } else if(s.screen==='gallery-item'){
-    // back from item → show gallery list
+    // back from specific photo → show gallery list
     var gi=document.getElementById('gitem-modal');if(gi)gi.style.display='none';
     document.getElementById('gallery-modal').style.display='block';
   } else if(s.screen==='gallery'){
-    // back from gallery list → close gallery, go to history
+    // back from gallery list → close gallery, return to history tab
     document.getElementById('gallery-modal').style.display='none';
     var gi2=document.getElementById('gitem-modal');if(gi2)gi2.style.display='none';
     goTo('history',true);
   } else if(s.screen==='modal'){
     var mbg2=el('modal');if(mbg2)mbg2.classList.remove('on');
-    goTo('history',true);
   } else if(s.screen==='settings'){
     var sp2=el('settings-panel');if(sp2)sp2.classList.remove('on');
   } else if(s.screen==='world'||s.screen==='history'){
     goTo('today',true);
   } else if(s.screen){
-    ['gallery-modal','gitem-modal','album-builder-modal','album-viewer-modal'].forEach(function(id){
-      var m=document.getElementById(id);if(m)m.style.display='none';
-    });
-    var mbg=el('modal');if(mbg)mbg.classList.remove('on');
     goTo(s.screen,true);
   }
 });
