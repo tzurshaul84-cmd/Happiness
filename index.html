@@ -1484,27 +1484,17 @@ function initApp(){
 
 window.addEventListener('popstate',function(e){
   var s=e.state;
-  if(!s||s.screen==='__base__'){
-    if(window._exitReady)showExitModal();
-    history.pushState({screen:'today'},'',window.location.pathname);
-    return;
-  }
 
-  // Helper: close all modals
-  function closeAllModals(){
-    ['gallery-modal','gitem-modal','album-builder-modal','album-viewer-modal'].forEach(function(id){
-      var m=document.getElementById(id);if(m)m.style.display='none';
-    });
-    var mbg=el('modal');if(mbg)mbg.classList.remove('on');
-    var sp=el('settings-panel');if(sp)sp.classList.remove('on');
-  }
+  // always close about modal
+  var _am=document.getElementById('about-modal');
+  if(_am&&_am.style.display!=='none')_am.style.display='none';
 
-  // always close about modal on any back navigation
-  var _am=document.getElementById('about-modal');if(_am&&_am.style.display!=='none')_am.style.display='none';
-
-  if(!s||s.screen==='__base__'){
-    showExitModal();
-    history.pushState({screen:'today'},'',window.location.pathname);
+  // bottom of stack OR today → exit dialog
+  if(!s||s.screen==='__base__'||s.screen==='today'){
+    if(window._exitReady){
+      showExitModal();
+      history.pushState({screen:'today'},'',window.location.pathname);
+    }
     return;
   }
 
@@ -1523,22 +1513,26 @@ window.addEventListener('popstate',function(e){
   } else if(s.screen==='about'){
     var am=document.getElementById('about-modal');if(am)am.style.display='none';
   } else if(s.screen==='gallery-item'){
-    var m=document.getElementById('gitem-modal');if(m)m.style.display='none';
+    // back from item → show gallery list
+    var gi=document.getElementById('gitem-modal');if(gi)gi.style.display='none';
     document.getElementById('gallery-modal').style.display='block';
   } else if(s.screen==='gallery'){
-    // back from gallery → close it, go to history
+    // back from gallery list → close gallery, go to history
     document.getElementById('gallery-modal').style.display='none';
-    var gitem2=document.getElementById('gitem-modal');if(gitem2)gitem2.style.display='none';
+    var gi2=document.getElementById('gitem-modal');if(gi2)gi2.style.display='none';
     goTo('history',true);
   } else if(s.screen==='modal'){
     var mbg2=el('modal');if(mbg2)mbg2.classList.remove('on');
     goTo('history',true);
   } else if(s.screen==='settings'){
-    var sp2=el('settings-panel');if(sp2){sp2.classList.remove('on');}
+    var sp2=el('settings-panel');if(sp2)sp2.classList.remove('on');
   } else if(s.screen==='world'||s.screen==='history'){
     goTo('today',true);
   } else if(s.screen){
-    closeAllModals();
+    ['gallery-modal','gitem-modal','album-builder-modal','album-viewer-modal'].forEach(function(id){
+      var m=document.getElementById(id);if(m)m.style.display='none';
+    });
+    var mbg=el('modal');if(mbg)mbg.classList.remove('on');
     goTo(s.screen,true);
   }
 });
