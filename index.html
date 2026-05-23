@@ -1476,6 +1476,7 @@ function initApp(){
   // always start on today screen
   history.replaceState({screen:'__base__'},'',window.location.pathname);
   history.pushState({screen:'today'},'',window.location.pathname);
+  window._exitReady=true;
   fillDL();renderHeader();updateUI(70);renderWeekCard();renderVsCard();renderGlobe(68);
   goTo('today',true);
   if(allE().length>0)loadAI();
@@ -1484,7 +1485,7 @@ function initApp(){
 window.addEventListener('popstate',function(e){
   var s=e.state;
   if(!s||s.screen==='__base__'){
-    showExitModal();
+    if(window._exitReady)showExitModal();
     history.pushState({screen:'today'},'',window.location.pathname);
     return;
   }
@@ -1502,19 +1503,15 @@ window.addEventListener('popstate',function(e){
   var _am=document.getElementById('about-modal');if(_am&&_am.style.display!=='none')_am.style.display='none';
 
   if(!s||s.screen==='__base__'){
-    // reached bottom of stack - show exit dialog and re-push today
     showExitModal();
     history.pushState({screen:'today'},'',window.location.pathname);
     return;
   }
 
   if(s.screen==='album-viewer'){
-    // back from viewer → show builder
     var vm=document.getElementById('album-viewer-modal');if(vm)vm.style.display='none';
     var bm=document.getElementById('album-builder-modal');if(bm)bm.style.display='flex';
   } else if(s.screen==='album-builder'){
-    // back from builder → close it, go to today
-    // but first check if viewer is open (user backed from viewer to builder state)
     var viewerOpen=document.getElementById('album-viewer-modal');
     if(viewerOpen&&viewerOpen.style.display!=='none'){
       viewerOpen.style.display='none';
@@ -1529,9 +1526,10 @@ window.addEventListener('popstate',function(e){
     var m=document.getElementById('gitem-modal');if(m)m.style.display='none';
     document.getElementById('gallery-modal').style.display='block';
   } else if(s.screen==='gallery'){
-    // we ARE on gallery — gitem was closed, gallery should be visible
+    // back from gallery → close it, go to history
+    document.getElementById('gallery-modal').style.display='none';
     var gitem2=document.getElementById('gitem-modal');if(gitem2)gitem2.style.display='none';
-    document.getElementById('gallery-modal').style.display='block';
+    goTo('history',true);
   } else if(s.screen==='modal'){
     var mbg2=el('modal');if(mbg2)mbg2.classList.remove('on');
     goTo('history',true);
