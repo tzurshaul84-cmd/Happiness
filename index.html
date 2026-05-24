@@ -3075,5 +3075,25 @@ function closeExitModal(){
   box.style.transform='scale(0.9)';box.style.opacity='0';
   setTimeout(function(){document.getElementById('exit-modal').style.display='none';},200);
 }
-function doExit(){window.history.go(-(window.history.length));}
+function doExit(){
+  closeExitModal();
+  // PWA cannot be closed via JS - show tip
+  setTimeout(function(){
+    var L=window.T[window.currentLang]||window.T['he'];
+    var _cl=window.currentLang||'he';
+    var tip=_cl==='he'?'ליציאה: לחץ על כפתור הבית של הנייד 🏠':
+            _cl==='ar'?'للخروج: اضغط زر الرئيسية 🏠':
+            _cl==='ru'?'Для выхода: нажмите кнопку «Домой» 🏠':
+            _cl==='es'?'Para salir: pulsa el botón Inicio 🏠':
+            _cl==='pt'?'Para sair: pressione o botão Home 🏠':
+            _cl==='fr'?'Pour quitter: appuyez sur le bouton Accueil 🏠':
+            _cl==='de'?'Zum Beenden: Home-Taste drücken 🏠':
+            _cl==='it'?'Per uscire: premi il tasto Home 🏠':
+            _cl==='hi'?'बाहर निकलने के लिए: होम बटन दबाएं 🏠':
+            _cl==='zh'?'退出：按手机主页键 🏠':
+            _cl==='ja'?'終了するにはホームボタンを押してください 🏠':
+            'To exit: press your phone's Home button 🏠';
+    showToast(tip,false);
+  },300);
+}
 </script>
