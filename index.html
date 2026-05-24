@@ -1530,14 +1530,13 @@ window.addEventListener('popstate',function(e){
     document.getElementById('gallery-modal').style.display='block';
     var gi2=document.getElementById('gitem-modal');if(gi2)gi2.style.display='none';
   } else if(s.screen==='history'){
-    // popped back to history: close gallery if open
     document.getElementById('gallery-modal').style.display='none';
     goTo('history',true);
   } else if(s.screen==='modal'){
     var mbg2=el('modal');if(mbg2)mbg2.classList.remove('on');
   } else if(s.screen==='settings'){
     var sp2=el('settings-panel');if(sp2)sp2.classList.remove('on');
-  } else if(s.screen==='world'||s.screen==='history'){
+  } else if(s.screen==='world'){
     goTo('today',true);
   } else if(s.screen){
     goTo(s.screen,true);
@@ -1552,7 +1551,7 @@ window.addEventListener('DOMContentLoaded',function(){
   var pwaDis=el('pwa-dismiss');
   if(pwaDis)pwaDis.addEventListener('click',function(){el('pwa-wrap').style.display='none';localStorage.setItem('pwa-dismissed','1');});
   currentLang=localStorage.getItem('whi-lang')||navigator.language.slice(0,2)||'he';
-  if(!T[currentLang])currentLang='he';window.currentLang=currentLang;
+  if(!T[currentLang])currentLang='he';window.currentLang=currentLang;window.currentLang=currentLang;
   applyLang(currentLang);
   fillDL();
 
@@ -3056,8 +3055,9 @@ function renderGallery_OLD_DISABLED(){
 
 <script>
 function showExitModal(){
-  var L=T[currentLang]||T['he'];
-  var isRtl=(currentLang==='he'||currentLang==='ar');
+  var _T=window.T||{};var _lang=window.currentLang||'he';
+  var L=_T[_lang]||_T['he']||{};
+  var isRtl=(_lang==='he'||_lang==='ar');
   var modal=document.getElementById('exit-modal');
   var box=document.getElementById('exit-box');
   modal.style.display='flex';
