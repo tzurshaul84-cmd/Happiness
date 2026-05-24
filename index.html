@@ -1543,6 +1543,45 @@ window.addEventListener('popstate',function(e){
   }
 });
 
+function showExitModal(){
+  var L=T[currentLang]||T['he'];
+  var isRtl=(currentLang==='he'||currentLang==='ar');
+  var modal=document.getElementById('exit-modal');
+  var box=document.getElementById('exit-box');
+  modal.style.display='flex';
+  box.style.direction=isRtl?'rtl':'ltr';
+  document.getElementById('exit-title').textContent=L.exitTitle||'Exit?';
+  document.getElementById('exit-msg').textContent=(L.exitMsg||'Are you sure?').replace(/\\n/g,'\n');
+  document.getElementById('exit-no-btn').textContent=L.exitNo||'Stay';
+  document.getElementById('exit-yes-btn').textContent=L.exitYes||'Exit';
+  box.style.transform='scale(0.85)';box.style.opacity='0';box.style.transition='all 0.25s cubic-bezier(0.34,1.56,0.64,1)';
+  setTimeout(function(){box.style.transform='scale(1)';box.style.opacity='1';},10);
+}
+function closeExitModal(){
+  var box=document.getElementById('exit-box');
+  box.style.transform='scale(0.9)';box.style.opacity='0';
+  setTimeout(function(){document.getElementById('exit-modal').style.display='none';},200);
+}
+function doExit(){
+  closeExitModal();
+  setTimeout(function(){
+    var _cl=currentLang||'he';
+    var tip=_cl==='he'?'ליציאה: לחץ על כפתור הבית של הנייד 🏠':
+            _cl==='ar'?'للخروج: اضغط زر الرئيسية 🏠':
+            _cl==='ru'?'Для выхода: нажмите кнопку «Домой» 🏠':
+            _cl==='es'?'Para salir: pulsa el botón Inicio 🏠':
+            _cl==='pt'?'Para sair: pressione o botão Home 🏠':
+            _cl==='fr'?'Pour quitter: appuyez sur le bouton Accueil 🏠':
+            _cl==='de'?'Zum Beenden: Home-Taste drücken 🏠':
+            _cl==='it'?'Per uscire: premi il tasto Home 🏠':
+            _cl==='hi'?'बाहर निकलने के लिए: होम बटन दबाएं 🏠':
+            _cl==='zh'?'退出：按手机主页键 🏠':
+            _cl==='ja'?'終了するにはホームボタンを押してください 🏠':
+            'To exit: press your phone Home button 🏠';
+    showToast(tip,false);
+  },300);
+}
+
 window.addEventListener('DOMContentLoaded',function(){
   makestars();
   // PWA
@@ -3053,47 +3092,3 @@ function renderGallery_OLD_DISABLED(){
   </div>
 </div>
 
-<script>
-function showExitModal(){
-  var _T=window.T||{};var _lang=window.currentLang||'he';
-  var L=_T[_lang]||_T['he']||{};
-  var isRtl=(_lang==='he'||_lang==='ar');
-  var modal=document.getElementById('exit-modal');
-  var box=document.getElementById('exit-box');
-  modal.style.display='flex';
-  box.style.direction=isRtl?'rtl':'ltr';
-  document.getElementById('exit-title').textContent=L.exitTitle||'Exit?';
-  document.getElementById('exit-msg').textContent=(L.exitMsg||'Are you sure?').replace(/\\n/g,'\n');
-  document.getElementById('exit-no-btn').textContent=L.exitNo||'Stay';
-  document.getElementById('exit-yes-btn').textContent=L.exitYes||'Exit';
-  // animate in
-  box.style.transform='scale(0.85)';box.style.opacity='0';box.style.transition='all 0.25s cubic-bezier(0.34,1.56,0.64,1)';
-  setTimeout(function(){box.style.transform='scale(1)';box.style.opacity='1';},10);
-}
-function closeExitModal(){
-  var box=document.getElementById('exit-box');
-  box.style.transform='scale(0.9)';box.style.opacity='0';
-  setTimeout(function(){document.getElementById('exit-modal').style.display='none';},200);
-}
-function doExit(){
-  closeExitModal();
-  // PWA cannot be closed via JS - show tip
-  setTimeout(function(){
-    var L=window.T[window.currentLang]||window.T['he'];
-    var _cl=window.currentLang||'he';
-    var tip=_cl==='he'?'ליציאה: לחץ על כפתור הבית של הנייד 🏠':
-            _cl==='ar'?'للخروج: اضغط زر الرئيسية 🏠':
-            _cl==='ru'?'Для выхода: нажмите кнопку «Домой» 🏠':
-            _cl==='es'?'Para salir: pulsa el botón Inicio 🏠':
-            _cl==='pt'?'Para sair: pressione o botão Home 🏠':
-            _cl==='fr'?'Pour quitter: appuyez sur le bouton Accueil 🏠':
-            _cl==='de'?'Zum Beenden: Home-Taste drücken 🏠':
-            _cl==='it'?'Per uscire: premi il tasto Home 🏠':
-            _cl==='hi'?'बाहर निकलने के लिए: होम बटन दबाएं 🏠':
-            _cl==='zh'?'退出：按手机主页键 🏠':
-            _cl==='ja'?'終了するにはホームボタンを押してください 🏠':
-            'To exit: press your phone's Home button 🏠';
-    showToast(tip,false);
-  },300);
-}
-</script>
