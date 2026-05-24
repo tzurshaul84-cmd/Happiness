@@ -1503,10 +1503,10 @@ window.addEventListener('popstate',function(e){
   }
 
   if(s.screen==='today'){
-    // arrived at today from world/history → nothing to do, already on today
-    // but if settings or modals are open, close them
+    // coming back from world/history → show today screen
     var _sp=el('settings-panel');if(_sp)_sp.classList.remove('on');
     var _mb=el('modal');if(_mb)_mb.classList.remove('on');
+    goTo('today',true);
   } else if(s.screen==='album-viewer'){
     var vm=document.getElementById('album-viewer-modal');if(vm)vm.style.display='none';
     var bm=document.getElementById('album-builder-modal');if(bm)bm.style.display='flex';
