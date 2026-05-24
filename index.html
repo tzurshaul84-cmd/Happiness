@@ -1537,7 +1537,7 @@ window.addEventListener('popstate',function(e){
     var mbg2=el('modal');if(mbg2)mbg2.classList.remove('on');
   } else if(s.screen==='settings'){
     var sp2=el('settings-panel');if(sp2)sp2.classList.remove('on');
-  } else if(s.screen==='world'){
+  } else if(s.screen==='world'||s.screen==='history'){
     goTo('today',true);
   } else if(s.screen){
     goTo(s.screen,true);
@@ -3075,5 +3075,5 @@ function closeExitModal(){
   box.style.transform='scale(0.9)';box.style.opacity='0';
   setTimeout(function(){document.getElementById('exit-modal').style.display='none';},200);
 }
-function doExit(){window.history.go(-(window.history.length-1));window.location.href='about:blank';}
+function doExit(){window.history.go(-(window.history.length));}
 </script>
