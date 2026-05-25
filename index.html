@@ -2567,7 +2567,7 @@ window.openAlbumBuilder=function(){
     if(res.data&&res.data.length){
       _abAll=res.data.map(function(e){
         var lc=local[e.date]||{};
-        return{date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:lc.mediaPreview||null,mediaType:lc.mediaType||null};
+        return{id:e.id,date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:lc.mediaPreview||null,mediaType:lc.mediaType||null};
       });
     } else {
       _abAll=Object.values(local).sort(function(a,b){return b.date.localeCompare(a.date);});
@@ -3092,7 +3092,7 @@ function renderGallery_OLD_DISABLED(){
     if(res.data&&res.data.length){
       all=res.data.map(function(e){
         var loc=local[e.date]||{};
-        return{date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
+        return{id:e.id,date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
       });
     } else {
       all=Object.values(local).sort(function(a,b){return b.date.localeCompare(a.date);});
