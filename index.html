@@ -986,7 +986,7 @@ var _editNewImageFile = null;
 var _editRemoveImage = false;
 
 window.openEditDay = function(){
-  var e = _galleryItems[_galleryIndex];
+  var e = window._getGalleryItem();
   if(!e) return;
   _editEntry = e;
   _editNewImageFile = null;
@@ -2157,6 +2157,8 @@ window.openGallery=function(){
 };
 var _galleryItems=[];
 var _galleryIndex=0;
+window._getGalleryItem=function(){return _galleryItems[_galleryIndex];};
+window._getGalleryIndex=function(){return _galleryIndex;};
 
 function _renderGalleryModal(idx){
   if(idx<0||idx>=_galleryItems.length)return;
