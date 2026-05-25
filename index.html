@@ -1667,7 +1667,7 @@ function renderMyHistory(){
       if(res.data&&res.data.length){
         res.data.forEach(function(d){
           var loc=entries[d.date]||{};
-          entries[d.date]={score:d.score,special:d.special||'',date:d.date,media_url:d.media_url||null,mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
+          entries[d.date]={id:d.id,score:d.score,special:d.special||'',date:d.date,media_url:d.media_url||null,mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
         });
         saveSt();
       }
