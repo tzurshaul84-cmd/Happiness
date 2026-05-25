@@ -376,8 +376,10 @@ input:focus,textarea:focus{
 .pin-dot.filled{background:#7c6fff;border-color:#7c6fff;transform:scale(1.1)}
 .pin-btn{width:72px;height:72px;border-radius:50%;background:#13132a;border:2px solid #2a2a4a;color:#eef;font-size:22px;font-weight:700;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center}
 .pin-btn:active{background:#2a2a5a;transform:scale(0.93)}
-#pin-lock-screen.on{display:flex}
-#pin-modal.on{display:flex}
+#pin-lock-screen{display:none}
+#pin-lock-screen.on{display:flex!important}
+#pin-modal{display:none}
+#pin-modal.on{display:flex!important}
 @keyframes pinShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 .pin-shake{animation:pinShake 0.4s ease}
 
