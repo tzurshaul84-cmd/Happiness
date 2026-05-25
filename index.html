@@ -2244,7 +2244,7 @@ window.renderGallery=function(){
       try{if(stored)local=JSON.parse(stored);}catch(e2){}
       all=res.data.map(function(e){
         var loc=local[e.date]||{};
-        return{date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
+        return{id:e.id,date:e.date,score:e.score,special:e.special||'',media_url:e.media_url||null,mediaPreview:loc.mediaPreview||null,mediaType:loc.mediaType||null};
       });
     } else {
       var stored=localStorage.getItem('whi-entries');
