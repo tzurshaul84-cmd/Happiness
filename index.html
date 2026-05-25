@@ -408,21 +408,28 @@ input:focus,textarea:focus{
     <button id="settings-close" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer">✕</button>
   </div>
   <div class="settings-inner">
-    <div>
-      <span class="lbl">שפה / Language</span>
+    <div class="settings-item" id="set-lang-btn" style="cursor:pointer">
+      <div class="settings-item-icon">🌐</div>
+      <div class="settings-item-text">
+        <div class="settings-item-title" id="set-lang-lbl">שפה / Language</div>
+        <div class="settings-item-sub" id="set-lang-current">עברית 🇮🇱</div>
+      </div>
+      <div style="font-size:18px;color:#66a" id="set-lang-arrow">›</div>
+    </div>
+    <div id="set-lang-panel" style="display:none;padding:12px 4px">
       <div class="lang-opts" style="flex-wrap:wrap">
-        <div class="lang-opt on" data-lang="he">🇮🇱 עברית</div>
         <div class="lang-opt" data-lang="en">🇺🇸 English</div>
-        <div class="lang-opt" data-lang="ar">🇸🇦 عربي</div>
-        <div class="lang-opt" data-lang="ru">🇷🇺 Рус</div>
-        <div class="lang-opt" data-lang="es">🇪🇸 Español</div>
+        <div class="lang-opt" data-lang="hi">🇮🇳 हिन्दी</div>
+        <div class="lang-opt" data-lang="zh">🇨🇳 中文</div>
         <div class="lang-opt" data-lang="pt">🇧🇷 Português</div>
+        <div class="lang-opt" data-lang="ru">🇷🇺 Рус</div>
+        <div class="lang-opt" data-lang="ar">🇸🇦 عربي</div>
+        <div class="lang-opt" data-lang="ja">🇯🇵 日本語</div>
+        <div class="lang-opt" data-lang="es">🇪🇸 Español</div>
         <div class="lang-opt" data-lang="fr">🇫🇷 Français</div>
         <div class="lang-opt" data-lang="de">🇩🇪 Deutsch</div>
         <div class="lang-opt" data-lang="it">🇮🇹 Italiano</div>
-        <div class="lang-opt" data-lang="hi">🇮🇳 हिन्दी</div>
-        <div class="lang-opt" data-lang="zh">🇨🇳 中文</div>
-        <div class="lang-opt" data-lang="ja">🇯🇵 日本語</div>
+        <div class="lang-opt on" data-lang="he">🇮🇱 עברית</div>
       </div>
     </div>
     <div class="settings-item" id="set-profile-btn">
@@ -788,6 +795,7 @@ function applyLang(lang){
   var ib=el('pwa-install-btn');if(ib)ib.textContent=L.pwaInstall;
   L.st.forEach(function(s,i){var o=el('st-'+i);if(o)o.innerHTML=s;});
   document.querySelectorAll('.lang-opt').forEach(function(o){o.classList.toggle('on',o.getAttribute('data-lang')===lang);});
+  updateLangDisplay(lang);
   // PIN lock translations
   var t=getLockType?getLockType():'none';
   var psl=el('set-pin-lbl');if(psl)psl.textContent=L.pinTitle||'Privacy Lock';
@@ -970,7 +978,18 @@ el('set-profile-btn').addEventListener('click',function(){
 });
 el('set-export-csv').addEventListener('click',doCSV);
 
-// ─── LOCK SYSTEM (PIN + Biometric) ───────────────────────────────────────────
+// Language panel toggle
+var langNames={en:'English 🇺🇸',hi:'हिन्दी 🇮🇳',zh:'中文 🇨🇳',pt:'Português 🇧🇷',ru:'Рус 🇷🇺',ar:'عربي 🇸🇦',ja:'日本語 🇯🇵',es:'Español 🇪🇸',fr:'Français 🇫🇷',de:'Deutsch 🇩🇪',it:'Italiano 🇮🇹',he:'עברית 🇮🇱'};
+el('set-lang-btn').addEventListener('click',function(){
+  var p=el('set-lang-panel');
+  var open=p.style.display!=='none';
+  p.style.display=open?'none':'block';
+  el('set-lang-arrow').textContent=open?'›':'‹';
+});
+function updateLangDisplay(lang){
+  var s=el('set-lang-current');
+  if(s)s.textContent=langNames[lang]||lang;
+}
 var PIN_KEY='whi-pin';
 var LOCK_TYPE_KEY='whi-lock-type'; // 'none'|'pin'|'bio'
 var BIO_CRED_KEY='whi-bio-cred';
