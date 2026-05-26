@@ -1099,6 +1099,10 @@ window.saveEditDay = function(){
     var fd = new FormData();
     fd.append('file', _editNewImageFile);
     fd.append('upload_preset', CLOUDINARY_PRESET);
+    fd.append('quality', 'auto:good');
+    fd.append('fetch_format', 'auto');
+    fd.append('width', '1200');
+    fd.append('crop', 'limit');
     fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/upload', {method:'POST', body:fd})
       .then(function(r){return r.json();})
       .then(function(d){
