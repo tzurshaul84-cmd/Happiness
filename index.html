@@ -1116,6 +1116,60 @@ window.saveEditDay = function(){
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─── ALBUM REMOVE MODE ───────────────────────────────────────────────────────
+var _albRemoveMode = false;
+
+window.toggleAlbumRemoveMode = function(){
+  _albRemoveMode = !_albRemoveMode;
+  var btn = document.getElementById('alb-remove-btn');
+  if(btn) btn.classList.toggle('active', _albRemoveMode);
+  // Add/remove click handlers on all ab-slot elements
+  var book = document.getElementById('ab-book');
+  if(!book) return;
+  if(_albRemoveMode){
+    book.classList.add('ab-remove-mode');
+    book.addEventListener('click', _albRemoveClick);
+  } else {
+    book.classList.remove('ab-remove-mode');
+    book.removeEventListener('click', _albRemoveClick);
+  }
+};
+
+function _albRemoveClick(ev){
+  var slot = ev.target.closest('.ab-slot');
+  if(!slot) return;
+  // Find which entry this slot belongs to by date
+  var dateEl = slot.querySelector('.ab-slot-date');
+  if(!dateEl) return;
+  var dateText = dateEl.textContent;
+  // Find the entry in _abSelected by matching display date
+  var idx = -1;
+  for(var i=0; i<_abSelected.length; i++){
+    if(abDateFull(_abSelected[i].date) === dateText){idx=i;break;}
+  }
+  if(idx === -1) return;
+  // Remove from _abSelected
+  _abSelected.splice(idx, 1);
+  // Turn off remove mode
+  _albRemoveMode = false;
+  var btn = document.getElementById('alb-remove-btn');
+  if(btn) btn.classList.remove('active');
+  var book2 = document.getElementById('ab-book');
+  if(book2){
+    book2.classList.remove('ab-remove-mode');
+    book2.removeEventListener('click', _albRemoveClick);
+  }
+  // Rebuild album
+  if(_abSelected.length === 0){
+    // Nothing left — go back to builder
+    document.getElementById('album-viewer-modal').style.display='none';
+    document.getElementById('album-builder-modal').style.display='flex';
+    return;
+  }
+  window.createAlbum();
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Language panel toggle
 var langNames={en:'English 🇺🇸',hi:'हिन्दी 🇮🇳',zh:'中文 🇨🇳',pt:'Português 🇧🇷',ru:'Рус 🇷🇺',ar:'عربي 🇸🇦',ja:'日本語 🇯🇵',es:'Español 🇪🇸',fr:'Français 🇫🇷',de:'Deutsch 🇩🇪',it:'Italiano 🇮🇹',he:'עברית 🇮🇱'};
 el('set-lang-btn').addEventListener('click',function(){
@@ -3462,6 +3516,38 @@ function renderGallery_OLD_DISABLED(){
   object-fit: contain;
   background: #111;
 }
+/* Remove mode */
+.ab-remove-mode .ab-slot {
+  position: relative;
+  cursor: pointer;
+}
+.ab-remove-mode .ab-slot::after {
+  content: '✕';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background: #ff4466;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  line-height: 22px;
+  text-align: center;
+}
+.ab-remove-mode .ab-slot:hover {
+  opacity: 0.75;
+}
+#alb-remove-btn.active {
+  background: #ff446633;
+  border-color: #ff4466;
+  color: #ff4466;
+}
 .ab-slot-empty {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
@@ -3611,6 +3697,7 @@ function renderGallery_OLD_DISABLED(){
 <div id="alb-bottombar" style="padding:10px 14px 24px;display:flex;gap:10px;background:rgba(10,6,2,0.97);border-top:1px solid #2a1a05;flex-shrink:0">
   <button onclick="window.shareAlbum()" id="alb-share-btn" style="flex:1;background:linear-gradient(135deg,#25D36618,#128C7E18);border:2px solid #25D36655;color:#25D366;border-radius:12px;font-size:14px;font-weight:900;padding:12px;cursor:pointer"></button>
   <button onclick="window.albumFullscreen()" id="alb-fs-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:18px;font-weight:700;padding:12px 14px;cursor:pointer" title="מסך מלא">⛶</button>
+  <button onclick="window.toggleAlbumRemoveMode()" id="alb-remove-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:16px;font-weight:700;padding:12px 14px;cursor:pointer" title="הסר תמונה">✂️</button>
   <button onclick="document.getElementById('album-viewer-modal').style.display='none';document.getElementById('album-builder-modal').style.display='flex';" id="alb-edit-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer"></button>
   <button onclick="window.albumExitAll()" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer">&#10005;</button>
 </div>
