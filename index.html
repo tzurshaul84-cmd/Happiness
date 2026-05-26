@@ -2234,7 +2234,7 @@ window.renderGallery=function(){
   var to=toEl?toEl.value:'';
   var grid=document.getElementById('gallery-grid');
   grid.innerHTML='<div style="color:#66a;font-size:14px;text-align:center;grid-column:1/-1;padding:40px">טוען...</div>';
-  var query=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  var query=sb.from('entries').select('id,date,score,special,media_url').order('date',{ascending:false}).limit(365);
   if(currentUser)query=query.eq('user_id',currentUser.id);
   query.then(function(res){
     var all=[];
