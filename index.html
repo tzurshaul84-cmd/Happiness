@@ -1138,35 +1138,42 @@ window.toggleAlbumRemoveMode = function(){
 function _albRemoveClick(ev){
   var slot = ev.target.closest('.ab-slot');
   if(!slot) return;
-  // Find which entry this slot belongs to by date
   var dateEl = slot.querySelector('.ab-slot-date');
   if(!dateEl) return;
   var dateText = dateEl.textContent;
-  // Find the entry in _abSelected by matching display date
   var idx = -1;
   for(var i=0; i<_abSelected.length; i++){
     if(abDateFull(_abSelected[i].date) === dateText){idx=i;break;}
   }
   if(idx === -1) return;
-  // Remove from _abSelected
+  var savedCur = _albCur;
   _abSelected.splice(idx, 1);
-  // Turn off remove mode
-  _albRemoveMode = false;
-  var btn = document.getElementById('alb-remove-btn');
-  if(btn) btn.classList.remove('active');
-  var book2 = document.getElementById('ab-book');
-  if(book2){
-    book2.classList.remove('ab-remove-mode');
-    book2.removeEventListener('click', _albRemoveClick);
-  }
-  // Rebuild album
   if(_abSelected.length === 0){
-    // Nothing left — go back to builder
+    _albRemoveMode = false;
+    var btn0 = document.getElementById('alb-remove-btn');
+    if(btn0) btn0.classList.remove('active');
+    var book0 = document.getElementById('ab-book');
+    if(book0){
+      book0.classList.remove('ab-remove-mode');
+      book0.removeEventListener('click', _albRemoveClick);
+    }
     document.getElementById('album-viewer-modal').style.display='none';
     document.getElementById('album-builder-modal').style.display='flex';
     return;
   }
-  window.createAlbum();
+  window.createAlbum(function(){
+    var maxCur = _albPages.length - 2;
+    _albCur = Math.min(savedCur, maxCur);
+    if(_albCur < 0) _albCur = 0;
+    if(_albCur % 2 !== 0) _albCur--;
+    abDrawSpread();
+    var book2 = document.getElementById('ab-book');
+    if(book2){
+      book2.classList.add('ab-remove-mode');
+      book2.removeEventListener('click', _albRemoveClick);
+      book2.addEventListener('click', _albRemoveClick);
+    }
+  });
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -2683,7 +2690,7 @@ window.abFilterAndRender=function(){
   }).join('');
 };
 
-window.createAlbum=function(){
+window.createAlbum=function(onDone){
   if(!_abSelected.length)return;
 
   // Helper: check if an entry has a landscape (wide) image
@@ -2697,25 +2704,25 @@ window.createAlbum=function(){
   var pending=entries.length;
   var orientations=[]; // true = landscape (wide), false = portrait/square or no image
 
-  if(!pending){buildAlbumPages(entries,orientations);return;}
+  if(!pending){buildAlbumPages(entries,orientations,onDone);return;}
 
   entries.forEach(function(e,i){
     var src=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
-    if(!src){orientations[i]=false;if(--pending===0)buildAlbumPages(entries,orientations);return;}
+    if(!src){orientations[i]=false;if(--pending===0)buildAlbumPages(entries,orientations,onDone);return;}
     var img=new Image();
     img.onload=function(){
-      orientations[i]=(img.naturalWidth>img.naturalHeight*1.2); // clearly wider = landscape
-      if(--pending===0)buildAlbumPages(entries,orientations);
+      orientations[i]=(img.naturalWidth>img.naturalHeight*1.2);
+      if(--pending===0)buildAlbumPages(entries,orientations,onDone);
     };
     img.onerror=function(){
       orientations[i]=false;
-      if(--pending===0)buildAlbumPages(entries,orientations);
+      if(--pending===0)buildAlbumPages(entries,orientations,onDone);
     };
     img.src=src;
   });
 };
 
-function buildAlbumPages(entries,orientations){
+function buildAlbumPages(entries,orientations,onDone){
   // Build page slots: cover = null, then pack entries
   // Landscape image → solo slot (b = null)
   // Portrait/no-image → try to pair with next portrait
@@ -2757,7 +2764,7 @@ function buildAlbumPages(entries,orientations){
   if(vm)vm.style.display='flex';
   history.pushState({screen:'album-viewer'},'',window.location.pathname);
   abSetTexts();
-  setTimeout(function(){abDrawSpread();abWireTouch();},60);
+  setTimeout(function(){abDrawSpread();abWireTouch();if(typeof onDone==='function')onDone();},60);
 }
 
 // Build inner HTML for a single page face (holds 2 entries)
@@ -3689,6 +3696,7 @@ function renderGallery_OLD_DISABLED(){
     <button onclick="window.albumPrev()">&#8249;</button>
     <div style="flex:1"></div>
     <button onclick="window.albumNext()">&#8250;</button>
+    <button onclick="window.toggleAlbumRemoveMode()" id="alb-fs-remove-btn" style="font-size:16px">✂️</button>
     <button id="alb-fs-close" onclick="window.albumFullscreen()">&#10005;</button>
   </div>
 </div>
