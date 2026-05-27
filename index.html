@@ -953,7 +953,20 @@ el('loc-btn').addEventListener('click',function(){
 // AUTH
 function showLogin(){el('s-login').style.display='block';el('s-profile').style.display='none';el('s-app').style.display='none';el('main-nav').style.display='none';}
 function showProfile(){el('s-login').style.display='none';el('s-profile').style.display='block';el('s-app').style.display='none';el('main-nav').style.display='none';setTimeout(initCityAC,100);}
-function showApp(){el('s-login').style.display='none';el('s-profile').style.display='none';el('s-app').style.display='block';el('main-nav').style.display='block';initApp();if(!localStorage.getItem(OB_KEY))setTimeout(startOB,600);updatePINStatus();if(hasLock())showLockScreen();}
+var _appInitialized = false;
+function showApp(){
+  el('s-login').style.display='none';
+  el('s-profile').style.display='none';
+  el('s-app').style.display='block';
+  el('main-nav').style.display='block';
+  if(!_appInitialized){
+    _appInitialized=true;
+    initApp();
+    if(!localStorage.getItem(OB_KEY))setTimeout(startOB,600);
+  }
+  updatePINStatus();
+  if(hasLock())showLockScreen();
+}
 
 el('google-login-btn').addEventListener('click',function(){sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});});
 
