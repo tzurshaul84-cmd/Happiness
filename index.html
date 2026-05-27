@@ -2056,6 +2056,13 @@ window.addEventListener('popstate',function(e){
 
   // no state or base = truly at bottom → exit dialog
   if(!s||s.screen==='__base__'){
+    // First check if any modal is open — close it instead
+    var _bm=document.getElementById('album-builder-modal');
+    if(_bm&&_bm.style.display!=='none'){_bm.style.display='none';return;}
+    var _vm=document.getElementById('album-viewer-modal');
+    if(_vm&&_vm.style.display!=='none'){_vm.style.display='none';return;}
+    var _gm=document.getElementById('gallery-modal');
+    if(_gm&&_gm.style.display!=='none'){_gm.style.display='none';return;}
     if(window._exitReady){
       showExitModal();
       history.pushState({screen:'today'},'',window.location.pathname);
