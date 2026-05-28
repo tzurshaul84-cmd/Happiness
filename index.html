@@ -1969,7 +1969,8 @@ function loadAI(){
   var dow=new Date().getDay();
   var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
   var texts=pool[level];
-  var text=texts[dow%texts.length];
+  var idx=Math.floor(Math.random()*texts.length);
+  var text=texts[idx];
   setTimeout(function(){content.innerHTML=text;},400);
 }
 
