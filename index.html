@@ -1614,66 +1614,371 @@ function loadAI(){
   content.innerHTML='<span style="color:#66a">'+t('aiLoad')+'</span>';
   var recent=e.slice(0,7);
   var avg=Math.round(recent.reduce(function(a,b){return a+b.score;},0)/recent.length);
-  var trend=recent.length>1?(recent[0].score-recent[recent.length-1].score):0;
-  var best=Math.max.apply(null,recent.map(function(x){return x.score;}));
-  var worst=Math.min.apply(null,recent.map(function(x){return x.score;}));
   var todayScore=recent[0]?recent[0].score:avg;
-  var todaySpecial=recent[0]&&recent[0].special?recent[0].special:'';
+  var level=todayScore<=33?'low':todayScore<=67?'mid':'high';
   var dow=new Date().getDay();
-  var anglesHe=['מה הדבר שהכי שיפר את מצב הרוח שלי לאחרונה?','מה אני יכול לשפר מחר?','מה הדבר הקטן שעשה הכי גדול הבדל?','כיצד המגמה שלי משתנה?','מה אני גאה בו השבוע?','מה למדתי על עצמי לאחרונה?','מה אני רוצה לשמר קדימה?'];
-  var anglesEn=['What has most improved my mood recently?','What can I improve tomorrow?','What small thing made the biggest difference?','How is my trend changing?','What am I most proud of lately?','What did I learn about myself recently?','What do I want to carry forward?'];
-  var anglesAr=['ما الذي حسّن مزاجي مؤخراً؟','ما الذي يمكنني تحسينه غداً؟','ما الشيء الصغير الذي أحدث فرقاً كبيراً؟','كيف يتغير اتجاهي؟','بماذا أفخر مؤخراً؟','ماذا تعلمت عن نفسي؟','ماذا أريد أن أحافظ عليه؟'];
-  var anglesRu=['Что больше всего улучшило моё настроение?','Что я могу улучшить завтра?','Какая мелочь имела наибольшее значение?','Как меняется моя тенденция?','Чем я горжусь?','Что я узнал о себе?','Что хочу сохранить?'];
-  var anglesEs=['¿Qué mejoró más mi estado de ánimo?','¿Qué puedo mejorar mañana?','¿Qué pequeña cosa hizo la mayor diferencia?','¿Cómo está cambiando mi tendencia?','¿De qué estoy más orgulloso?','¿Qué aprendí de mí mismo?','¿Qué quiero mantener?'];
-  var anglesPt=['O que mais melhorou meu humor?','O que posso melhorar amanhã?','Qual pequena coisa fez a maior diferença?','Como minha tendência está mudando?','Do que mais me orgulho?','O que aprendi sobre mim mesmo?','O que quero manter?'];
-  var anglesFr=['Qu\'est-ce qui a le plus amélioré mon humeur?','Que puis-je améliorer demain?','Quelle petite chose a fait la plus grande différence?','Comment ma tendance évolue?','De quoi suis-je le plus fier?','Qu\'ai-je appris sur moi-même?','Que veux-je conserver?'];
-  var anglesDe=['Was hat meine Stimmung am meisten verbessert?','Was kann ich morgen verbessern?','Welche Kleinigkeit hat den größten Unterschied gemacht?','Wie verändert sich mein Trend?','Worauf bin ich stolz?','Was habe ich über mich gelernt?','Was möchte ich beibehalten?'];
-  var anglesIt=['Cosa ha migliorato di più il mio umore?','Cosa posso migliorare domani?','Quale piccola cosa ha fatto la differenza più grande?','Come sta cambiando la mia tendenza?','Di cosa sono più orgoglioso?','Cosa ho imparato su me stesso?','Cosa voglio mantenere?'];
-  var anglesHi=['हाल ही में मेरा मूड सबसे ज्यादा किसने सुधारा?','मैं कल क्या बेहतर कर सकता हूं?','किस छोटी चीज़ ने सबसे बड़ा फर्क किया?','मेरा रुझान कैसे बदल रहा है?','मुझे किस बात पर सबसे ज्यादा गर्व है?','मैंने अपने बारे में क्या सीखा?','मैं आगे क्या बनाए रखना चाहता हूं?'];
-  var anglesZh=['最近什么最改善了我的心情？','明天我可以改善什么？','哪件小事产生了最大的影响？','我的趋势如何变化？','我最近为什么感到自豪？','我最近了解到了自己的什么？','我想继续保持什么？'];
-  var anglesJa=['最近、何が気分を最も改善しましたか？','明日、何を改善できますか？','どんな小さなことが最も大きな違いを生みましたか？','私のトレンドはどう変化していますか？','最近、何に最も誇りを感じていますか？','最近、自分について何を学びましたか？','何を継続したいですか？'];
-  var angleMap={he:anglesHe,en:anglesEn,ar:anglesAr,ru:anglesRu,es:anglesEs,pt:anglesPt,fr:anglesFr,de:anglesDe,it:anglesIt,hi:anglesHi,zh:anglesZh,ja:anglesJa};
-  var angle=(angleMap[currentLang]||anglesEn)[dow];
-  var todayCtx=todaySpecial?' Today I noted: "'+todaySpecial+'"':'';
-  var todayCtxHe=todaySpecial?' היום כתבתי: "'+todaySpecial+'"':'';
-  var prompts={
-    he:'אתה יועץ רגשי. נתוני 7 ימים: ממוצע '+avg+', מגמה '+(trend>0?'עולה':trend<0?'יורדת':'יציבה')+', גבוה '+best+', נמוך '+worst+', ציון היום '+todayScore+'.'+todayCtxHe+' שאלת היום: '+anglesHe[dow]+' כתוב תובנה קצרה (3-4 משפטים), חמה ומעשית, שמתייחסת לשאלה. ענה בעברית בלבד, ללא כותרות.',
-    en:'You are a wellness advisor. Last 7 days: avg '+avg+', trend '+(trend>0?'up':trend<0?'down':'stable')+', high '+best+', low '+worst+', today '+todayScore+'.'+todayCtx+' Today\'s angle: '+anglesEn[dow]+' Write a short personal insight (3-4 sentences) addressing this angle. English only, no headers.',
-    ar:'أنت مستشار رفاهية. بيانات 7 أيام: متوسط '+avg+', اتجاه '+(trend>0?'صاعد':trend<0?'هابط':'مستقر')+', اليوم '+todayScore+'. سؤال اليوم: '+anglesAr[dow]+' اكتب رؤية (3-4 جمل) دافئة تتناول هذا السؤال. بالعربية فقط.',
-    ru:'Ты советник. 7 дней: среднее '+avg+', тренд '+(trend>0?'растёт':trend<0?'падает':'стабилен')+', сегодня '+todayScore+'. Вопрос дня: '+anglesRu[dow]+' Напиши вывод (3-4 предложения), тёплый и практичный. Только по-русски.',
-    es:'Eres un asesor de bienestar. Últimos 7 días: promedio '+avg+', tendencia '+(trend>0?'subiendo':trend<0?'bajando':'estable')+', hoy '+todayScore+'. Ángulo del día: '+anglesEs[dow]+' Escribe una reflexión corta (3-4 frases) en español.',
-    pt:'Você é um consultor de bem-estar. Últimos 7 dias: média '+avg+', tendência '+(trend>0?'subindo':trend<0?'caindo':'estável')+', hoje '+todayScore+'. Ângulo do dia: '+anglesPt[dow]+' Escreva uma reflexão curta (3-4 frases) em português.',
-    fr:'Tu es un conseiller bien-être. 7 derniers jours: moyenne '+avg+', tendance '+(trend>0?'en hausse':trend<0?'en baisse':'stable')+', aujourd\'hui '+todayScore+'. Question du jour: '+anglesFr[dow]+' Écris une courte réflexion (3-4 phrases) en français.',
-    de:'Du bist ein Wellness-Berater. Letzte 7 Tage: Durchschnitt '+avg+', Trend '+(trend>0?'steigend':trend<0?'fallend':'stabil')+', heute '+todayScore+'. Tagesfrage: '+anglesDe[dow]+' Schreibe einen kurzen Einblick (3-4 Sätze) auf Deutsch.',
-    it:'Sei un consulente benessere. Ultimi 7 giorni: media '+avg+', tendenza '+(trend>0?'in salita':trend<0?'in discesa':'stabile')+', oggi '+todayScore+'. Domanda del giorno: '+anglesIt[dow]+' Scrivi una breve riflessione (3-4 frasi) in italiano.',
-    hi:'आप एक वेलनेस सलाहकार हैं। पिछले 7 दिन: औसत '+avg+', प्रवृत्ति '+(trend>0?'बढ़ रही है':trend<0?'घट रही है':'स्थिर')+', आज '+todayScore+'. आज का सवाल: '+anglesHi[dow]+' हिंदी में एक छोटी अंतर्दृष्टि लिखें (3-4 वाक्य)।',
-    zh:'你是一位健康顾问。过去7天：平均 '+avg+'，趋势 '+(trend>0?'上升':trend<0?'下降':'稳定')+'，今天 '+todayScore+'。今日问题：'+anglesZh[dow]+' 用中文写一段简短的个人洞察（3-4句话）。',
-    ja:'あなたはウェルネスアドバイザーです。過去7日間：平均 '+avg+'、トレンド '+(trend>0?'上昇':trend<0?'下降':'安定')+'、今日 '+todayScore+'。今日の視点：'+anglesJa[dow]+' 日本語で短い洞察（3〜4文）を書いてください。'
-  };
-  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompts[currentLang]||prompts.en}]})})
-  .then(function(r){return r.json();})
-  .then(function(data){
-    var text=data.content&&data.content[0]?data.content[0].text:'';
-    content.innerHTML=text||getFallbackAI(avg);
-  }).catch(function(){content.innerHTML=getFallbackAI(avg);});
+  var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
+  var texts=pool[level];
+  var text=texts[dow%texts.length];
+  setTimeout(function(){content.innerHTML=text;},400);
 }
+
 function getFallbackAI(avg){
-  var he80="🌟 שבוע מדהים! הציון שלך גבוה מאוד. המשך לשמר את מה שעובד.";
-  var he60="👍 שבוע טוב! נסה להוסיף רגע של הכרת תודה כל יום.";
-  var he0="💙 שבוע מאתגר. נסה לצאת 10 דקות החוצה מחר.";
-  var en80="🌟 Amazing week! Keep it up.";
-  var en60="👍 Good week! Try adding a moment of gratitude daily.";
-  var en0="💙 Challenging week. Try going outside for 10 minutes tomorrow.";
-  var ar80="🌟 اسبوع رائع! استمر.";
-  var ar60="👍 اسبوع جيد! اضف لحظة امتنان يومياً.";
-  var ar0="💙 اسبوع صعب. حاول الخروج 10 دقائق غداً.";
-  var ru80="🌟 Отличная неделя! Продолжайте.";
-  var ru60="👍 Хорошая неделя! Добавьте минуту благодарности.";
-  var ru0="💙 Сложная неделя. Попробуйте выйти на 10 минут завтра.";
-  var map={he:[he80,he60,he0],en:[en80,en60,en0],ar:[ar80,ar60,ar0],ru:[ru80,ru60,ru0]};
-  var arr=map[currentLang]||map.en;
-  return avg>=80?arr[0]:avg>=60?arr[1]:arr[2];
+  var level=avg<=33?'low':avg<=67?'mid':'high';
+  var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
+  return pool[level][0];
 }
+
+var AI_INSIGHTS={
+  he:{
+    low:[
+      'היום לא היה קל. אבל העובדה שאתה כאן ומסמן את היום — זה כבר אומץ. 💙',
+      'ימים קשים הם חלק מהמסע. מחר הוא הזדמנות חדשה לחלוטין. 🌱',
+      'כשהציון נמוך, כדאי לשאול — מה דבר אחד קטן שיכול לשפר את המצב? 🤍',
+      'אפילו בימים הקשים ביותר, יש משהו קטן שעבד. נסה למצוא אותו. 🌟',
+      'הגוף והנפש מדברים אליך. כדאי להקשיב ולנוח כשצריך. 💤',
+      'ציון נמוך היום לא מגדיר אותך. המגמה לאורך זמן — היא מה שחשוב. 📈',
+      'שתף מישהו שאתה סומך עליו במה שקשה. לא חייבים לעבור את זה לבד. 🤝'
+    ],
+    mid:[
+      'יום סביר — ולפעמים זה בדיוק מה שצריך. יציבות היא כוח. ⚖️',
+      'אתה באמצע הדרך. מה דבר אחד קטן שתוכל לעשות מחר שיזיז אותך קדימה? 🚶',
+      'ימים בינוניים הם הבסיס שעליו בנויים הימים הטובים. אל תזלזל בהם. 🧱',
+      'מה היה הרגע הטוב ביותר של היום הזה? אפילו רגע קטן נחשב. ☀️',
+      'שגרה טובה בנויה מימים כמו אלה. אתה יוצר אותה צעד אחר צעד. 👣',
+      'יש מקום לשיפור — וזה בסדר גמור. מה תרצה לשנות מחר? 🎯',
+      'אתה עושה את זה — מסמן, עוקב, שם לב. זה כבר יותר ממה שרוב האנשים עושים. 👏'
+    ],
+    high:[
+      'יום מדהים! שמור בראש מה גרם לו להיות טוב — תרצה לחזור על זה. 🌟',
+      'הציון שלך גבוה ויש סיבה לכך. מה עשית היום שהשפיע לטובה? 💡',
+      'ימים כאלה הם מה שמחזיק אותנו קדימה. תן לעצמך רגע להעריך את זה. 🙏',
+      'כשאתה במצב טוב — זה הזמן הכי טוב לעזור למישהו אחר. האושר מתרחב כשמשתפים. 🤲',
+      'הגוף, הנפש, הסביבה — משהו עובד טוב עכשיו. שים לב למה. 🔍',
+      'ציון גבוה הוא לא מקרי. הוא תוצאה של בחירות שעשית. כל הכבוד. 💪',
+      'המשך כך. יציבות בציונים גבוהים היא הישג אמיתי. 🏆'
+    ]
+  },
+  en:{
+    low:[
+      'Today was tough. The fact that you are here tracking it takes courage. 💙',
+      'Hard days are part of every journey. Tomorrow is a brand new chance. 🌱',
+      'When scores are low, ask yourself: what one small thing could shift things? 🤍',
+      'Even on the hardest days, something small worked. Try to find it. 🌟',
+      'Your body and mind are speaking to you. Rest when you need to. 💤',
+      'A low score today does not define you. The long-term trend is what matters. 📈',
+      'Share what is hard with someone you trust. You do not have to go through it alone. 🤝'
+    ],
+    mid:[
+      'A decent day — and sometimes that is exactly what you need. Stability is strength. ⚖️',
+      'You are in the middle of the road. What one small thing could move you forward tomorrow? 🚶',
+      'Average days are the foundation great days are built on. Do not underestimate them. 🧱',
+      'What was the best moment of today? Even a small one counts. ☀️',
+      'Good routines are built from days like this. You are building yours step by step. 👣',
+      'There is room to grow — and that is perfectly fine. What would you like to change tomorrow? 🎯',
+      'You are doing it — tracking, noticing, showing up. That is more than most people do. 👏'
+    ],
+    high:[
+      'What a great day! Keep in mind what made it good — you will want to repeat it. 🌟',
+      'Your score is high for a reason. What did you do today that made a positive impact? 💡',
+      'Days like this are what keep us going. Take a moment to appreciate it. 🙏',
+      'When you feel good, it is the best time to help someone else. Joy grows when shared. 🤲',
+      'Body, mind, environment — something is working well right now. Notice what it is. 🔍',
+      'A high score is not an accident. It is the result of choices you made. Well done. 💪',
+      'Keep it up. Consistently high scores is a real achievement. 🏆'
+    ]
+  },
+  ar:{
+    low:[
+      'اليوم كان صعبا. لكن حقيقة انك هنا تسجل يومك هذه شجاعة. 💙',
+      'الايام الصعبة جزء من كل رحلة. الغد فرصة جديدة تماما. 🌱',
+      'حين تكون النتيجة منخفضة، اسال نفسك: ما الشيء الصغير الذي قد يغير المسار؟ 🤍',
+      'حتى في اصعب الايام، هناك شيء صغير نجح. حاول ايجاده. 🌟',
+      'جسدك وعقلك يتحدثان اليك. استمع واسترح عند الحاجة. 💤',
+      'نتيجة منخفضة اليوم لا تحدد هويتك. المسار على المدى الطويل هو ما يهم. 📈',
+      'شارك ما يصعب عليك مع شخص تثق به. لست مضطرا لتجاوز ذلك وحدك. 🤝'
+    ],
+    mid:[
+      'يوم معقول — واحيانا هذا بالضبط ما تحتاجه. الاستقرار قوة. ⚖️',
+      'انت في منتصف الطريق. ما الشيء الصغير الذي يمكنه دفعك للامام غدا؟ 🚶',
+      'الايام العادية هي الاساس الذي تبنى عليه الايام الجيدة. لا تستهن بها. 🧱',
+      'ما كان افضل لحظة في هذا اليوم؟ حتى اللحظات الصغيرة تحسب. ☀️',
+      'الروتين الجيد يتشكل من ايام كهذه. انت تبنيه خطوة بخطوة. 👣',
+      'هناك مجال للتحسن — وهذا جيد تماما. ما الذي تود تغييره غدا؟ 🎯',
+      'انت تفعلها — تتابع، تلاحظ، تحضر. هذا اكثر مما يفعله معظم الناس. 👏'
+    ],
+    high:[
+      'يوم رائع! تذكر ما جعله جيدا — ستريد تكراره. 🌟',
+      'نتيجتك مرتفعة لسبب. ما الذي فعلته اليوم واثر ايجابا؟ 💡',
+      'ايام كهذه هي ما يدفعنا للامام. خذ لحظة لتقدير ذلك. 🙏',
+      'حين تشعر بالتحسن، هذا افضل وقت لمساعدة شخص اخر. السعادة تتنامى حين تشارك. 🤲',
+      'الجسد والعقل والبيئة — شيء ما يعمل بشكل جيد الان. لاحظ ما هو. 🔍',
+      'النتيجة المرتفعة ليست صدفة. هي نتيجة خيارات اتخذتها. احسنت. 💪',
+      'استمر هكذا. الاتساق في النتائج المرتفعة انجاز حقيقي. 🏆'
+    ]
+  },
+  ru:{
+    low:[
+      'Сегодня было непросто. Но то, что ты здесь и отмечаешь день — это уже смелость. 💙',
+      'Тяжёлые дни — часть любого пути. Завтра — совершенно новый шанс. 🌱',
+      'Когда оценка низкая, спроси себя: что одно маленькое дело могло бы изменить ситуацию? 🤍',
+      'Даже в самые трудные дни что-то небольшое сработало. Попробуй найти это. 🌟',
+      'Твоё тело и разум говорят с тобой. Отдыхай, когда нужно. 💤',
+      'Низкая оценка сегодня не определяет тебя. Важна долгосрочная тенденция. 📈',
+      'Поделись тем, что трудно, с кем-то, кому доверяешь. Не обязательно проходить через это одному. 🤝'
+    ],
+    mid:[
+      'Неплохой день — и иногда именно это и нужно. Стабильность — это сила. ⚖️',
+      'Ты на полпути. Что одно маленькое дело могло бы продвинуть тебя вперёд завтра? 🚶',
+      'Обычные дни — это фундамент, на котором строятся хорошие дни. Не недооценивай их. 🧱',
+      'Что было лучшим моментом этого дня? Даже маленький момент считается. ☀️',
+      'Хорошая рутина строится из таких дней. Ты создаёшь её шаг за шагом. 👣',
+      'Есть куда расти — и это совершенно нормально. Что хотел бы изменить завтра? 🎯',
+      'Ты делаешь это — отслеживаешь, замечаешь, присутствуешь. Это больше, чем делает большинство людей. 👏'
+    ],
+    high:[
+      'Отличный день! Запомни, что сделало его хорошим — захочешь повторить. 🌟',
+      'Твоя оценка высокая не случайно. Что ты сделал сегодня, что повлияло положительно? 💡',
+      'Такие дни — это то, что движет нас вперёд. Найди момент, чтобы оценить это. 🙏',
+      'Когда ты в хорошем состоянии — это лучшее время помочь кому-то другому. Радость растёт, когда делишься ею. 🤲',
+      'Тело, разум, окружение — что-то работает хорошо прямо сейчас. Обрати на это внимание. 🔍',
+      'Высокая оценка — не случайность. Это результат сделанных тобой выборов. Молодец. 💪',
+      'Продолжай в том же духе. Стабильно высокие оценки — настоящее достижение. 🏆'
+    ]
+  },
+  es:{
+    low:[
+      'Hoy fue difícil. El hecho de que estés aquí registrándolo ya es valentía. 💙',
+      'Los días difíciles son parte de todo camino. Mañana es una oportunidad completamente nueva. 🌱',
+      'Cuando la puntuación es baja, pregúntate: que pequeña cosa podría cambiar las cosas? 🤍',
+      'Incluso en los días más difíciles, algo pequeño funcionó. Intenta encontrarlo. 🌟',
+      'Tu cuerpo y mente te están hablando. Descansa cuando lo necesites. 💤',
+      'Una puntuación baja hoy no te define. La tendencia a largo plazo es lo que importa. 📈',
+      'Comparte lo que es difícil con alguien de confianza. No tienes que pasarlo solo. 🤝'
+    ],
+    mid:[
+      'Un día razonable — y a veces eso es exactamente lo que necesitas. La estabilidad es fuerza. ⚖️',
+      'Estás a mitad de camino. Que pequeña cosa podría moverte hacia adelante mañana? 🚶',
+      'Los días promedio son la base sobre la que se construyen los buenos días. No los subestimes. 🧱',
+      'Cual fue el mejor momento del día? Incluso uno pequeño cuenta. ☀️',
+      'Una buena rutina se construye con días como este. La estás creando paso a paso. 👣',
+      'Hay espacio para mejorar — y eso está perfectamente bien. Que quieres cambiar mañana? 🎯',
+      'Lo estás haciendo: rastreando, notando, apareciendo. Eso es más de lo que hace la mayoría. 👏'
+    ],
+    high:[
+      'Un gran día. Recuerda que lo hizo bueno — querrás repetirlo. 🌟',
+      'Tu puntuación es alta por una razón. Que hiciste hoy que tuvo un impacto positivo? 💡',
+      'Los días como este son los que nos mantienen avanzando. Tómate un momento para apreciarlo. 🙏',
+      'Cuando te sientes bien, es el mejor momento para ayudar a alguien más. La alegría crece al compartirla. 🤲',
+      'Cuerpo, mente, entorno — algo está funcionando bien ahora mismo. Observa que es. 🔍',
+      'Una puntuación alta no es accidental. Es el resultado de las elecciones que tomaste. Bien hecho. 💪',
+      'Sigue así. La consistencia en puntuaciones altas es un logro real. 🏆'
+    ]
+  },
+  pt:{
+    low:[
+      'Hoje foi difícil. O fato de você estar aqui registrando já é coragem. 💙',
+      'Dias difíceis fazem parte de toda jornada. Amanhã é uma chance completamente nova. 🌱',
+      'Quando a pontuação está baixa, pergunte-se: que pequena coisa poderia mudar as coisas? 🤍',
+      'Mesmo nos dias mais difíceis, algo pequeno funcionou. Tente encontrar isso. 🌟',
+      'Seu corpo e sua mente estão falando com você. Descanse quando precisar. 💤',
+      'Uma pontuação baixa hoje não define você. A tendência de longo prazo é o que importa. 📈',
+      'Compartilhe o que é difícil com alguém de confiança. Você não precisa passar por isso sozinho. 🤝'
+    ],
+    mid:[
+      'Um dia razoável — e às vezes é exatamente isso que você precisa. Estabilidade é força. ⚖️',
+      'Você está no meio do caminho. Que pequena coisa poderia fazer para avançar amanhã? 🚶',
+      'Dias comuns são a base sobre a qual os bons dias são construídos. Não os subestime. 🧱',
+      'Qual foi o melhor momento do dia? Até um pequeno conta. ☀️',
+      'Uma boa rotina é construída com dias como este. Você a está criando passo a passo. 👣',
+      'Há espaço para melhorar — e isso é perfeitamente normal. O que você quer mudar amanhã? 🎯',
+      'Você está fazendo isso: rastreando, notando, aparecendo. Isso é mais do que a maioria faz. 👏'
+    ],
+    high:[
+      'Que dia incrível! Lembre o que o tornou bom — você vai querer repetir. 🌟',
+      'Sua pontuação está alta por uma razão. O que você fez hoje que teve impacto positivo? 💡',
+      'Dias como este são o que nos mantém avançando. Reserve um momento para apreciar isso. 🙏',
+      'Quando você se sente bem, é o melhor momento para ajudar outra pessoa. A alegria cresce quando compartilhada. 🤲',
+      'Corpo, mente, ambiente — algo está funcionando bem agora. Observe o que é. 🔍',
+      'Uma pontuação alta não é acidente. É resultado das escolhas que você fez. Parabéns. 💪',
+      'Continue assim. Pontuações consistentemente altas é uma conquista real. 🏆'
+    ]
+  },
+  fr:{
+    low:[
+      'La journee a ete difficile. Le fait que tu sois ici a la noter, c est deja du courage. 💙',
+      'Les jours difficiles font partie de tout parcours. Demain est une toute nouvelle chance. 🌱',
+      'Quand le score est bas, demande-toi: quelle petite chose pourrait changer les choses? 🤍',
+      'Meme dans les jours les plus durs, quelque chose de petit a fonctionne. Essaie de le trouver. 🌟',
+      'Ton corps et ton esprit te parlent. Repose-toi quand tu en as besoin. 💤',
+      'Un score bas aujourd hui ne te definit pas. La tendance sur le long terme, c est ce qui compte. 📈',
+      'Partage ce qui est difficile avec quelqu un en qui tu as confiance. Tu n as pas a traverser ca seul. 🤝'
+    ],
+    mid:[
+      'Une journee correcte — et parfois c est exactement ce dont tu as besoin. La stabilite est une force. ⚖️',
+      'Tu es a mi-chemin. Quelle petite chose pourrait te faire avancer demain? 🚶',
+      'Les jours ordinaires sont la base sur laquelle se construisent les bons jours. Ne les sous-estime pas. 🧱',
+      'Quel a ete le meilleur moment de cette journee? Meme un petit moment compte. ☀️',
+      'Une bonne routine se construit avec des jours comme celui-ci. Tu la crees pas a pas. 👣',
+      'Il y a de la place pour progresser — et c est tout a fait normal. Que voudrais-tu changer demain? 🎯',
+      'Tu le fais: tu suis, tu remarques, tu es present. C est plus que ce que font la plupart des gens. 👏'
+    ],
+    high:[
+      'Quelle belle journee! Garde en tete ce qui l a rendue bonne — tu voudras le reproduire. 🌟',
+      'Ton score est eleve pour une raison. Qu est-ce que tu as fait aujourd hui qui a eu un impact positif? 💡',
+      'Des journees comme celle-ci sont ce qui nous fait avancer. Prends un moment pour l apprecier. 🙏',
+      'Quand tu te sens bien, c est le meilleur moment pour aider quelqu un. La joie grandit quand on la partage. 🤲',
+      'Corps, esprit, environnement — quelque chose fonctionne bien en ce moment. Remarque ce que c est. 🔍',
+      'Un score eleve n est pas un hasard. C est le resultat des choix que tu as faits. Bravo. 💪',
+      'Continue comme ca. Des scores constamment eleves, c est une vraie reussite. 🏆'
+    ]
+  },
+  de:{
+    low:[
+      'Heute war es schwer. Aber dass du hier bist und den Tag verfolgst, erfordert Mut. 💙',
+      'Schwere Tage sind Teil jeder Reise. Morgen ist eine ganz neue Chance. 🌱',
+      'Wenn der Score niedrig ist, frage dich: Was eine kleine Sache koennte die Dinge veraendern? 🤍',
+      'Selbst an den schwierigsten Tagen hat etwas Kleines funktioniert. Versuche es zu finden. 🌟',
+      'Dein Koerper und dein Geist sprechen mit dir. Ruh dich aus, wenn du es brauchst. 💤',
+      'Ein niedriger Score heute definiert dich nicht. Der langfristige Trend ist das, was zaehlt. 📈',
+      'Teile das, was schwer ist, mit jemandem dem du vertraust. Du musst das nicht alleine durchstehen. 🤝'
+    ],
+    mid:[
+      'Ein ordentlicher Tag — und manchmal ist das genau das, was du brauchst. Stabilitaet ist Staerke. ⚖️',
+      'Du bist auf halbem Weg. Was eine kleine Sache koennte dich morgen vorwaertsbewegen? 🚶',
+      'Durchschnittliche Tage sind das Fundament, auf dem gute Tage gebaut werden. Unterschaetze sie nicht. 🧱',
+      'Was war der beste Moment des Tages? Selbst ein kleiner zaehlt. ☀️',
+      'Eine gute Routine wird aus solchen Tagen aufgebaut. Du erschaffst sie Schritt fuer Schritt. 👣',
+      'Es gibt Raum fuer Wachstum — und das ist vollkommen in Ordnung. Was moechtest du morgen aendern? 🎯',
+      'Du machst es: verfolgst, bemerkst, bist dabei. Das ist mehr als die meisten Menschen tun. 👏'
+    ],
+    high:[
+      'Was fuer ein grossartiger Tag! Behalte im Kopf was ihn gut gemacht hat — du wirst es wiederholen wollen. 🌟',
+      'Dein Score ist aus einem Grund hoch. Was hast du heute getan das positive Auswirkungen hatte? 💡',
+      'Solche Tage sind es die uns vorwaertsbringen. Nimm dir einen Moment um das zu schaetzen. 🙏',
+      'Wenn du dich gut fuehlst ist es die beste Zeit jemand anderem zu helfen. Freude waechst wenn man sie teilt. 🤲',
+      'Koerper, Geist, Umgebung — irgendetwas funktioniert gerade gut. Beachte was es ist. 🔍',
+      'Ein hoher Score ist kein Zufall. Er ist das Ergebnis der Entscheidungen die du getroffen hast. Gut gemacht. 💪',
+      'Weiter so. Konstant hohe Scores sind eine echte Leistung. 🏆'
+    ]
+  },
+  it:{
+    low:[
+      'Oggi e stato difficile. Il fatto che tu sia qui a registrarlo richiede coraggio. 💙',
+      'I giorni difficili fanno parte di ogni percorso. Domani e una possibilita completamente nuova. 🌱',
+      'Quando il punteggio e basso, chiediti: cosa piccola potrebbe cambiare le cose? 🤍',
+      'Anche nei giorni piu difficili, qualcosa di piccolo ha funzionato. Prova a trovarlo. 🌟',
+      'Il tuo corpo e la tua mente ti stanno parlando. Riposati quando ne hai bisogno. 💤',
+      'Un punteggio basso oggi non ti definisce. La tendenza nel lungo periodo e cio che conta. 📈',
+      'Condividi cio che e difficile con qualcuno di cui ti fidi. Non devi affrontarlo da solo. 🤝'
+    ],
+    mid:[
+      'Una giornata discreta — e a volte e esattamente quello di cui hai bisogno. La stabilita e forza. ⚖️',
+      'Sei a meta strada. Cosa una piccola cosa potrebbe farti avanzare domani? 🚶',
+      'I giorni nella media sono la base su cui si costruiscono i giorni buoni. Non sottovalutarli. 🧱',
+      'Qual e stato il momento migliore della giornata? Anche uno piccolo conta. ☀️',
+      'Una buona routine si costruisce con giorni come questo. La stai creando passo dopo passo. 👣',
+      'C e spazio per migliorare — ed e assolutamente normale. Cosa vorresti cambiare domani? 🎯',
+      'Lo stai facendo: monitorando, notando, essendo presente. E piu di quello che fanno la maggior parte delle persone. 👏'
+    ],
+    high:[
+      'Che giornata fantastica! Ricorda cosa l ha resa buona — vorrai ripeterla. 🌟',
+      'Il tuo punteggio e alto per una ragione. Cosa hai fatto oggi che ha avuto un impatto positivo? 💡',
+      'Giornate come questa sono cio che ci fa andare avanti. Prenditi un momento per apprezzarlo. 🙏',
+      'Quando ti senti bene e il momento migliore per aiutare qualcun altro. La gioia cresce quando si condivide. 🤲',
+      'Corpo, mente, ambiente — qualcosa sta funzionando bene adesso. Nota cosa e. 🔍',
+      'Un punteggio alto non e casuale. E il risultato delle scelte che hai fatto. Bravo. 💪',
+      'Continua cosi. Punteggi costantemente alti sono un vero traguardo. 🏆'
+    ]
+  },
+  hi:{
+    low:[
+      'आज मुश्किल था। लेकिन यहां आकर इसे दर्ज करना — यह पहले से ही साहस है। 💙',
+      'कठिन दिन हर यात्रा का हिस्सा हैं। कल एक बिल्कुल नया मौका है। 🌱',
+      'जब स्कोर कम हो, खुद से पूछें: एक छोटी सी बात क्या हो सकती है जो चीजें बदल दे? 🤍',
+      'सबसे कठिन दिनों में भी, कुछ छोटा काम आया। उसे खोजने की कोशिश करें। 🌟',
+      'आपका शरीर और मन आपसे बात कर रहे हैं। जब जरूरत हो, आराम करें। 💤',
+      'आज का कम स्कोर आपको परिभाषित नहीं करता। लंबी अवधि की प्रवृत्ति मायने रखती है। 📈',
+      'जो मुश्किल है उसे किसी भरोसेमंद से साझा करें। अकेले जाने की जरूरत नहीं। 🤝'
+    ],
+    mid:[
+      'एक ठीक-ठाक दिन — और कभी-कभी यही चाहिए होता है। स्थिरता ताकत है। ⚖️',
+      'आप बीच रास्ते में हैं। एक छोटी सी बात कल आपको आगे बढ़ा सकती है? 🚶',
+      'सामान्य दिन वह नींव हैं जिन पर अच्छे दिन बनते हैं। इन्हें कम मत आंकें। 🧱',
+      'आज का सबसे अच्छा पल क्या था? एक छोटा पल भी गिनता है। ☀️',
+      'अच्छी दिनचर्या ऐसे दिनों से बनती है। आप इसे कदम दर कदम बना रहे हैं। 👣',
+      'बेहतर होने की जगह है — और यह बिल्कुल ठीक है। कल क्या बदलना चाहेंगे? 🎯',
+      'आप यह कर रहे हैं — ट्रैक कर रहे हैं, नोटिस कर रहे हैं, मौजूद हैं। ज्यादातर लोग यह नहीं करते। 👏'
+    ],
+    high:[
+      'क्या शानदार दिन! याद रखें इसे क्या अच्छा बनाया — आप इसे दोहराना चाहेंगे। 🌟',
+      'आपका स्कोर किसी कारण से ऊंचा है। आज आपने क्या किया जिसका सकारात्मक प्रभाव पड़ा? 💡',
+      'ऐसे दिन हमें आगे बढ़ाते हैं। एक पल लें और इसकी सराहना करें। 🙏',
+      'जब आप अच्छा महसूस कर रहे हैं — यह किसी और की मदद करने का सबसे अच्छा समय है। खुशी बांटने से बढ़ती है। 🤲',
+      'शरीर, मन, माहौल — अभी कुछ अच्छा काम कर रहा है। ध्यान दें यह क्या है। 🔍',
+      'ऊंचा स्कोर संयोग नहीं है। यह आपके किए गए चुनावों का परिणाम है। शाबाश। 💪',
+      'इसी तरह जारी रखें। लगातार ऊंचे स्कोर एक वास्तविक उपलब्धि हैं। 🏆'
+    ]
+  },
+  zh:{
+    low:[
+      '今天不容易。但你在这里记录它 — 这本身就是勇气。 💙',
+      '困难的日子是每段旅程的一部分。明天是全新的机会。 🌱',
+      '当分数低时，问问自己：有什么小事可能改变现状？ 🤍',
+      '即使在最艰难的日子里，也有小事起了作用。试着找到它。 🌟',
+      '你的身体和心灵在跟你说话。需要时好好休息。 💤',
+      '今天的低分不能定义你。长期趋势才是最重要的。 📈',
+      '把困难的事与你信任的人分享。你不必独自承受。 🤝'
+    ],
+    mid:[
+      '一个还不错的日子 — 有时这正是你所需要的。稳定是一种力量。 ⚖️',
+      '你在半途中。有什么小事可以让你明天更进一步？ 🚶',
+      '普通的日子是美好日子的基础。不要低估它们。 🧱',
+      '今天最好的时刻是什么？即使是小时刻也算数。 ☀️',
+      '好的日常习惯由这样的日子构成。你在一步一步地建立它。 👣',
+      '有进步的空间 — 这完全没问题。明天你想改变什么？ 🎯',
+      '你在做到：追踪、注意、出现。这比大多数人做得更多。 👏'
+    ],
+    high:[
+      '多么美好的一天！记住是什么让它变好 — 你会想要重复的。 🌟',
+      '你的分数高是有原因的。今天你做了什么产生了积极影响？ 💡',
+      '这样的日子是推动我们前进的动力。花一点时间感激它。 🙏',
+      '当你感觉良好时，这是帮助别人的最佳时机。分享时快乐会增长。 🤲',
+      '身体、心灵、环境 — 现在有什么运作得很好。注意是什么。 🔍',
+      '高分不是偶然的。这是你所做选择的结果。做得好。 💪',
+      '继续保持。持续的高分是真正的成就。 🏆'
+    ]
+  },
+  ja:{
+    low:[
+      '今日は大変でした。でもここに来て記録することは、すでに勇気です。 💙',
+      '辛い日はすべての旅の一部です。明日はまったく新しいチャンスです。 🌱',
+      'スコアが低いとき、自分に聞いてみましょう：何か小さなことが状況を変えられるでしょうか？ 🤍',
+      '最も辛い日でも、何か小さなことがうまくいきました。それを見つけてみましょう。 🌟',
+      'あなたの体と心があなたに語りかけています。必要なときは休んでください。 💤',
+      '今日の低いスコアはあなたを定義しません。長期的なトレンドが大切です。 📈',
+      '大変なことを信頼できる人と共有しましょう。一人で乗り越える必要はありません。 🤝'
+    ],
+    mid:[
+      'まあまあの日 — そしてそれがちょうど必要なものであることもあります。安定は力です。 ⚖️',
+      '半分まで来ています。明日、前に進むためにできる小さなことは何ですか？ 🚶',
+      '平凡な日は良い日が築かれる基盤です。過小評価しないでください。 🧱',
+      '今日の最高の瞬間は何でしたか？小さな瞬間でも数えます。 ☀️',
+      '良いルーティンはこのような日から作られます。一歩一歩それを作っています。 👣',
+      '成長の余地があります — それは完全に問題ありません。明日何を変えたいですか？ 🎯',
+      'あなたはそれをやっています：追跡し、気づき、存在しています。ほとんどの人がすることよりも多いです。 👏'
+    ],
+    high:[
+      '素晴らしい一日！何がそれを良くしたかを覚えておいてください — 繰り返したくなるでしょう。 🌟',
+      'スコアが高い理由があります。今日、ポジティブな影響を与えたことは何ですか？ 💡',
+      'このような日が私たちを前進させます。少し時間を取ってそれを感謝してください。 🙏',
+      '気分が良いとき、それは他の人を助ける最高のタイミングです。喜びは共有すると成長します。 🤲',
+      '体、心、環境 — 今何かがうまくいっています。それが何かに注目してください。 🔍',
+      '高いスコアは偶然ではありません。あなたが下した選択の結果です。よくできました。 💪',
+      'この調子で続けてください。一貫して高いスコアは本物の成果です。 🏆'
+    ]
+  }
+};
 el('ai-refresh').addEventListener('click',loadAI);
 // WORLD
 var worldDataLoading=false;
