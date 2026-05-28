@@ -1602,33 +1602,6 @@ el('share-today-btn').addEventListener('click',function(){var e=entries[tod()];i
 el('share-modal-btn').addEventListener('click',function(){var e=modalDate?entries[modalDate]:null;if(e)shareWA(e.score,modalDate,e.special,e.media_url||null);});
 
 // AI
-function loadAI(){
-  var e=allE();
-  var card=el('ai-card'),content=el('ai-content');
-  if(!e.length){
-    if(card)card.style.display='block';
-    if(content)content.innerHTML='<span style="color:#66a">'+(t('aiEmpty')||'שמור את היום הראשון שלך כדי לקבל תובנה אישית 🌱')+'</span>';
-    return;
-  }
-  card.style.display='block';
-  content.innerHTML='<span style="color:#66a">'+t('aiLoad')+'</span>';
-  var recent=e.slice(0,7);
-  var avg=Math.round(recent.reduce(function(a,b){return a+b.score;},0)/recent.length);
-  var todayScore=recent[0]?recent[0].score:avg;
-  var level=todayScore<=33?'low':todayScore<=67?'mid':'high';
-  var dow=new Date().getDay();
-  var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
-  var texts=pool[level];
-  var text=texts[dow%texts.length];
-  setTimeout(function(){content.innerHTML=text;},400);
-}
-
-function getFallbackAI(avg){
-  var level=avg<=33?'low':avg<=67?'mid':'high';
-  var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
-  return pool[level][0];
-}
-
 var AI_INSIGHTS={
   he:{
     low:[
@@ -1979,6 +1952,33 @@ var AI_INSIGHTS={
     ]
   }
 };
+function loadAI(){
+  var e=allE();
+  var card=el('ai-card'),content=el('ai-content');
+  if(!e.length){
+    if(card)card.style.display='block';
+    if(content)content.innerHTML='<span style="color:#66a">'+(t('aiEmpty')||'שמור את היום הראשון שלך כדי לקבל תובנה אישית 🌱')+'</span>';
+    return;
+  }
+  card.style.display='block';
+  content.innerHTML='<span style="color:#66a">'+t('aiLoad')+'</span>';
+  var recent=e.slice(0,7);
+  var avg=Math.round(recent.reduce(function(a,b){return a+b.score;},0)/recent.length);
+  var todayScore=recent[0]?recent[0].score:avg;
+  var level=todayScore<=33?'low':todayScore<=67?'mid':'high';
+  var dow=new Date().getDay();
+  var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
+  var texts=pool[level];
+  var text=texts[dow%texts.length];
+  setTimeout(function(){content.innerHTML=text;},400);
+}
+
+function getFallbackAI(avg){
+  var level=avg<=33?'low':avg<=67?'mid':'high';
+  var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
+  return pool[level][0];
+}
+
 el('ai-refresh').addEventListener('click',loadAI);
 // WORLD
 var worldDataLoading=false;
