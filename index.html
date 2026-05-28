@@ -1610,7 +1610,6 @@ function loadAI(){
     if(content)content.innerHTML='<span style="color:#66a">'+(t('aiEmpty')||'שמור את היום הראשון שלך כדי לקבל תובנה אישית 🌱')+'</span>';
     return;
   }
-  var card=el('ai-card'),content=el('ai-content');
   card.style.display='block';
   content.innerHTML='<span style="color:#66a">'+t('aiLoad')+'</span>';
   var recent=e.slice(0,7);
@@ -1618,11 +1617,38 @@ function loadAI(){
   var trend=recent.length>1?(recent[0].score-recent[recent.length-1].score):0;
   var best=Math.max.apply(null,recent.map(function(x){return x.score;}));
   var worst=Math.min.apply(null,recent.map(function(x){return x.score;}));
+  var todayScore=recent[0]?recent[0].score:avg;
+  var todaySpecial=recent[0]&&recent[0].special?recent[0].special:'';
+  var dow=new Date().getDay();
+  var anglesHe=['מה הדבר שהכי שיפר את מצב הרוח שלי לאחרונה?','מה אני יכול לשפר מחר?','מה הדבר הקטן שעשה הכי גדול הבדל?','כיצד המגמה שלי משתנה?','מה אני גאה בו השבוע?','מה למדתי על עצמי לאחרונה?','מה אני רוצה לשמר קדימה?'];
+  var anglesEn=['What has most improved my mood recently?','What can I improve tomorrow?','What small thing made the biggest difference?','How is my trend changing?','What am I most proud of lately?','What did I learn about myself recently?','What do I want to carry forward?'];
+  var anglesAr=['ما الذي حسّن مزاجي مؤخراً؟','ما الذي يمكنني تحسينه غداً؟','ما الشيء الصغير الذي أحدث فرقاً كبيراً؟','كيف يتغير اتجاهي؟','بماذا أفخر مؤخراً؟','ماذا تعلمت عن نفسي؟','ماذا أريد أن أحافظ عليه؟'];
+  var anglesRu=['Что больше всего улучшило моё настроение?','Что я могу улучшить завтра?','Какая мелочь имела наибольшее значение?','Как меняется моя тенденция?','Чем я горжусь?','Что я узнал о себе?','Что хочу сохранить?'];
+  var anglesEs=['¿Qué mejoró más mi estado de ánimo?','¿Qué puedo mejorar mañana?','¿Qué pequeña cosa hizo la mayor diferencia?','¿Cómo está cambiando mi tendencia?','¿De qué estoy más orgulloso?','¿Qué aprendí de mí mismo?','¿Qué quiero mantener?'];
+  var anglesPt=['O que mais melhorou meu humor?','O que posso melhorar amanhã?','Qual pequena coisa fez a maior diferença?','Como minha tendência está mudando?','Do que mais me orgulho?','O que aprendi sobre mim mesmo?','O que quero manter?'];
+  var anglesFr=['Qu'est-ce qui a le plus amélioré mon humeur?','Que puis-je améliorer demain?','Quelle petite chose a fait la plus grande différence?','Comment ma tendance évolue?','De quoi suis-je le plus fier?','Qu'ai-je appris sur moi-même?','Que veux-je conserver?'];
+  var anglesDe=['Was hat meine Stimmung am meisten verbessert?','Was kann ich morgen verbessern?','Welche Kleinigkeit hat den größten Unterschied gemacht?','Wie verändert sich mein Trend?','Worauf bin ich stolz?','Was habe ich über mich gelernt?','Was möchte ich beibehalten?'];
+  var anglesIt=['Cosa ha migliorato di più il mio umore?','Cosa posso migliorare domani?','Quale piccola cosa ha fatto la differenza più grande?','Come sta cambiando la mia tendenza?','Di cosa sono più orgoglioso?','Cosa ho imparato su me stesso?','Cosa voglio mantenere?'];
+  var anglesHi=['हाल ही में मेरा मूड सबसे ज्यादा किसने सुधारा?','मैं कल क्या बेहतर कर सकता हूं?','किस छोटी चीज़ ने सबसे बड़ा फर्क किया?','मेरा रुझान कैसे बदल रहा है?','मुझे किस बात पर सबसे ज्यादा गर्व है?','मैंने अपने बारे में क्या सीखा?','मैं आगे क्या बनाए रखना चाहता हूं?'];
+  var anglesZh=['最近什么最改善了我的心情？','明天我可以改善什么？','哪件小事产生了最大的影响？','我的趋势如何变化？','我最近为什么感到自豪？','我最近了解到了自己的什么？','我想继续保持什么？'];
+  var anglesJa=['最近、何が気分を最も改善しましたか？','明日、何を改善できますか？','どんな小さなことが最も大きな違いを生みましたか？','私のトレンドはどう変化していますか？','最近、何に最も誇りを感じていますか？','最近、自分について何を学びましたか？','何を継続したいですか？'];
+  var angleMap={he:anglesHe,en:anglesEn,ar:anglesAr,ru:anglesRu,es:anglesEs,pt:anglesPt,fr:anglesFr,de:anglesDe,it:anglesIt,hi:anglesHi,zh:anglesZh,ja:anglesJa};
+  var angle=(angleMap[currentLang]||anglesEn)[dow];
+  var todayCtx=todaySpecial?' Today I noted: "'+todaySpecial+'"':'';
+  var todayCtxHe=todaySpecial?' היום כתבתי: "'+todaySpecial+'"':'';
   var prompts={
-    he:'אתה יועץ רגשי. נתוני 7 ימים: ממוצע '+avg+', מגמה '+(trend>0?'עולה':trend<0?'יורדת':'יציבה')+', גבוה '+best+', נמוך '+worst+'. כתוב תובנה קצרה (3-4 משפטים עברית), חמה ומעשית. ציון מעל 70 — שבח וטיפ. מתחת 70 — עידוד והמלצה אחת. ענה בעברית בלבד, ללא כותרות.',
-    en:'You are a wellness advisor. Last 7 days: avg '+avg+', trend '+(trend>0?'up':trend<0?'down':'stable')+', high '+best+', low '+worst+'. Write a short personal insight (3-4 sentences). If avg above 70 praise and give a tip. If below 70 encourage with one recommendation. English only, no headers.',
-    ar:'أنت مستشار. بيانات 7 أيام: متوسط '+avg+', اتجاه '+(trend>0?'صاعد':trend<0?'هابط':'مستقر')+'. اكتب رؤية (3-4 جمل عربية) دافئة وعملية.',
-    ru:'Ты советник. 7 дней: среднее '+avg+', тренд '+(trend>0?'растёт':trend<0?'падает':'стабилен')+'. Напиши вывод (3-4 предложения по-русски), тёплый и практичный.'
+    he:'אתה יועץ רגשי. נתוני 7 ימים: ממוצע '+avg+', מגמה '+(trend>0?'עולה':trend<0?'יורדת':'יציבה')+', גבוה '+best+', נמוך '+worst+', ציון היום '+todayScore+'.'+todayCtxHe+' שאלת היום: '+anglesHe[dow]+' כתוב תובנה קצרה (3-4 משפטים), חמה ומעשית, שמתייחסת לשאלה. ענה בעברית בלבד, ללא כותרות.',
+    en:'You are a wellness advisor. Last 7 days: avg '+avg+', trend '+(trend>0?'up':trend<0?'down':'stable')+', high '+best+', low '+worst+', today '+todayScore+'.'+todayCtx+' Today's angle: '+anglesEn[dow]+' Write a short personal insight (3-4 sentences) addressing this angle. English only, no headers.',
+    ar:'أنت مستشار رفاهية. بيانات 7 أيام: متوسط '+avg+', اتجاه '+(trend>0?'صاعد':trend<0?'هابط':'مستقر')+', اليوم '+todayScore+'. سؤال اليوم: '+anglesAr[dow]+' اكتب رؤية (3-4 جمل) دافئة تتناول هذا السؤال. بالعربية فقط.',
+    ru:'Ты советник. 7 дней: среднее '+avg+', тренд '+(trend>0?'растёт':trend<0?'падает':'стабилен')+', сегодня '+todayScore+'. Вопрос дня: '+anglesRu[dow]+' Напиши вывод (3-4 предложения), тёплый и практичный. Только по-русски.',
+    es:'Eres un asesor de bienestar. Últimos 7 días: promedio '+avg+', tendencia '+(trend>0?'subiendo':trend<0?'bajando':'estable')+', hoy '+todayScore+'. Ángulo del día: '+anglesEs[dow]+' Escribe una reflexión corta (3-4 frases) en español.',
+    pt:'Você é um consultor de bem-estar. Últimos 7 dias: média '+avg+', tendência '+(trend>0?'subindo':trend<0?'caindo':'estável')+', hoje '+todayScore+'. Ângulo do dia: '+anglesPt[dow]+' Escreva uma reflexão curta (3-4 frases) em português.',
+    fr:'Tu es un conseiller bien-être. 7 derniers jours: moyenne '+avg+', tendance '+(trend>0?'en hausse':trend<0?'en baisse':'stable')+', aujourd'hui '+todayScore+'. Question du jour: '+anglesFr[dow]+' Écris une courte réflexion (3-4 phrases) en français.',
+    de:'Du bist ein Wellness-Berater. Letzte 7 Tage: Durchschnitt '+avg+', Trend '+(trend>0?'steigend':trend<0?'fallend':'stabil')+', heute '+todayScore+'. Tagesfrage: '+anglesDe[dow]+' Schreibe einen kurzen Einblick (3-4 Sätze) auf Deutsch.',
+    it:'Sei un consulente benessere. Ultimi 7 giorni: media '+avg+', tendenza '+(trend>0?'in salita':trend<0?'in discesa':'stabile')+', oggi '+todayScore+'. Domanda del giorno: '+anglesIt[dow]+' Scrivi una breve riflessione (3-4 frasi) in italiano.',
+    hi:'आप एक वेलनेस सलाहकार हैं। पिछले 7 दिन: औसत '+avg+', प्रवृत्ति '+(trend>0?'बढ़ रही है':trend<0?'घट रही है':'स्थिर')+', आज '+todayScore+'. आज का सवाल: '+anglesHi[dow]+' हिंदी में एक छोटी अंतर्दृष्टि लिखें (3-4 वाक्य)।',
+    zh:'你是一位健康顾问。过去7天：平均 '+avg+'，趋势 '+(trend>0?'上升':trend<0?'下降':'稳定')+'，今天 '+todayScore+'。今日问题：'+anglesZh[dow]+' 用中文写一段简短的个人洞察（3-4句话）。',
+    ja:'あなたはウェルネスアドバイザーです。過去7日間：平均 '+avg+'、トレンド '+(trend>0?'上昇':trend<0?'下降':'安定')+'、今日 '+todayScore+'。今日の視点：'+anglesJa[dow]+' 日本語で短い洞察（3〜4文）を書いてください。'
   };
   fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompts[currentLang]||prompts.en}]})})
   .then(function(r){return r.json();})
