@@ -1650,7 +1650,7 @@ function loadAI(){
     zh:'你是一位健康顾问。过去7天：平均 '+avg+'，趋势 '+(trend>0?'上升':trend<0?'下降':'稳定')+'，今天 '+todayScore+'。今日问题：'+anglesZh[dow]+' 用中文写一段简短的个人洞察（3-4句话）。',
     ja:'あなたはウェルネスアドバイザーです。過去7日間：平均 '+avg+'、トレンド '+(trend>0?'上昇':trend<0?'下降':'安定')+'、今日 '+todayScore+'。今日の視点：'+anglesJa[dow]+' 日本語で短い洞察（3〜4文）を書いてください。'
   };
-  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompts[currentLang]||prompts.en}]})})
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompts[currentLang]||prompts.en}]})})
   .then(function(r){return r.json();})
   .then(function(data){
     var text=data.content&&data.content[0]?data.content[0].text:'';
