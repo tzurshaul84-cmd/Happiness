@@ -2387,28 +2387,7 @@ function initApp(){
   history.replaceState({screen:'__base__'},'',window.location.pathname);
   history.pushState({screen:'today'},'',window.location.pathname);
 
-  // ── SHARED ALBUM VIEWER ──────────────────────────────────
-  (function(){
-    var params=new URLSearchParams(window.location.search);
-    var albumId=params.get('album');
-    if(!albumId)return;
-    // Show loading overlay
-    var ov=document.createElement('div');
-    ov.id='shared-album-overlay';
-    ov.style.cssText='position:fixed;inset:0;background:#07071a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#aac;font-family:Heebo,sans-serif';
-    ov.innerHTML='<div style="font-size:48px;margin-bottom:16px">📖</div><div style="font-size:16px;font-weight:700">טוען אלבום...</div>';
-    document.body.appendChild(ov);
-    sb.from('shared_albums').select('pages').eq('id',albumId).single()
-    .then(function(res){
-      if(res.error||!res.data){
-        ov.innerHTML='<div style="font-size:48px;margin-bottom:16px">😕</div><div style="font-size:16px;font-weight:700;color:#f66">האלבום לא נמצא</div>';
-        setTimeout(function(){ov.remove();},2500);
-        return;
-      }
-      ov.remove();
-      window._openSharedAlbum(res.data.pages);
-    });
-  })();
+
   window._exitReady=true;
   fillDL();renderHeader();updateUI(70);renderWeekCard();renderVsCard();renderGlobe(68);
   goTo('today',true);
@@ -2530,6 +2509,30 @@ window.addEventListener('DOMContentLoaded',function(){
   if(!T[currentLang])currentLang='he';window.currentLang=currentLang;window.currentLang=currentLang;
   applyLang(currentLang);
   fillDL();
+
+  // Check for shared album BEFORE auth — no login needed
+  var _sharedAlbumId=(new URLSearchParams(window.location.search)).get('album');
+  if(_sharedAlbumId){
+    // Show loading overlay immediately
+    var _sov=document.createElement('div');
+    _sov.style.cssText='position:fixed;inset:0;background:#07071a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#aac;font-family:Heebo,sans-serif';
+    _sov.innerHTML='<div style="font-size:48px;margin-bottom:16px">\uD83D\uDCD6</div><div style="font-size:16px;font-weight:700">\u05D8\u05D5\u05E2\u05DF \u05D0\u05DC\u05D1\u05D5\u05DD...</div>';
+    document.body.appendChild(_sov);
+    sb.from('shared_albums').select('pages').eq('id',_sharedAlbumId).single()
+    .then(function(res){
+      _sov.remove();
+      if(res.error||!res.data){
+        var errDiv=document.createElement('div');
+        errDiv.style.cssText='position:fixed;inset:0;background:#07071a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f66;font-family:Heebo,sans-serif';
+        errDiv.innerHTML='<div style="font-size:48px;margin-bottom:16px">\uD83D\uDE15</div><div style="font-size:16px;font-weight:700">\u05D4\u05D0\u05DC\u05D1\u05D5\u05DD \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</div>';
+        document.body.appendChild(errDiv);
+        return;
+      }
+      window._openSharedAlbum(res.data.pages);
+    });
+    // Don't run normal auth flow
+    return;
+  }
 
   sb.auth.getSession().then(function(res){if(res.data.session){currentUser=res.data.session.user;loadProfile();}else showLogin();});
   sb.auth.onAuthStateChange(function(event,session){if(session){currentUser=session.user;loadProfile();}else{currentUser=null;userProfile=null;showLogin();}});
