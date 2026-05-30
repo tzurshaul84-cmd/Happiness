@@ -2402,6 +2402,8 @@ window.addEventListener('popstate',function(e){
   // no state or base = truly at bottom → exit dialog
   if(!s||s.screen==='__base__'){
     // First check if any modal is open — close it instead
+    var _mi=document.getElementById('mood-info-modal');
+    if(_mi&&_mi.style.display!=='none'){_mi.style.display='none';return;}
     var _bm=document.getElementById('album-builder-modal');
     if(_bm&&_bm.style.display!=='none'){_bm.style.display='none';return;}
     var _vm=document.getElementById('album-viewer-modal');
@@ -2714,9 +2716,10 @@ window.openMoodInfo=function(){
   if(score>=80){renderMoodInfoHigh();}else{renderMoodInfoLow();}
 };
 
-function moodInfoClose(){var m=document.getElementById('mood-info-modal');if(m)m.style.display='none';history.back();}
+function moodInfoClose(){var m=document.getElementById('mood-info-modal');if(m)m.style.display='none';}
+window.moodInfoClose=moodInfoClose;
 
-function moodCtaClick(){
+window.moodCtaClick=function moodCtaClick(){
   var s={he:'בקרוב! 🚀',en:'Coming soon! 🚀',ar:'قريباً! 🚀',ru:'Скоро! 🚀',es:'¡Próximamente! 🚀',pt:'Em breve! 🚀',fr:'Bientôt! 🚀',de:'Demnächst! 🚀',it:'Prossimamente! 🚀',hi:'जल्द आ रहा है! 🚀',zh:'即将推出! 🚀',ja:'もうすぐ! 🚀'};
   showToast(s[currentLang]||s['en']);
 }
