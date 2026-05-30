@@ -3596,11 +3596,15 @@ window._openSharedAlbum=function(pages){
   // Mark as shared mode
   vm.setAttribute('data-shared','1');
 
-  // Hide edit/share buttons
+  // Hide edit/share/remove buttons
   var shareBtn=document.getElementById('alb-share-btn');
   var editBtn=document.getElementById('alb-edit-btn');
+  var removeBtn=document.getElementById('alb-remove-btn');
+  var fsRemoveBtn=document.getElementById('alb-fs-remove-btn');
   if(shareBtn)shareBtn.style.display='none';
   if(editBtn)editBtn.style.display='none';
+  if(removeBtn)removeBtn.style.display='none';
+  if(fsRemoveBtn)fsRemoveBtn.style.display='none';
 
   vm.style.display='flex';
   abSetTexts();
