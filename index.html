@@ -2386,6 +2386,29 @@ function initApp(){
   // always start on today screen
   history.replaceState({screen:'__base__'},'',window.location.pathname);
   history.pushState({screen:'today'},'',window.location.pathname);
+
+  // ── SHARED ALBUM VIEWER ──────────────────────────────────
+  (function(){
+    var params=new URLSearchParams(window.location.search);
+    var albumId=params.get('album');
+    if(!albumId)return;
+    // Show loading overlay
+    var ov=document.createElement('div');
+    ov.id='shared-album-overlay';
+    ov.style.cssText='position:fixed;inset:0;background:#07071a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#aac;font-family:Heebo,sans-serif';
+    ov.innerHTML='<div style="font-size:48px;margin-bottom:16px">📖</div><div style="font-size:16px;font-weight:700">טוען אלבום...</div>';
+    document.body.appendChild(ov);
+    sb.from('shared_albums').select('pages').eq('id',albumId).single()
+    .then(function(res){
+      if(res.error||!res.data){
+        ov.innerHTML='<div style="font-size:48px;margin-bottom:16px">😕</div><div style="font-size:16px;font-weight:700;color:#f66">האלבום לא נמצא</div>';
+        setTimeout(function(){ov.remove();},2500);
+        return;
+      }
+      ov.remove();
+      window._openSharedAlbum(res.data.pages);
+    });
+  })();
   window._exitReady=true;
   fillDL();renderHeader();updateUI(70);renderWeekCard();renderVsCard();renderGlobe(68);
   goTo('today',true);
@@ -3332,7 +3355,7 @@ function abSingleEntry(e, pgNum, totalReal){
   var c=abColor(e.score);
   var src=e.media_url||(e.mediaType==='image'?e.mediaPreview:null);
   var mediaHtml=src
-    ?'<img class="ab-slot-img" src="'+src+'" loading="lazy">'
+    ?'<img class="ab-slot-img" src="'+src+'" loading="lazy" style="border:2px solid '+c+'55;box-shadow:0 0 8px '+c+'33">'
     :'<div class="ab-slot-emoji" style="background:linear-gradient(135deg,'+c+'15,'+c+'28)">'+abEmoji(e.score)+'</div>';
   return '<div class="ab-slot">'
     +'<div class="ab-slot-date">'+abDateFull(e.date)+'</div>'
@@ -3342,7 +3365,7 @@ function abSingleEntry(e, pgNum, totalReal){
     +'<div class="ab-slot-emo">'+abEmoji(e.score)+'</div>'
     +'<div class="ab-slot-bar"><div class="ab-slot-bar-fill" style="width:'+e.score+'%;background:'+c+'"></div></div>'
     +'</div>'
-    +(e.special?'<div class="ab-slot-note">'+e.special+'</div>':'')
+    +(e.special?'<div class="ab-slot-note" style="color:'+c+'bb">'+e.special+'</div>':'')
     +'</div>';
 }
 
@@ -3510,13 +3533,77 @@ window.shareAlbum=function(){
   if(!pages.length)return;
   var total=pages.length;
   var avg=Math.round(pages.reduce(function(a,b){return a+(b.score||0);},0)/total);
-  var em=avg>=80?'🌟':avg>=60?'😊':avg>=40?'😐':'💙';
-  var msg=encodeURIComponent(em+' '+t('albShareMsg')+'\n'
-    +'📅 '+abDateStr(pages[0].date)+' — '+abDateStr(pages[total-1].date)+'\n'
-    +'📊 '+total+' '+t('albDays')+' · '+t('albShareStats')+': '+avg+'\n'
-    +'🌍 happiness-eta-ochre.vercel.app');
-  window.open('https://wa.me/?text='+msg,'_blank');
+  var em=avg>=80?'\uD83C\uDF1F':avg>=60?'\uD83D\uDE0A':avg>=40?'\uD83D\uDE10':'\uD83D\uDC99';
+
+  // Build safe pages data (no user_id, no device_id)
+  var safePages=pages.map(function(e){
+    return {
+      date:e.date,
+      score:e.score,
+      special:e.special||'',
+      media_url:e.media_url||null
+    };
+  });
+
+  // Show loading state on button
+  var btn=document.getElementById('alb-share-btn');
+  var origTxt=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+
+  sb.from('shared_albums').insert({pages:safePages}).select('id').single()
+  .then(function(res){
+    if(btn){btn.disabled=false;btn.textContent=origTxt;}
+    if(res.error||!res.data){
+      showToast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05D9\u05EA\u05D5\u05E3 \uD83D\uDE22');
+      return;
+    }
+    var uuid=res.data.id;
+    var link='https://happiness-eta-ochre.vercel.app?album='+uuid;
+    var msg=encodeURIComponent(em+' '+t('albShareMsg')+'\n'
+      +'\uD83D\uDCC5 '+abDateStr(pages[0].date)+' \u2014 '+abDateStr(pages[total-1].date)+'\n'
+      +'\uD83D\uDCCA '+total+' '+t('albDays')+' \u00B7 '+t('albShareStats')+': '+avg+'\n'
+      +'\uD83D\uDD17 '+link);
+    window.open('https://wa.me/?text='+msg,'_blank');
+  });
 };
+// ===== SHARED ALBUM (READ-ONLY) =====
+window._openSharedAlbum=function(pages){
+  // Build _albPages structure from raw pages data
+  _albPages=[null]; // cover
+  var pgNum=1;
+  var i=0;
+  while(i<pages.length){
+    var e=pages[i];
+    var next=pages[i+1];
+    if(next){
+      _albPages.push({a:e,b:next,pgNum:pgNum});
+      pgNum++;i+=2;
+    } else {
+      _albPages.push({a:e,b:null,pgNum:pgNum});
+      pgNum++;i++;
+    }
+  }
+  if(_albPages.length%2!==0)_albPages.push(null);
+  _albCur=0;_abBusy=false;
+
+  // Hide share/edit buttons, show read-only viewer
+  var vm=document.getElementById('album-viewer-modal');
+  if(!vm)return;
+
+  // Mark as shared mode
+  vm.setAttribute('data-shared','1');
+
+  // Hide edit/share buttons
+  var shareBtn=document.getElementById('alb-share-btn');
+  var editBtn=document.getElementById('alb-edit-btn');
+  if(shareBtn)shareBtn.style.display='none';
+  if(editBtn)editBtn.style.display='none';
+
+  vm.style.display='flex';
+  abSetTexts();
+  setTimeout(function(){abDrawSpread();abWireTouch();},60);
+};
+
 // ===== FULLSCREEN =====
 window.albumFullscreen=function(){
   var vm=document.getElementById('album-viewer-modal');
