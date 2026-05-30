@@ -750,6 +750,7 @@ var SUPA_URL='https://ngtgxpmzksdtoegezrfp.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ndGd4cG16a3NkdG9lZ2V6cmZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNTQ5OTksImV4cCI6MjA5MjgzMDk5OX0.ohzQUhio626yt-MC5PPM9Yw1R_--MgrrKItHvzzaZ_g';
 var sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 var SK='whi-v7';
+var _worldAvg=68; // will be updated from Supabase
 var entries={},curScore=70,curMedia=null,curMediaType=null;
 var currentUser=null,userProfile=null,selectedStatus='';
 var currentLang=window.currentLang||'en';window.currentLang=currentLang;
@@ -2353,12 +2354,23 @@ function renderHeader(){
 
 function renderWeekCard(){} // removed from today screen
 
+function fetchWorldAvg(){
+  var todayStr=tod();
+  sb.from('entries').select('score').eq('date',todayStr).then(function(res){
+    if(res.error||!res.data||!res.data.length)return;
+    var avg=Math.round(res.data.reduce(function(a,b){return a+b.score;},0)/res.data.length);
+    _worldAvg=avg;
+    renderVsCard();
+    renderGlobe(avg);
+  });
+}
+
 function renderVsCard(){
   var e=entries[tod()];var vc=el('vscard');if(!e){if(vc)vc.style.display='none';return;}
   if(vc)vc.style.display='block';
-  var rows=[{l:t('myScore'),v:e.score},{l:t('worldAvg'),v:68}];
+  var rows=[{l:t('myScore'),v:e.score},{l:t('worldAvg'),v:_worldAvg}];
   el('vsrows').innerHTML=rows.map(function(r){var c=gc(r.v);return'<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px;font-weight:700"><span style="color:#aac">'+r.l+'</span><span style="color:'+c+'">'+r.v+'</span></div><div class="wbar"><div class="wbar-fill" style="width:'+r.v+'%;background:'+c+'"></div></div></div>';}).join('');
-  var diff=e.score-68;el('vsdiff').textContent=diff>0?'+'+diff+' '+t('above'):diff<0?diff+' '+t('below'):t('exact');
+  var diff=e.score-_worldAvg;el('vsdiff').textContent=diff>0?'+'+diff+' '+t('above'):diff<0?diff+' '+t('below'):t('exact');
 }
 
 function showPreview(){el('uarea').innerHTML='<div class="mprev">'+(curMediaType==='image'?'<img src="'+curMedia+'">':'<video src="'+curMedia+'" controls></video>')+'<button class="mrem" id="mrem-btn">✕</button></div>';var rb=el('mrem-btn');if(rb)rb.addEventListener('click',resetUpload);}
@@ -2389,7 +2401,7 @@ function initApp(){
 
 
   window._exitReady=true;
-  fillDL();renderHeader();updateUI(70);renderWeekCard();renderVsCard();renderGlobe(68);
+  fillDL();renderHeader();updateUI(70);renderWeekCard();renderVsCard();renderGlobe(_worldAvg);fetchWorldAvg();
   goTo('today',true);
   if(allE().length>0)loadAI();
 }
