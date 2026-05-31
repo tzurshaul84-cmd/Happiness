@@ -1991,7 +1991,7 @@ function loadWorldData(){
   el('gnum').style.color='#00d4ff';
   el('gtotal').textContent=t('loading');
   var todayStr=tod();
-  sb.from('entries').select('score,city,country,date').order('date',{ascending:false}).limit(200).then(function(res){
+  sb.from('entries').select('score,city,country,date').order('date',{ascending:false}).limit(3650).then(function(res){
     worldDataLoading=false;
     if(res.error||!res.data){el('gnum').textContent='--';el('gtotal').textContent=t('nodata');el('wcities').innerHTML='<div class="empty">🌍<br>'+t('nodataFirst').replace('\\n','<br>')+'</div>';el('wcountries').innerHTML='<div class="empty">'+t('nodata')+'</div>';renderMap({});return;}
     var data=res.data.filter(function(d){return String(d.date).slice(0,10)===todayStr;});
@@ -2074,7 +2074,7 @@ function renderHistory(){renderMyHistory();renderWorldArchive();renderStats();}
 
 function renderMyHistory(){
   if(currentUser){
-    sb.from('entries').select('*,media_url').eq('user_id',currentUser.id).order('date',{ascending:false}).limit(365).then(function(res){
+    sb.from('entries').select('*,media_url').eq('user_id',currentUser.id).order('date',{ascending:false}).limit(3650).then(function(res){
       if(res.data&&res.data.length){
         res.data.forEach(function(d){
           var loc=entries[d.date]||{};
@@ -2114,7 +2114,7 @@ function renderMyHistoryLocal(){
 
 function renderWorldArchive(){
   var hw=el('h-world');hw.innerHTML='<div style="color:#88c;font-size:13px">'+t('loading')+'</div>';
-  sb.from('entries').select('date,score,city').order('date',{ascending:false}).limit(300).then(function(res){
+  sb.from('entries').select('date,score,city').order('date',{ascending:false}).limit(3650).then(function(res){
     if(res.error||!res.data||!res.data.length){hw.innerHTML='<div class="empty">'+t('nodata')+'</div>';return;}
     var byDate={};
     res.data.forEach(function(d){if(!byDate[d.date])byDate[d.date]={scores:[],cities:{}};byDate[d.date].scores.push(d.score);if(d.city){if(!byDate[d.date].cities[d.city])byDate[d.date].cities[d.city]=[];byDate[d.date].cities[d.city].push(d.score);}});
@@ -2273,11 +2273,41 @@ function renderStats(){
       var key=_rmode==='country'?'country':'city';
       var filtered=data.filter(function(d){var dt=String(d.date).slice(0,10);return(!fromVal||dt>=fromVal)&&(!toVal||dt<=toVal);});
       var datesSet={};filtered.forEach(function(d){datesSet[String(d.date).slice(0,10)]=true;});
-      var dates=Object.keys(datesSet).sort();
-      if(!dates.length){el('stats-chart-wrap').style.display='none';el('stats-empty').style.display='block';el('stats-empty').textContent=t('statsNoRange');return;}
+      var rawDates=Object.keys(datesSet).sort();
+      if(!rawDates.length){el('stats-chart-wrap').style.display='none';el('stats-empty').style.display='block';el('stats-empty').textContent=t('statsNoRange');return;}
+
+      // Smart aggregation: daily / weekly / biweekly based on range size
+      var dates, getLabel, getRows;
+      var nDays=rawDates.length;
+      if(nDays<=60){
+        // Daily
+        dates=rawDates;
+        getLabel=function(d){return d.slice(5);};
+        getRows=function(dt,name){return filtered.filter(function(d){return String(d.date).slice(0,10)===dt&&d[key]===name;});};
+      } else {
+        // Group by week (or biweekly if >180 days)
+        var groupSize=nDays>180?14:7;
+        var groups={};
+        rawDates.forEach(function(dt){
+          var d=new Date(dt);
+          var mon=new Date(d);
+          mon.setDate(d.getDate()-d.getDay()+1); // Monday of week
+          if(groupSize===14){mon.setDate(mon.getDate()-mon.getDay()%14);} // biweekly
+          var key2=mon.toISOString().slice(0,10);
+          if(!groups[key2])groups[key2]=[];
+          groups[key2].push(dt);
+        });
+        dates=Object.keys(groups).sort();
+        getLabel=function(d){return d.slice(5);};
+        getRows=function(dt,name){
+          var dts=groups[dt]||[];
+          return filtered.filter(function(d){return dts.indexOf(String(d.date).slice(0,10))>=0&&d[key]===name;});
+        };
+      }
+
       var series=selected.map(function(name,si){
         return{name:name,color:COLORS[si],points:dates.map(function(dt){
-          var rows=filtered.filter(function(d){return String(d.date).slice(0,10)===dt&&d[key]===name;});
+          var rows=getRows(dt,name);
           if(!rows.length)return null;
           return Math.round(rows.reduce(function(a,b){return a+b.score;},0)/rows.length);
         })};
@@ -2895,7 +2925,7 @@ window.renderGallery=function(){
   var to=toEl?toEl.value:'';
   var grid=document.getElementById('gallery-grid');
   grid.innerHTML='<div style="color:#66a;font-size:14px;text-align:center;grid-column:1/-1;padding:40px">טוען...</div>';
-  var query=sb.from('entries').select('id,date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  var query=sb.from('entries').select('id,date,score,special,media_url').order('date',{ascending:false}).limit(3650);
   if(currentUser)query=query.eq('user_id',currentUser.id);
   query.then(function(res){
     var all=[];
@@ -3222,7 +3252,7 @@ window.openAlbumBuilder=function(){
   abSetTexts();
   var stored=localStorage.getItem('whi-entries'),local={};
   try{if(stored)local=JSON.parse(stored);}catch(e){}
-  var q=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  var q=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(3650);
   if(currentUser)q=q.eq('user_id',currentUser.id);
   q.then(function(res){
     if(res.data&&res.data.length){
@@ -3814,7 +3844,7 @@ function renderGallery_OLD_DISABLED(){
   var stored=localStorage.getItem('whi-entries');
   var local={};
   try{if(stored)local=JSON.parse(stored);}catch(e){}
-  var query=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(365);
+  var query=sb.from('entries').select('date,score,special,media_url').order('date',{ascending:false}).limit(3650);
   if(currentUser)query=query.eq('user_id',currentUser.id);
   query.then(function(res){
     var all=[];
