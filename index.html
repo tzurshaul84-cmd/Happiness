@@ -2382,7 +2382,6 @@ function renderStats(){
       var pieColors=['#f97316','#eab308','#667eea','#22c55e'];
       var pieLabels=[t('rptLow40'),t('rptMid60'),t('rptGood80'),t('rptGreat')];
 
-      // Build series data
       var series=selected.map(function(name,si){
         var pts=dates.map(function(dt){
           var rows=filtered.filter(function(d){return String(d.date).slice(0,10)===dt&&d[key]===name;});
@@ -2392,65 +2391,70 @@ function renderStats(){
         var validPts=pts.filter(function(v){return v!==null;});
         var avg=validPts.length?Math.round(validPts.reduce(function(a,b){return a+b;},0)/validPts.length):0;
         var high=validPts.length?Math.max.apply(null,validPts):0;
-        var low=validPts.length?Math.min.apply(null,validPts):0;
-        // Pie per city
         var bkts=[0,0,0,0];
         validPts.forEach(function(v){if(v<=40)bkts[0]++;else if(v<=60)bkts[1]++;else if(v<=80)bkts[2]++;else bkts[3]++;});
-        return{name:name,color:COLORS_RPT[si],points:pts,avg:avg,high:high,low:low,count:validPts.length,buckets:bkts};
+        return{name:name,color:COLORS_RPT[si],points:pts,avg:avg,high:high,count:validPts.length,buckets:bkts};
       });
 
-      // Overall pie buckets
       var totalBuckets=[0,0,0,0];
       filtered.forEach(function(d){
-        if(d.score<=40)totalBuckets[0]++;
-        else if(d.score<=60)totalBuckets[1]++;
-        else if(d.score<=80)totalBuckets[2]++;
-        else totalBuckets[3]++;
+        if(d.score<=40)totalBuckets[0]++;else if(d.score<=60)totalBuckets[1]++;else if(d.score<=80)totalBuckets[2]++;else totalBuckets[3]++;
       });
 
-      // Build pie SVG — size param for big/small
+      // FIX: handle 100% single slice + add circle fallback
       function buildPieSVG(buckets,size,showLegend){
         var total=buckets.reduce(function(a,b){return a+b;},0)||1;
         var r=size*0.8,cx=size,cy=size;
-        var startAngle=-Math.PI/2;
+        var nonZero=buckets.filter(function(v){return v>0;}).length;
         var paths='',legendItems='';
-        buckets.forEach(function(count,i){
-          if(!count)return;
-          var slice=(count/total)*2*Math.PI;
-          var endAngle=startAngle+slice;
-          var x1=cx+r*Math.cos(startAngle),y1=cy+r*Math.sin(startAngle);
-          var x2=cx+r*Math.cos(endAngle),y2=cy+r*Math.sin(endAngle);
-          var large=slice>Math.PI?1:0;
-          var pct=Math.round(count/total*100);
-          var midAngle=startAngle+slice/2;
-          var lx=cx+(r*0.62)*Math.cos(midAngle),ly=cy+(r*0.62)*Math.sin(midAngle);
-          paths+='<path d="M'+cx+','+cy+' L'+x1+','+y1+' A'+r+','+r+' 0 '+large+',1 '+x2+','+y2+' Z" fill="'+pieColors[i]+'" stroke="#07071a" stroke-width="1.5"/>';
-          if(pct>6)paths+='<text x="'+lx+'" y="'+(ly+4)+'" text-anchor="middle" fill="#fff" font-size="'+(size>80?12:9)+'" font-weight="bold" font-family="Heebo,Arial">'+pct+'%</text>';
-          if(showLegend){
-            legendItems+='<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #2a2a3a">'
-              +'<div style="width:18px;height:18px;min-width:18px;border-radius:3px;background:'+pieColors[i]+';print-color-adjust:exact;-webkit-print-color-adjust:exact"></div>'
-              +'<span style="font-size:13px;font-weight:700;color:#dde;flex:1">'+pieLabels[i]+'</span>'
+        if(nonZero===1){
+          // Single color — draw a full circle
+          var ci=buckets.indexOf(Math.max.apply(null,buckets));
+          paths='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+pieColors[ci]+'"/>';
+          var pct=100;
+          paths+='<text x="'+cx+'" y="'+(cy+5)+'" text-anchor="middle" fill="#fff" font-size="'+(size>80?13:10)+'" font-weight="bold" font-family="Heebo,Arial">100%</text>';
+        } else {
+          var startAngle=-Math.PI/2;
+          buckets.forEach(function(count,i){
+            if(!count)return;
+            var slice=(count/total)*2*Math.PI;
+            var endAngle=startAngle+slice;
+            var x1=cx+r*Math.cos(startAngle),y1=cy+r*Math.sin(startAngle);
+            var x2=cx+r*Math.cos(endAngle),y2=cy+r*Math.sin(endAngle);
+            var large=slice>Math.PI?1:0;
+            var pct=Math.round(count/total*100);
+            var midAngle=startAngle+slice/2;
+            var lx=cx+(r*0.62)*Math.cos(midAngle),ly=cy+(r*0.62)*Math.sin(midAngle);
+            paths+='<path d="M'+cx+','+cy+' L'+x1+','+y1+' A'+r+','+r+' 0 '+large+',1 '+x2+','+y2+' Z" fill="'+pieColors[i]+'" stroke="#fff" stroke-width="1"/>';
+            if(pct>6)paths+='<text x="'+lx+'" y="'+(ly+4)+'" text-anchor="middle" fill="#fff" font-size="'+(size>80?12:9)+'" font-weight="bold" font-family="Heebo,Arial">'+pct+'%</text>';
+            startAngle=endAngle;
+          });
+        }
+        if(showLegend){
+          buckets.forEach(function(count,i){
+            if(!count)return;
+            legendItems+='<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #dde">'
+              +'<div style="width:18px;height:18px;min-width:18px;border-radius:3px;background:'+pieColors[i]+'"></div>'
+              +'<span style="font-size:13px;font-weight:700;flex:1">'+pieLabels[i]+'</span>'
               +'<span style="font-size:13px;font-weight:900;color:'+pieColors[i]+'">'+count+'</span>'
               +'</div>';
-          }
-          startAngle=endAngle;
-        });
+          });
+        }
         var vb=size*2;
         var svg='<svg viewBox="0 0 '+vb+' '+vb+'" width="'+(size*2)+'" height="'+(size*2)+'">'+paths+'</svg>';
         if(showLegend){
-          return '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center">'+svg+'<div style="min-width:190px">'+legendItems+'</div></div>';
+          return '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center">'+svg+'<div style="min-width:180px">'+legendItems+'</div></div>';
         }
-        return '<div style="text-align:center">'+svg+'<div style="font-size:11px;color:#aac;margin-top:4px">'+buckets.reduce(function(a,b){return a+b;},0)+' '+t('rptDays')+'</div></div>';
+        return '<div style="text-align:center">'+svg+'<div style="font-size:11px;margin-top:4px">'+total+' '+t('rptDays')+'</div></div>';
       }
 
-      // Build line chart SVG
       function buildLineSVG(){
         var W=500,H=160,PL=35,PR=15,PT=15,PB=35;
         var cW=W-PL-PR,cH=H-PT-PB;
         var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:500px">';
         for(var g=0;g<=4;g++){
           var gy=PT+cH*(1-g/4);
-          svg+='<line x1="'+PL+'" y1="'+gy+'" x2="'+(W-PR)+'" y2="'+gy+'" stroke="#2a2a4a" stroke-width="1"/>';
+          svg+='<line x1="'+PL+'" y1="'+gy+'" x2="'+(W-PR)+'" y2="'+gy+'" stroke="#ccd" stroke-width="0.5"/>';
           svg+='<text x="'+(PL-4)+'" y="'+(gy+4)+'" text-anchor="end" fill="#888" font-size="9" font-family="Arial">'+g*25+'</text>';
         }
         var step=Math.max(1,Math.floor(dates.length/6));
@@ -2471,31 +2475,30 @@ function renderStats(){
         return svg;
       }
 
-      // Table rows
       var tableRows='';
       dates.slice(-60).forEach(function(dt,ri){
-        var bg=ri%2===0?'#13132a':'#0d0d1f';
-        var cells='<td style="padding:7px 10px;color:#aac;font-size:12px">'+dt+'</td>';
+        var cells='<td style="padding:7px 10px;font-size:12px;border-bottom:1px solid #dde">'+dt+'</td>';
         series.forEach(function(s){
           var v=s.points[dates.indexOf(dt)];
-          var c=v===null?'#444':v>=80?'#22c55e':v>=60?'#00d4ff':v>=40?'#eab308':'#f97316';
-          cells+='<td style="padding:7px 10px;text-align:center;font-weight:700;color:'+c+';font-size:12px">'+(v===null?'—':v)+'</td>';
+          var c=v===null?'#999':v>=80?'#22a05e':v>=60?'#0077aa':v>=40?'#cc8800':'#cc4400';
+          cells+='<td style="padding:7px 10px;text-align:center;font-weight:700;color:'+c+';font-size:12px;border-bottom:1px solid #dde">'+(v===null?'—':v)+'</td>';
         });
-        tableRows+='<tr style="background:'+bg+'">'+cells+'</tr>';
+        tableRows+='<tr style="background:'+(ri%2===0?'#f4f4ff':'#fff')+'">' +cells+'</tr>';
       });
 
       var legend=series.map(function(s){
-        return '<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#ccc">'
-          +'<div style="width:24px;height:3px;background:'+s.color+';border-radius:2px;print-color-adjust:exact;-webkit-print-color-adjust:exact"></div>'
-          +s.name+'</div>';
+        return '<div style="display:flex;align-items:center;gap:6px;font-size:13px">'
+          +'<div style="width:24px;height:3px;background:'+s.color+';border-radius:2px"></div>'
+          +'<span>'+s.name+'</span></div>';
       }).join('');
 
       var now=new Date().toLocaleDateString();
 
+      // CSS - light background for PDF compatibility + dark for screen
       var css=''
         +'*{box-sizing:border-box;margin:0;padding:0}'
-        +'html{width:100%}'
-        +'body{font-family:Heebo,Arial,sans-serif;background:#07071a;color:#fff;padding:16px;width:100%}'
+        +'html,body{width:100%;min-height:100%}'
+        +'body{font-family:Heebo,Arial,sans-serif;background:#07071a;color:#fff;padding:16px}'
         +'.inner{max-width:680px;margin:0 auto}'
         +'h1{font-size:22px;font-weight:900;text-align:center;margin-bottom:4px}'
         +'.sub{text-align:center;color:#aac;font-size:12px;margin-bottom:18px}'
@@ -2505,20 +2508,20 @@ function renderStats(){
         +'.card{background:#13132a;border-radius:10px;padding:10px;text-align:center}'
         +'.cl{font-size:10px;color:#88c;margin-bottom:3px}'
         +'.cv{font-size:22px;font-weight:900}'
-        +'.pies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px;margin-top:8px}'
+        +'.pies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;margin-top:8px}'
         +'.pie-name{font-size:12px;font-weight:900;text-align:center;margin-bottom:6px}'
-        +'table{width:100%;border-collapse:collapse}'
-        +'th{background:#1a1a40;padding:7px 9px;font-size:11px;color:#aac;font-weight:700}'
-        +'td{border-bottom:1px solid #1a1a2a}'
+        +'table{width:100%;border-collapse:collapse;background:#fff;color:#000}'
+        +'th{background:#334;color:#fff;padding:7px 9px;font-size:11px;font-weight:700}'
         +'.pbtn{display:block;width:100%;padding:12px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:14px;font-family:Heebo,Arial}'
+        +'.share-btn{display:block;width:100%;padding:12px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px;font-family:Heebo,Arial}'
         +'@media print{'
-        +'.pbtn{display:none}'
-        +'html,body{background:#fff!important;color:#000!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+        +'.pbtn,.share-btn{display:none}'
+        +'body{background:#fff!important;color:#000!important}'
         +'.sec{border-color:#ddd!important;background:#f8f8ff!important}'
-        +'.card{background:#f0f0f8!important}'
-        +'.cl{color:#666!important}'
+        +'.card{background:#eef!important}'
+        +'.cl{color:#556!important}'
         +'.sec-t{color:#334!important}'
-        +'td,th{color:#000!important}'
+        +'.sub{color:#556!important}'
         +'}';
 
       var reportHTML='<!DOCTYPE html><html dir="'+dir+'" lang="'+currentLang+'">'
@@ -2527,9 +2530,11 @@ function renderStats(){
         +'<title>'+t('rptTitle')+'</title>'
         +'<style>'+css+'</style>'
         +'</head><body>'
-        +'<div class="inner">';
+        +'<div class="inner" id="ri">';
 
+      // Share button placeholder (filled after Supabase save)
       reportHTML+='<button class="pbtn" onclick="window.print()">'+t('rptPrint')+'</button>';
+      reportHTML+='<div id="share-area"></div>';
       reportHTML+='<h1>🌍 '+t('rptTitle')+'</h1>';
       reportHTML+='<div class="sub">'+t('rptPeriod')+': '+(fromVal||dates[0])+' — '+(toVal||dates[dates.length-1])
         +'&nbsp;|&nbsp;'+t('rptGenerated')+': '+now+'</div>';
@@ -2537,7 +2542,7 @@ function renderStats(){
       // Summary cards
       reportHTML+='<div class="sec"><div class="sec-t">📊 '+t('rptAvg')+'</div>';
       series.forEach(function(s){
-        var sc=s.avg>=80?'#22c55e':s.avg>=60?'#00d4ff':s.avg>=40?'#eab308':'#f97316';
+        var sc=s.avg>=80?'#22c55e':s.avg>=60?'#0099cc':s.avg>=40?'#cc8800':'#f97316';
         reportHTML+='<div style="margin-bottom:12px">'
           +'<div style="font-size:13px;font-weight:900;color:'+s.color+';margin-bottom:7px">'+s.name+'</div>'
           +'<div class="cards">'
@@ -2557,7 +2562,7 @@ function renderStats(){
       reportHTML+='<div class="sec"><div class="sec-t">🥧 '+t('rptPie')+'</div>'
         +buildPieSVG(totalBuckets,90,true)+'</div>';
 
-      // Small pies per city (only if more than 1 selected)
+      // Small pies per city
       if(series.length>1){
         reportHTML+='<div class="sec"><div class="sec-t">🥧 '+t('rptPie')+' — '+t('rptAvg')+'</div>'
           +'<div class="pies-grid">';
@@ -2570,29 +2575,38 @@ function renderStats(){
         reportHTML+='</div></div>';
       }
 
-      // Table
+      // Table — light bg for PDF readability
       var th='<th>'+t('rptDate')+'</th>'+series.map(function(s){return'<th style="color:'+s.color+'">'+s.name+'</th>';}).join('');
       reportHTML+='<div class="sec"><div class="sec-t">📋 '+t('rptTable')+'</div>'
         +'<div style="overflow-x:auto"><table><thead><tr>'+th+'</tr></thead><tbody>'+tableRows+'</tbody></table></div></div>';
 
       reportHTML+='<button class="pbtn" onclick="window.print()">'+t('rptPrint')+'</button>';
-      reportHTML+='</div></body></html>';
+      reportHTML+='</div>'
+        +'<script>'
+        +'function setShareLink(url){'
+        +'var a=document.getElementById("share-area");'
+        +'if(a)a.innerHTML=\'<a href="\'+url+\'" target="_blank" style="display:block;width:100%;padding:12px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px;text-decoration:none;text-align:center">💬 \'+decodeURIComponent(\''+encodeURIComponent(t('rptShare')||'Share via WhatsApp')+'\')+"</a>";'
+        +'}'
+        +'<\/script>'
+        +'</body></html>';
 
-      // Save to Supabase and open + offer WhatsApp share
+      // Save to Supabase → inject share link into opened window
       var evtBtn=document.querySelector('button[onclick*="_statsExportHTML"]');
       if(evtBtn){evtBtn.disabled=true;evtBtn.textContent='⏳...';}
+
+      var win=window.open('','_blank');
+      if(win){win.document.write(reportHTML);win.document.close();}
+
       sb.from('shared_reports').insert({html:reportHTML}).select('id').single()
       .then(function(res){
         if(evtBtn){evtBtn.disabled=false;evtBtn.textContent='📄 '+(t('exportHTML')||'Report');}
-        var win=window.open('','_blank');
-        if(win){win.document.write(reportHTML);win.document.close();}
         if(!res.error&&res.data){
           var link='https://happiness-eta-ochre.vercel.app?report='+res.data.id;
-          setTimeout(function(){
-            if(confirm(t('rptShare')||'Share via WhatsApp?')){
-              window.open('https://wa.me/?text='+encodeURIComponent('📊 '+t('rptTitle')+'\n🔗 '+link),'_blank');
-            }
-          },800);
+          var waUrl='https://wa.me/?text='+encodeURIComponent('📊 '+t('rptTitle')+'\n🔗 '+link);
+          // Inject share button into already-opened window
+          if(win&&!win.closed){
+            try{win.setShareLink(waUrl);}catch(e){}
+          }
         }
       });
     };
