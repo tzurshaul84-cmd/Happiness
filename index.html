@@ -2396,8 +2396,9 @@ function renderStats(){
         return{name:name,color:COLORS_RPT[si],points:pts,avg:avg,high:high,count:validPts.length,buckets:bkts};
       });
 
+      // FIX: only use scores from selected cities/countries
       var totalBuckets=[0,0,0,0];
-      filtered.forEach(function(d){
+      filtered.filter(function(d){return selected.indexOf(d[key])>=0;}).forEach(function(d){
         if(d.score<40)totalBuckets[0]++;else if(d.score<=60)totalBuckets[1]++;else if(d.score<=80)totalBuckets[2]++;else totalBuckets[3]++;
       });
 
