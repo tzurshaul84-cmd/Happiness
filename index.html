@@ -2570,8 +2570,7 @@ function renderStats(){
         setTimeout(function(){
           var doShare=confirm(t('rptShare')||'Share this report via WhatsApp?');
           if(doShare){
-            var msg=encodeURIComponent('📊 '+t('rptTitle')+'
-🔗 '+link);
+            var msg=encodeURIComponent('📊 '+t('rptTitle')+'\n🔗 '+link);
             window.open('https://wa.me/?text='+msg,'_blank');
           }
         },800);
