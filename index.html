@@ -2817,12 +2817,8 @@ window.addEventListener('DOMContentLoaded',function(){
         document.body.appendChild(err);
         return;
       }
-      var win=window.open('','_blank');
-      if(win){win.document.write(res.data.html);win.document.close();}
-      else{
-        // Fallback: replace current page
-        document.open();document.write(res.data.html);document.close();
-      }
+      // Replace current page — no popup, works from WhatsApp links
+      document.open();document.write(res.data.html);document.close();
     });
     return;
   }
