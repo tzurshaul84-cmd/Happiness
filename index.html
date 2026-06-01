@@ -1501,9 +1501,8 @@ function goTo(name,skipHistory){
   if(name==='world'){worldDataLoading=false;loadWorldData();}
   if(name==='history')renderHistory();
   if(!skipHistory){
-    // today always replaces current state to prevent stack accumulation
-    if(name==='today') history.replaceState({screen:'today'},'',window.location.pathname);
-    else history.pushState({screen:name},'',window.location.pathname);
+    // All tabs use replaceState — they are not separate pages to navigate back to
+    history.replaceState({screen:name},'',window.location.pathname);
   }
 }
 
@@ -2721,12 +2720,18 @@ window.addEventListener('popstate',function(e){
   } else if(s.screen==='album-builder'){
     var viewerOpen=document.getElementById('album-viewer-modal');
     if(viewerOpen&&viewerOpen.style.display!=='none'){
+      // Coming back from viewer to builder
       viewerOpen.style.display='none';
       var bm3=document.getElementById('album-builder-modal');if(bm3)bm3.style.display='flex';
     } else {
-      var bm2=document.getElementById('album-builder-modal');if(bm2)bm2.style.display='none';
-      if(window._stateBeforeBuilder){history.replaceState(window._stateBeforeBuilder,'',window.location.pathname);}
+      // Coming back to close builder — hide it and go back one more step to clear state
+      var bm2=document.getElementById('album-builder-modal');
+      if(bm2&&bm2.style.display!=='none'){
+        bm2.style.display='none';
+        history.back();
+      }
     }
+    return;
   } else if(s.screen==='about'){
     var am=document.getElementById('about-modal');if(am)am.style.display='none';var _mi=document.getElementById('mood-info-modal');if(_mi)_mi.style.display='none';
   } else if(s.screen==='gallery-item'){
@@ -3521,7 +3526,6 @@ window.openAlbumBuilder=function(){
   var modal=document.getElementById('album-builder-modal');
   if(!modal)return;
   modal.style.display='flex';
-  window._stateBeforeBuilder=history.state;
   history.pushState({screen:'album-builder'},'',window.location.pathname);
   abSetTexts();
   var stored=localStorage.getItem('whi-entries'),local={};
@@ -4203,7 +4207,7 @@ function renderGallery_OLD_DISABLED(){
 <div id="album-builder-modal" style="display:none;position:fixed;inset:0;background:#07071a;z-index:6000;flex-direction:column;overflow:hidden">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(10,10,30,0.97);border-bottom:1px solid #1a1a40;flex-shrink:0">
     <div id="ab-modal-title" style="font-size:18px;font-weight:900;color:#fff">📸</div>
-    <button onclick="document.getElementById('album-builder-modal').style.display='none';if(window._stateBeforeBuilder){history.replaceState(window._stateBeforeBuilder,'',window.location.pathname);}else{history.back();}" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button>
+    <button onclick="document.getElementById('album-builder-modal').style.display='none';history.back();" style="background:#1a1a35;border:none;color:#aac;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button>
   </div>
   <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
     <div style="background:#13132a;border:1px solid #2a2a4a;border-radius:14px;padding:16px">
