@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Happiness Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 <meta name="theme-color" content="#0a0a14">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4368,6 +4369,42 @@ function renderGallery_OLD_DISABLED(){
   background: #f5f0e8;
   font-family: Heebo, sans-serif;
   position: relative;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(180,150,100,0.15);
+}
+
+/* Watercolor top-right corner */
+.ab-pg::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 55%; height: 55%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cellipse cx='160' cy='30' rx='70' ry='45' fill='%23b8d4a8' opacity='0.22' transform='rotate(-15 160 30)'/%3E%3Cellipse cx='185' cy='60' rx='50' ry='30' fill='%23e8d870' opacity='0.18' transform='rotate(10 185 60)'/%3E%3Cellipse cx='140' cy='15' rx='40' ry='25' fill='%2390c4d8' opacity='0.16' transform='rotate(-25 140 15)'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top right;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Watercolor bottom-left corner */
+.ab-pg::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 50%; height: 50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cellipse cx='40' cy='170' rx='65' ry='40' fill='%23b8d4a8' opacity='0.20' transform='rotate(20 40 170)'/%3E%3Cellipse cx='15' cy='145' rx='45' ry='28' fill='%23e8d870' opacity='0.16' transform='rotate(-10 15 145)'/%3E%3Cellipse cx='60' cy='190' rx='38' ry='22' fill='%2390c4d8' opacity='0.14' transform='rotate(30 60 190)'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom left;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Make slot content sit above watercolor */
+.ab-slot {
+  position: relative;
+  z-index: 1;
 }
 
 /* Dual-slot page — portrait: stacked, landscape: side by side */
@@ -4388,7 +4425,7 @@ function renderGallery_OLD_DISABLED(){
 .ab-slot-divider {
   height: 1px;
   width: 100%;
-  background: linear-gradient(to right, transparent, #c8b898, transparent);
+  background: linear-gradient(to right, transparent, #b8a878, transparent);
   margin: 3px 0;
   flex-shrink: 0;
 }
@@ -4429,11 +4466,12 @@ function renderGallery_OLD_DISABLED(){
   width: 100%;
   flex: 1;
   min-height: 0;
-  border-radius: 3px;
+  border-radius: 5px;
   object-fit: contain;
   background: #0a0a1a;
   display: block;
   margin-bottom: 3px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
 }
 
 .ab-slot-emoji {
@@ -4560,11 +4598,12 @@ function renderGallery_OLD_DISABLED(){
 }
 .ab-pg-cover-icon { font-size: 36px; }
 .ab-pg-cover-title {
-  font-size: 13px;
-  font-weight: 900;
+  font-size: 14px;
+  font-weight: 700;
   color: #fff;
   text-align: center;
   letter-spacing: 0.5px;
+  font-family: 'Dancing Script', cursive, Heebo, sans-serif;
 }
 .ab-pg-cover-sub {
   font-size: 9px;
