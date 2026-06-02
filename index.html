@@ -2711,6 +2711,8 @@ window.addEventListener('popstate',function(e){
 
   if(s.screen==='today'){
     // coming back from world/history → show today screen
+    var _abm=document.getElementById('album-builder-modal');if(_abm)_abm.style.display='none';
+    var _avm=document.getElementById('album-viewer-modal');if(_avm)_avm.style.display='none';
     var _sp=el('settings-panel');if(_sp)_sp.classList.remove('on');
     var _mb=el('modal');if(_mb)_mb.classList.remove('on');
     goTo('today',true);
@@ -2744,6 +2746,8 @@ window.addEventListener('popstate',function(e){
   } else if(s.screen==='settings'){
     var sp2=el('settings-panel');if(sp2)sp2.classList.remove('on');
   } else if(s.screen==='world'){
+    var _abmw=document.getElementById('album-builder-modal');if(_abmw)_abmw.style.display='none';
+    var _avmw=document.getElementById('album-viewer-modal');if(_avmw)_avmw.style.display='none';
     goTo('today',true);
   } else if(s.screen){
     goTo(s.screen,true);
