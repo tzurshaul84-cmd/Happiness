@@ -1501,13 +1501,8 @@ function goTo(name,skipHistory){
   if(name==='world'){worldDataLoading=false;loadWorldData();}
   if(name==='history')renderHistory();
   if(!skipHistory){
-    // world/history use pushState so back returns to today
-    // today uses replaceState (no extra entry)
-    if(name==='world'||name==='history'){
-      history.pushState({screen:name},'',window.location.pathname);
-    } else {
-      history.replaceState({screen:name},'',window.location.pathname);
-    }
+    // All tabs use replaceState — back navigation handled via popstate logic
+    history.replaceState({screen:name},'',window.location.pathname);
   }
 }
 
@@ -2696,7 +2691,7 @@ window.addEventListener('popstate',function(e){
   var _am=document.getElementById('about-modal');
   if(_am&&_am.style.display!=='none')_am.style.display='none';
 
-  // no state or base = truly at bottom → exit dialog
+  // no state or base = truly at bottom → exit dialog (only if on today tab)
   if(!s||s.screen==='__base__'){
     // First check if any modal is open — close it instead
     var _mi=document.getElementById('mood-info-modal');
@@ -2707,6 +2702,15 @@ window.addEventListener('popstate',function(e){
     if(_vm&&_vm.style.display!=='none'){_vm.style.display='none';return;}
     var _gm=document.getElementById('gallery-modal');
     if(_gm&&_gm.style.display!=='none'){_gm.style.display='none';return;}
+    var _sp=el('settings-panel');
+    if(_sp&&_sp.classList.contains('on')){_sp.classList.remove('on');return;}
+    // if not on today tab → go to today instead of exit
+    var _activeTab=document.querySelector('.nb.on');
+    var _activeScreen=_activeTab?_activeTab.dataset.screen:'today';
+    if(_activeScreen!=='today'){
+      goTo('today');
+      return;
+    }
     if(window._exitReady){
       showExitModal();
       history.pushState({screen:'today'},'',window.location.pathname);
@@ -2754,7 +2758,7 @@ window.addEventListener('popstate',function(e){
   } else if(s.screen==='world'){
     var _abmw=document.getElementById('album-builder-modal');if(_abmw)_abmw.style.display='none';
     var _avmw=document.getElementById('album-viewer-modal');if(_avmw)_avmw.style.display='none';
-    goTo('today',true);
+    goTo('world',true);
   } else if(s.screen){
     goTo(s.screen,true);
   }
