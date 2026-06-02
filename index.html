@@ -2675,6 +2675,7 @@ function initApp(){
   try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(err){}
   // always start on today screen
   history.pushState({screen:'__base__'},'',window.location.pathname);
+  history.pushState({screen:'__base__'},'',window.location.pathname);
   history.pushState({screen:'today'},'',window.location.pathname);
 
 
