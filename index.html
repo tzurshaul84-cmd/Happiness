@@ -974,7 +974,7 @@ el('google-login-btn').addEventListener('click',function(){sb.auth.signInWithOAu
 
 // SETTINGS
 el('gear-btn').addEventListener('click',function(){el('settings-panel').classList.add('on');history.pushState({screen:'settings'},'',window.location.pathname);});
-el('settings-close').addEventListener('click',function(){el('settings-panel').classList.remove('on');});
+el('settings-close').addEventListener('click',function(){el('settings-panel').classList.remove('on');history.back();});
 document.querySelectorAll('.lang-opt').forEach(function(opt){
   opt.addEventListener('click',function(){applyLang(this.getAttribute('data-lang'));});
 });
@@ -2715,6 +2715,7 @@ window.addEventListener('popstate',function(e){
     var _avm=document.getElementById('album-viewer-modal');if(_avm)_avm.style.display='none';
     var _sp=el('settings-panel');if(_sp)_sp.classList.remove('on');
     var _mb=el('modal');if(_mb)_mb.classList.remove('on');
+    history.replaceState({screen:'today'},'',window.location.pathname);
     goTo('today',true);
   } else if(s.screen==='album-viewer'){
     var vm=document.getElementById('album-viewer-modal');if(vm)vm.style.display='none';
