@@ -1501,8 +1501,13 @@ function goTo(name,skipHistory){
   if(name==='world'){worldDataLoading=false;loadWorldData();}
   if(name==='history')renderHistory();
   if(!skipHistory){
-    // All tabs use replaceState — they are not separate pages to navigate back to
-    history.replaceState({screen:name},'',window.location.pathname);
+    // world/history use pushState so back returns to today
+    // today uses replaceState (no extra entry)
+    if(name==='world'||name==='history'){
+      history.pushState({screen:name},'',window.location.pathname);
+    } else {
+      history.replaceState({screen:name},'',window.location.pathname);
+    }
   }
 }
 
