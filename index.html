@@ -2709,13 +2709,12 @@ window.addEventListener('popstate',function(e){
     var _activeTab=document.querySelector('.nb.on');
     var _activeScreen=_activeTab?_activeTab.dataset.screen:'today';
     if(_activeScreen!=='today'){
-      history.pushState({screen:'__base__'},'',window.location.pathname);
-      history.pushState({screen:'today'},'',window.location.pathname);
-      goTo('today',true);
+      goTo('today');
       return;
     }
     if(window._exitReady){
       showExitModal();
+      history.pushState({screen:'today'},'',window.location.pathname);
     }
     return;
   }
@@ -2726,6 +2725,7 @@ window.addEventListener('popstate',function(e){
     var _avm=document.getElementById('album-viewer-modal');if(_avm)_avm.style.display='none';
     var _sp=el('settings-panel');if(_sp)_sp.classList.remove('on');
     var _mb=el('modal');if(_mb)_mb.classList.remove('on');
+    history.replaceState({screen:'today'},'',window.location.pathname);
     goTo('today',true);
   } else if(s.screen==='album-viewer'){
     var vm=document.getElementById('album-viewer-modal');if(vm)vm.style.display='none';
