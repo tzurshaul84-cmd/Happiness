@@ -1966,7 +1966,7 @@ function loadAI(){
   var recent=e.slice(0,7);
   var avg=Math.round(recent.reduce(function(a,b){return a+b.score;},0)/recent.length);
   var todayScore=recent[0]?recent[0].score:avg;
-  var level=todayScore<=33?'low':todayScore<=67?'mid':'high';
+  var level=todayScore<=50?'low':todayScore<=80?'mid':'high';
   var dow=new Date().getDay();
   var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
   var texts=pool[level];
@@ -1976,7 +1976,7 @@ function loadAI(){
 }
 
 function getFallbackAI(avg){
-  var level=avg<=33?'low':avg<=67?'mid':'high';
+  var level=avg<=50?'low':avg<=80?'mid':'high';
   var pool=AI_INSIGHTS[currentLang]||AI_INSIGHTS['en'];
   return pool[level][0];
 }
