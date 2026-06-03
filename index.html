@@ -2708,7 +2708,9 @@ window.addEventListener('popstate',function(e){
     var _activeTab=document.querySelector('.nb.on');
     var _activeScreen=_activeTab?_activeTab.dataset.screen:'today';
     if(_activeScreen!=='today'){
-      goTo('today');
+      history.pushState({screen:'__base__'},'',window.location.pathname);
+      history.pushState({screen:'today'},'',window.location.pathname);
+      goTo('today',true);
       return;
     }
     if(window._exitReady){
