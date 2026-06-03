@@ -2674,7 +2674,6 @@ function makestars(){var html='';for(var i=0;i<50;i++){var x=((i*137.5)%100),y=(
 function initApp(){
   try{var r=localStorage.getItem(SK);if(r)entries=JSON.parse(r);}catch(err){}
   // always start on today screen
-  history.pushState({screen:'__base__'},'',window.location.pathname);
   history.replaceState({screen:'__base__'},'',window.location.pathname);
   history.pushState({screen:'today'},'',window.location.pathname);
 
@@ -2709,7 +2708,9 @@ window.addEventListener('popstate',function(e){
     var _activeTab=document.querySelector('.nb.on');
     var _activeScreen=_activeTab?_activeTab.dataset.screen:'today';
     if(_activeScreen!=='today'){
-      goTo('today');
+      history.pushState({screen:'__base__'},'',window.location.pathname);
+      history.pushState({screen:'today'},'',window.location.pathname);
+      goTo('today',true);
       return;
     }
     if(window._exitReady){
