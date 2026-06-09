@@ -2239,6 +2239,9 @@ function renderMyHistoryLocal(){
   // Graph placeholder
   html+='<div class="card"><span class="lbl">'+t('myGraph')+'</span><canvas id="mine-canvas" style="width:100%;height:200px;display:block"></canvas></div>';
 
+  // Export report button
+  html+='<div style="display:flex;gap:8px;justify-content:center;margin:4px 0"><button onclick="window._mineExportHTML()" style="background:linear-gradient(135deg,#f97316,#ec4899);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:900;cursor:pointer;flex:1">📄 '+(t('exportHTML')||'Report')+'</button></div>';
+
   // All days button
   html+='<div class="card" style="cursor:pointer;background:#13132a;border-color:#2a2a4a" onclick="window.openAllDays()">'
     +'<div style="display:flex;align-items:center;justify-content:space-between">'
@@ -2302,6 +2305,205 @@ function renderMyHistoryLocal(){
   var fi=document.getElementById('mine-from'),ti=document.getElementById('mine-to');
   if(fi)fi.addEventListener('change',drawMineChart);
   if(ti)ti.addEventListener('change',drawMineChart);
+
+  window._mineExportHTML=function(){
+    var fromVal=document.getElementById('mine-from').value;
+    var toVal=document.getElementById('mine-to').value;
+    var filtered=e.filter(function(d){return(!fromVal||d.date>=fromVal)&&(!toVal||d.date<=toVal);});
+    if(!filtered.length){alert(t('statsNoRange')||'No data');return;}
+    var sorted=filtered.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+    var dates=sorted.map(function(d){return d.date;});
+    var scores=sorted.map(function(d){return d.score;});
+    var avg=Math.round(scores.reduce(function(a,b){return a+b;},0)/scores.length);
+    var high=Math.max.apply(null,scores);
+    var low=Math.min.apply(null,scores);
+    var bestDay=sorted[scores.indexOf(high)];
+    var buckets=[0,0,0,0,0];
+    scores.forEach(function(v){if(v<40)buckets[0]++;else if(v<=60)buckets[1]++;else if(v<=80)buckets[2]++;else if(v<=90)buckets[3]++;else buckets[4]++;});
+    var pieColors=['#f97316','#eab308','#667eea','#a855f7','#22c55e'];
+    var pieLabels=[t('rptLow40'),t('rptMid60'),t('rptGood80'),t('rptGreat'),t('rptBest')];
+    var isRtl=(currentLang==='he'||currentLang==='ar');
+    var dir=isRtl?'rtl':'ltr';
+    var now=new Date().toLocaleDateString();
+
+    function buildPieSVG(bkts,size,showLegend){
+      var total=bkts.reduce(function(a,b){return a+b;},0)||1;
+      var r=size*0.8,cx=size,cy=size;
+      var nonZero=bkts.filter(function(v){return v>0;}).length;
+      var paths='',legendItems='';
+      if(nonZero===1){
+        var ci=bkts.indexOf(Math.max.apply(null,bkts));
+        paths='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+pieColors[ci]+'"/>';
+        paths+='<text x="'+cx+'" y="'+(cy+5)+'" text-anchor="middle" fill="#fff" font-size="'+(size>80?13:10)+'" font-weight="bold" font-family="Heebo,Arial">100%</text>';
+      } else {
+        var startAngle=-Math.PI/2;
+        bkts.forEach(function(count,i){
+          if(!count)return;
+          var slice=(count/total)*2*Math.PI;
+          var endAngle=startAngle+slice;
+          var x1=cx+r*Math.cos(startAngle),y1=cy+r*Math.sin(startAngle);
+          var x2=cx+r*Math.cos(endAngle),y2=cy+r*Math.sin(endAngle);
+          var large=slice>Math.PI?1:0;
+          var pct=Math.round(count/total*100);
+          var midAngle=startAngle+slice/2;
+          var lx=cx+(r*0.62)*Math.cos(midAngle),ly=cy+(r*0.62)*Math.sin(midAngle);
+          paths+='<path d="M'+cx+','+cy+' L'+x1+','+y1+' A'+r+','+r+' 0 '+large+',1 '+x2+','+y2+' Z" fill="'+pieColors[i]+'" stroke="#fff" stroke-width="1"/>';
+          if(pct>6)paths+='<text x="'+lx+'" y="'+(ly+4)+'" text-anchor="middle" fill="#fff" font-size="'+(size>80?12:9)+'" font-weight="bold" font-family="Heebo,Arial">'+pct+'%</text>';
+          startAngle=endAngle;
+        });
+      }
+      if(showLegend){
+        bkts.forEach(function(count,i){
+          if(!count)return;
+          legendItems+='<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #dde">'
+            +'<svg width="18" height="18"><rect width="18" height="18" rx="3" fill="'+pieColors[i]+'"/></svg>'
+            +'<span style="font-size:13px;font-weight:700;flex:1">'+pieLabels[i]+'</span>'
+            +'<span style="font-size:13px;font-weight:900;color:'+pieColors[i]+'">'+count+'</span>'
+            +'</div>';
+        });
+      }
+      var vb=size*2;
+      var svg='<svg viewBox="0 0 '+vb+' '+vb+'" width="'+(size*2)+'" height="'+(size*2)+'">'+paths+'</svg>';
+      if(showLegend){
+        return '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center">'+svg+'<div style="min-width:180px">'+legendItems+'</div></div>';
+      }
+      return '<div style="text-align:center">'+svg+'<div style="font-size:11px;margin-top:4px">'+total+' '+(t('rptDays')||'days')+'</div></div>';
+    }
+
+    function buildLineSVG(){
+      var W=500,H=160,PL=35,PR=15,PT=15,PB=35;
+      var cW=W-PL-PR,cH=H-PT-PB;
+      var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:500px">';
+      for(var g=0;g<=4;g++){
+        var gy=PT+cH*(1-g/4);
+        svg+='<line x1="'+PL+'" y1="'+gy+'" x2="'+(W-PR)+'" y2="'+gy+'" stroke="#ccd" stroke-width="0.5"/>';
+        svg+='<text x="'+(PL-4)+'" y="'+(gy+4)+'" text-anchor="end" fill="#888" font-size="9" font-family="Arial">'+g*25+'</text>';
+      }
+      var step=Math.max(1,Math.floor(dates.length/6));
+      dates.forEach(function(d,i){
+        if(i%step===0||i===dates.length-1){
+          var x=PL+cW*(i/(dates.length-1||1));
+          svg+='<text x="'+x+'" y="'+(H-PB+14)+'" text-anchor="middle" fill="#888" font-size="8" font-family="Arial">'+d.slice(5)+'</text>';
+        }
+      });
+      var pathD='',started=false;
+      scores.forEach(function(v,i){
+        var x=PL+cW*(i/(dates.length-1||1)),y=PT+cH*(1-v/100);
+        pathD+=(started?'L':'M')+x+' '+y;started=true;
+      });
+      svg+='<path d="'+pathD+'" fill="none" stroke="#667eea" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+      scores.forEach(function(v,i){
+        var x=PL+cW*(i/(dates.length-1||1)),y=PT+cH*(1-v/100);
+        var isLast=i===scores.length-1;
+        svg+='<circle cx="'+x+'" cy="'+y+'" r="'+(isLast?4:3)+'" fill="'+( v>=80?'#22c55e':v>=60?'#667eea':v>=40?'#eab308':'#f97316')+'"/>';
+        if(isLast)svg+='<text x="'+x+'" y="'+(y-8)+'" text-anchor="middle" fill="#667eea" font-size="10" font-weight="bold" font-family="Arial">'+v+'</text>';
+      });
+      svg+='</svg>';
+      return svg;
+    }
+
+    var tableRows='';
+    sorted.slice(-60).forEach(function(d,ri){
+      var c=d.score>=80?'#22a05e':d.score>=60?'#0077aa':d.score>=40?'#cc8800':'#cc4400';
+      var specialText=d.special?('<span style="font-size:11px;color:#667;margin-right:8px">'+d.special.slice(0,40)+(d.special.length>40?'...':'')+'</span>'):'';
+      tableRows+='<tr style="background:'+(ri%2===0?'#f4f4ff':'#fff')+'">'
+        +'<td style="padding:7px 10px;font-size:12px;border-bottom:1px solid #dde">'+d.date+'</td>'
+        +'<td style="padding:7px 10px;text-align:center;font-weight:700;color:'+c+';font-size:14px;border-bottom:1px solid #dde">'+d.score+'</td>'
+        +'<td style="padding:7px 10px;font-size:11px;color:#556;border-bottom:1px solid #dde">'+(d.special||'')+'</td>'
+        +'</tr>';
+    });
+
+    var css=''
+      +'*{box-sizing:border-box;margin:0;padding:0}'
+      +'html,body{width:100%;min-height:100%}'
+      +'body{font-family:Heebo,Arial,sans-serif;background:#07071a;color:#fff;padding:16px}'
+      +'.inner{max-width:680px;margin:0 auto}'
+      +'h1{font-size:22px;font-weight:900;text-align:center;margin-bottom:4px}'
+      +'.sub{text-align:center;color:#aac;font-size:12px;margin-bottom:18px}'
+      +'.sec{background:#0d0d1f;border:1px solid #1a1a40;border-radius:14px;padding:14px;margin-bottom:14px}'
+      +'.sec-t{font-size:12px;font-weight:900;color:#667eea;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}'
+      +'.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}'
+      +'.card{background:#13132a;border-radius:10px;padding:10px;text-align:center}'
+      +'.cl{font-size:10px;color:#88c;margin-bottom:3px}'
+      +'.cv{font-size:22px;font-weight:900}'
+      +'table{width:100%;border-collapse:collapse;background:#fff;color:#000}'
+      +'th{background:#334;color:#fff;padding:7px 9px;font-size:11px;font-weight:700}'
+      +'.pbtn{display:block;width:100%;padding:12px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:14px;font-family:Heebo,Arial}'
+      +'@media print{'
+      +'.pbtn,.share-btn{display:none}'
+      +'body{background:#fff!important;color:#000!important}'
+      +'.sec{border-color:#ddd!important;background:#f8f8ff!important}'
+      +'.card{background:#eef!important}'
+      +'.cl{color:#556!important}'
+      +'.sec-t{color:#334!important}'
+      +'.sub{color:#556!important}'
+      +'}';
+
+    var avgColor=avg>=80?'#22c55e':avg>=60?'#0099cc':avg>=40?'#cc8800':'#f97316';
+    var cityName=(userProfile&&userProfile.city)||'';
+
+    var reportHTML='<!DOCTYPE html><html dir="'+dir+'" lang="'+currentLang+'">'
+      +'<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+      +'<title>'+t('rptTitle')+'</title><style>'+css+'</style></head><body>'
+      +'<div class="inner" id="ri">'
+      +'<button class="pbtn" onclick="window.print()">'+t('rptPrint')+'</button>'
+      +'<div id="share-area"></div>'
+      +'<h1>😊 '+t('rptTitle')+'</h1>'
+      +'<div class="sub">'+(cityName?cityName+' &nbsp;|&nbsp; ':'')+t('rptPeriod')+': '+(fromVal||dates[0])+' — '+(toVal||dates[dates.length-1])+'&nbsp;|&nbsp;'+t('rptGenerated')+': '+now+'</div>'
+
+      // Summary cards
+      +'<div class="sec"><div class="sec-t">📊 '+t('rptAvg')+'</div>'
+      +'<div class="cards">'
+      +'<div class="card"><div class="cl">'+t('rptAvg')+'</div><div class="cv" style="color:'+avgColor+'">'+avg+'</div></div>'
+      +'<div class="card"><div class="cl">'+t('rptHigh')+'</div><div class="cv" style="color:#22c55e">'+high+'</div></div>'
+      +'<div class="card"><div class="cl">'+t('rptLow')+'</div><div class="cv" style="color:#f97316">'+low+'</div></div>'
+      +'<div class="card"><div class="cl">'+t('rptDays')+'</div><div class="cv" style="color:#667eea">'+scores.length+'</div></div>'
+      +'</div>'
+      +(bestDay?'<div style="margin-top:10px;font-size:13px;color:#eab308">🏆 '+t('bestDay')+': <strong>'+bestDay.date+'</strong> ('+high+')</div>':'')
+      +'</div>'
+
+      // Line chart
+      +'<div class="sec"><div class="sec-t">📈 '+t('rptTrend')+'</div>'
+      +buildLineSVG()
+      +'</div>'
+
+      // Pie chart
+      +'<div class="sec"><div class="sec-t">🥧 '+t('rptPie')+'</div>'
+      +buildPieSVG(buckets,90,true)
+      +'</div>'
+
+      // Table
+      +'<div class="sec"><div class="sec-t">📋 '+t('rptTable')+'</div>'
+      +'<div style="overflow-x:auto"><table><thead><tr>'
+      +'<th>'+t('rptDate')+'</th><th>'+t('rptScore')+'</th><th>'+t('special')+'</th>'
+      +'</tr></thead><tbody>'+tableRows+'</tbody></table></div></div>'
+
+      +'<button class="pbtn" onclick="window.print()">'+t('rptPrint')+'</button>'
+      +'</div>'
+      +'<script>'
+      +'function setShareLink(url){'
+      +'var a=document.getElementById("share-area");'
+      +'if(a)a.innerHTML=\'<a href="\'+url+\'" target="_blank" style="display:block;width:100%;padding:12px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;margin-bottom:10px;text-decoration:none;text-align:center">💬 \'+decodeURIComponent(\''+encodeURIComponent(t('rptShare')||'Share via WhatsApp')+'\')+"</a>";'
+      +'}'
+      +'<\/script>'
+      +'</body></html>';
+
+    var evtBtn=document.querySelector('button[onclick*="_mineExportHTML"]');
+    if(evtBtn){evtBtn.disabled=true;evtBtn.textContent='⏳...';}
+
+    var win=window.open('','_blank');
+    if(win){win.document.write(reportHTML);win.document.close();}
+
+    sb.from('shared_reports').insert({html:reportHTML}).select('id').single()
+    .then(function(res){
+      if(evtBtn){evtBtn.disabled=false;evtBtn.textContent='📄 '+(t('exportHTML')||'Report');}
+      if(!res.error&&res.data){
+        var link='https://happiness-eta-ochre.vercel.app?report='+res.data.id;
+        var waUrl='https://wa.me/?text='+encodeURIComponent('😊 '+t('rptTitle')+'\n🔗 '+link);
+        if(win&&!win.closed){try{win.setShareLink(waUrl);}catch(e){}}
+      }
+    });
+  };
 }
 
 function renderWorldArchive(){
