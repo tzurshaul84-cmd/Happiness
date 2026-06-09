@@ -2237,7 +2237,7 @@ function renderMyHistoryLocal(){
     +'</div></div>';
 
   // Graph placeholder
-  html+='<div class="card"><span class="lbl">'+t('myGraph')+'</span><canvas id="mine-canvas" style="width:100%;display:block"></canvas></div>';
+  html+='<div class="card"><span class="lbl">'+t('myGraph')+'</span><canvas id="mine-canvas" style="width:100%;height:200px;display:block"></canvas></div>';
 
   // All days button
   html+='<div class="card" style="cursor:pointer;background:#13132a;border-color:#2a2a4a" onclick="window.openAllDays()">'
@@ -2281,7 +2281,7 @@ function renderMyHistoryLocal(){
     var canvas=document.getElementById('mine-canvas');
     if(!canvas)return;
     var dpr=window.devicePixelRatio||1;
-    var W=canvas.offsetWidth||300,H=200;
+    var W=canvas.offsetWidth||canvas.parentElement&&canvas.parentElement.offsetWidth||document.getElementById('h-mine').offsetWidth||300,H=200;
     canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';
     var ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
     var PL=32,PR=10,PT=10,PB=30,cW=W-PL-PR,cH=H-PT-PB;
@@ -2298,12 +2298,10 @@ function renderMyHistoryLocal(){
   }
 
   window._drawMineChart=drawMineChart;
-  setTimeout(function(){
-    drawMineChart();
-    var fi=document.getElementById('mine-from'),ti=document.getElementById('mine-to');
-    if(fi)fi.addEventListener('change',drawMineChart);
-    if(ti)ti.addEventListener('change',drawMineChart);
-  },150);
+  drawMineChart();
+  var fi=document.getElementById('mine-from'),ti=document.getElementById('mine-to');
+  if(fi)fi.addEventListener('change',drawMineChart);
+  if(ti)ti.addEventListener('change',drawMineChart);
 }
 
 function renderWorldArchive(){
