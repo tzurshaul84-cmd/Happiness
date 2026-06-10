@@ -3536,8 +3536,7 @@ window.addEventListener('DOMContentLoaded',function(){
   function handleImageFile(file){
     if(!file)return;
     el('verr').style.display='none';
-    var MAX_IMG=5*1024*1024;
-    if(file.size>MAX_IMG){el('verr').textContent='התמונה גדולה מדי (מקסימום 5MB)';el('verr').style.display='block';return;}
+    // No file size limit - Cloudinary handles compression
     var img=new Image();
     var objUrl=URL.createObjectURL(file);
     img.onload=function(){
