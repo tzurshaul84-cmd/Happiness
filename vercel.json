@@ -1,8 +1,4 @@
 {
   "rewrites":[{"source":"/privacy","destination":"/privacy.html"}],
-  "functions": {
-    "api/*.js": {
-      "runtime": "edge"
-    }
-  }
+  "functions":{"api/*.js":{"runtime":"edge"}}
 }
