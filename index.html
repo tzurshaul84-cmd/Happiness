@@ -1593,7 +1593,10 @@ function saveEntry(){
     uploadToCloudinary(mediaToSave, currentUser.id, tday, function(err, url){
       if(err){
         console.error('Cloudinary upload failed:', err);
-        doSupabaseSave(null); // Save without image URL
+        alert('שגיאת העלאת תמונה: ' + (err.message||String(err)));
+        var btn2=el('savebtn');var btnTxt2=el('savebtn-txt');
+        if(btn2){btn2.disabled=false;btnTxt2.textContent='💾 '+(t('saveDay')||'שמור את היום');}
+        return;
       } else {
         // Update local entry with cloud URL too
         if(entries[tday]) entries[tday].media_url=url;
