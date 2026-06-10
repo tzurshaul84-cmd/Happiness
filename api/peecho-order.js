@@ -4,14 +4,14 @@ export default async function handler(req, res) {
   }
   const { productId, sourceUrl, pageCount, markup, merchantApiKey } = req.body;
   try {
-    const response = await fetch('https://www.peecho.com/rest/v3/order/', {
+    const r = await fetch('https://www.peecho.com/rest/v3/order/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'merchantApiKey': merchantApiKey },
       body: JSON.stringify({ productId, pageCount, markup, file_details: { source_url: sourceUrl } })
     });
-    const text = await response.text();
+    const text = await r.text();
     try { return res.status(200).json(JSON.parse(text)); }
-    catch(e) { return res.status(200).json({ raw: text, status: response.status }); }
+    catch(e) { return res.status(200).json({ raw: text, status: r.status }); }
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
