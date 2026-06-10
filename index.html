@@ -855,7 +855,19 @@ function tod(){
 function fs(d){var loc={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU','es':'es-ES','pt':'pt-BR','fr':'fr-FR','de':'de-DE','it':'it-IT','hi':'hi-IN','zh':'zh-CN','ja':'ja-JP','nl':'nl-NL','ptpt':'pt-PT','sv':'sv-SE','da':'da-DK'}[currentLang]||'en-US';return new Date(d+'T12:00:00').toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'});}
 function fl(d){var loc={'he':'he-IL','en':'en-US','ar':'ar-SA','ru':'ru-RU','es':'es-ES','pt':'pt-BR','fr':'fr-FR','de':'de-DE','it':'it-IT','hi':'hi-IN','zh':'zh-CN','ja':'ja-JP','nl':'nl-NL','ptpt':'pt-PT','sv':'sv-SE','da':'da-DK'}[currentLang]||'en-US';return new Date(d+'T12:00:00').toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function allE(){return Object.values(entries).sort(function(a,b){return b.date.localeCompare(a.date);});}
-function saveSt(){localStorage.setItem(SK,JSON.stringify(entries));}
+function saveSt(){
+  try{
+    // Strip base64 media before saving to localStorage (already on Cloudinary)
+    var slim={};
+    Object.keys(entries).forEach(function(k){
+      var e=entries[k];
+      slim[k]={score:e.score,date:e.date,special:e.special||null,media_url:e.media_url||null};
+    });
+    localStorage.setItem(SK,JSON.stringify(slim));
+  }catch(ex){
+    console.warn('localStorage full, skipping local save:',ex.message);
+  }
+}
 function el(id){return document.getElementById(id);}
 function showToast(msg,err){var toast=el('toast');toast.textContent=msg;toast.style.background=err?'#ff2d55':'#00d4ff';toast.style.color=err?'#fff':'#000';toast.style.display='block';setTimeout(function(){toast.style.display='none';},2500);}
 
