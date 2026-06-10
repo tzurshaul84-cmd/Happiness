@@ -6,23 +6,29 @@ export default async function handler(req, res) {
   const { productId, sourceUrl, pageCount, markup, merchantApiKey, secretKey } = req.body;
 
   try {
-    const response = await fetch('https://www.peecho.com/api/v3/orders', {
+    const response = await fetch('https://www.peecho.com/rest/v3/order/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Merchant-Api-Key': merchantApiKey,
-        'X-Secret-Key': secretKey
+        'merchantApiKey': merchantApiKey
       },
       body: JSON.stringify({
-        productId,
-        sourceUrl,
-        pageCount,
-        markup
+        productId: productId,
+        pageCount: pageCount,
+        markup: markup,
+        file_details: {
+          source_url: sourceUrl
+        }
       })
     });
 
-    const data = await response.json();
-    return res.status(200).json(data);
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      return res.status(200).json(data);
+    } catch(e) {
+      return res.status(200).json({ raw: text, status: response.status });
+    }
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
