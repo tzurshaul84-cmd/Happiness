@@ -4908,12 +4908,11 @@ function _generatePDF(photoPgs,cb){
 }
 
 function _uploadPDFAndOrder(pdfBlob,numPages,cb){
-  // Upload PDF to Cloudinary with public access
+  // Upload PDF as image type - publicly accessible
   var fd=new FormData();
   fd.append('file',pdfBlob,'album.pdf');
   fd.append('upload_preset','happiness_pdf');
-  fd.append('access_mode','public');
-  fetch('https://api.cloudinary.com/v1_1/dqt4v8qjs/raw/upload',{method:'POST',body:fd})
+  fetch('https://api.cloudinary.com/v1_1/dqt4v8qjs/image/upload',{method:'POST',body:fd})
   .then(function(r){return r.json();})
   .then(function(data){
     if(!data.secure_url){cb('PDF upload failed: '+JSON.stringify(data).slice(0,80));return;}
