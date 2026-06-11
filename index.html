@@ -4925,18 +4925,19 @@ function _uploadPDFAndOrder(pdfBlob,numPages,cb){
 }
 
 function _submitPeechoOrder(pdfUrl,numPages,cb){
-  var totalPages=Math.max(20,numPages+1);
-  fetch('/api/peecho-order',{
+  var totalPages=Math.max(20,numPages+1); // +1 for cover, min 20
+  var markup=PEECHO_MARKUP;
+  var body={
+    productId:PEECHO_PRODUCT_ID,
+    sourceUrl:pdfUrl,
+    pageCount:totalPages,
+    markup:markup,
+    merchantApiKey:PEECHO_MERCHANT_KEY
+  };
+  fetch('https://www.peecho.com/api/v3/orders',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      productId:PEECHO_PRODUCT_ID,
-      sourceUrl:pdfUrl,
-      pageCount:totalPages,
-      markup:PEECHO_MARKUP,
-      merchantApiKey:PEECHO_MERCHANT_KEY,
-      secretKey:PEECHO_SECRET
-    })
+    headers:{'Content-Type':'application/json','X-Merchant-Api-Key':PEECHO_MERCHANT_KEY},
+    body:JSON.stringify(body)
   })
   .then(function(r){return r.json();})
   .then(function(data){
@@ -4944,7 +4945,7 @@ function _submitPeechoOrder(pdfUrl,numPages,cb){
       window.open(data.checkoutUrl,'_blank');
       cb(null);
     } else {
-      cb('Peecho error: '+(data.error||JSON.stringify(data).slice(0,120)));
+      cb('Peecho error: '+JSON.stringify(data).slice(0,120));
     }
   })
   .catch(function(e){cb(e.message);});
@@ -4969,7 +4970,7 @@ window.orderPhysicalAlbum=function(){
   }
 
   // Show loading
-  var btn=document.getElementById('alb-print-txt');
+  var btn=document.getElementById('alb-print-btn');
   if(btn){btn.disabled=true;btn.textContent='⏳...';}
 
   // Build PDF then send to Peecho
@@ -5824,7 +5825,7 @@ function renderGallery_OLD_DISABLED(){
 <!-- Bottom bar -->
 <div id="alb-bottombar" style="padding:10px 14px 24px;display:flex;gap:10px;background:rgba(10,6,2,0.97);border-top:1px solid #2a1a05;flex-shrink:0;flex-wrap:wrap">
   <button onclick="window.shareAlbum()" id="alb-share-btn" style="flex:1;background:linear-gradient(135deg,#25D36618,#128C7E18);border:2px solid #25D36655;color:#25D366;border-radius:12px;font-size:14px;font-weight:900;padding:12px;cursor:pointer"></button>
-  <button onclick="window.orderPhysicalAlbum()" id="alb-print-txt" style="flex:1;background:linear-gradient(135deg,#f97316,#ec4899);border:none;color:#fff;border-radius:12px;font-size:13px;font-weight:900;padding:12px;cursor:pointer"></button>
+  <button onclick="window.orderPhysicalAlbum()" id="alb-print-btn" style="flex:1;background:linear-gradient(135deg,#f97316,#ec4899);border:none;color:#fff;border-radius:12px;font-size:13px;font-weight:900;padding:12px;cursor:pointer" id="alb-print-txt"></button>
   <button onclick="window.albumFullscreen()" id="alb-fs-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:18px;font-weight:700;padding:12px 14px;cursor:pointer" title="מסך מלא">⛶</button>
   <button onclick="window.toggleAlbumRemoveMode()" id="alb-remove-btn" style="background:#1a0e05;border:2px solid #3a2010;color:#c8a060;border-radius:12px;font-size:16px;font-weight:700;padding:12px 14px;cursor:pointer" title="הסר תמונה">✂️</button>
   <button onclick="document.getElementById('album-viewer-modal').style.display='none';document.getElementById('album-builder-modal').style.display='flex';" id="alb-edit-btn" style="display:none"></button>
