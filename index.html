@@ -4923,39 +4923,10 @@ function _uploadPDFAndOrder(pdfBlob,numPages,cb){
 }
 
 function _submitPeechoOrder(pdfUrl,numPages,cb){
-  var totalPages=Math.max(20,numPages+1);
-  // Load Peecho Print Button SDK if not already loaded
-  if(!window._peechoSdkLoaded){
-    var s=document.createElement('script');
-    s.src='//www.peecho.com/sdk/print-button.js';
-    s.onload=function(){
-      window._peechoSdkLoaded=true;
-      _openPeechoButton(pdfUrl,totalPages,cb);
-    };
-    s.onerror=function(){cb('Failed to load Peecho SDK');};
-    document.head.appendChild(s);
-  } else {
-    _openPeechoButton(pdfUrl,totalPages,cb);
-  }
-}
-
-function _openPeechoButton(pdfUrl,totalPages,cb){
-  // Create hidden Print Button anchor and click it
-  var a=document.createElement('a');
-  a.className='peecho-print-button';
-  a.setAttribute('data-filetype','pdf');
-  a.setAttribute('data-width','148');
-  a.setAttribute('data-height','210');
-  a.setAttribute('data-pages',String(totalPages));
-  a.setAttribute('data-src',pdfUrl);
-  a.setAttribute('data-reference',PEECHO_BUTTON_KEY);
-  a.style.display='none';
-  document.body.appendChild(a);
-  setTimeout(function(){
-    a.click();
-    document.body.removeChild(a);
-    cb(null);
-  },100);
+  // Open Peecho checkout directly with PDF URL
+  var checkoutUrl='https://www.peecho.com/checkout/'+PEECHO_PRODUCT_ID+'?src='+encodeURIComponent(pdfUrl);
+  window.open(checkoutUrl,'_blank');
+  cb(null);
 }
 
 window.orderPhysicalAlbum=function(){
