@@ -4802,10 +4802,8 @@ window.shareAlbum=function(){
 };
 // ===== SHARED ALBUM (READ-ONLY) =====
 // ===== PEECHO ALBUM =====
-var PEECHO_MERCHANT_KEY='9d2a2c9cb950b4ed958417bbfb058ad1c8cd42bf';
-var PEECHO_SECRET='624698206c378d6f090dae592e26f8ad936412a7';
+var PEECHO_BUTTON_KEY='178107127334267113';
 var PEECHO_PRODUCT_ID='7065962';
-var PEECHO_MARKUP=120;
 
 window._buildAndSendAlbumPDF=function(photoPgs,cb){
   // Load jsPDF from CDN
@@ -4925,30 +4923,39 @@ function _uploadPDFAndOrder(pdfBlob,numPages,cb){
 }
 
 function _submitPeechoOrder(pdfUrl,numPages,cb){
-  var totalPages=Math.max(20,numPages+1); // +1 for cover, min 20
-  var markup=PEECHO_MARKUP;
-  var body={
-    productId:PEECHO_PRODUCT_ID,
-    sourceUrl:pdfUrl,
-    pageCount:totalPages,
-    markup:markup,
-    merchantApiKey:PEECHO_MERCHANT_KEY
-  };
-  fetch('/api/peecho-order',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(body)
-  })
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(data.checkoutUrl){
-      window.open(data.checkoutUrl,'_blank');
-      cb(null);
-    } else {
-      cb('Peecho error: '+JSON.stringify(data).slice(0,120));
-    }
-  })
-  .catch(function(e){cb(e.message);});
+  var totalPages=Math.max(20,numPages+1);
+  // Load Peecho Print Button SDK if not already loaded
+  if(!window._peechoSdkLoaded){
+    var s=document.createElement('script');
+    s.src='//www.peecho.com/sdk/print-button.js';
+    s.onload=function(){
+      window._peechoSdkLoaded=true;
+      _openPeechoButton(pdfUrl,totalPages,cb);
+    };
+    s.onerror=function(){cb('Failed to load Peecho SDK');};
+    document.head.appendChild(s);
+  } else {
+    _openPeechoButton(pdfUrl,totalPages,cb);
+  }
+}
+
+function _openPeechoButton(pdfUrl,totalPages,cb){
+  // Create hidden Print Button anchor and click it
+  var a=document.createElement('a');
+  a.className='peecho-print-button';
+  a.setAttribute('data-filetype','pdf');
+  a.setAttribute('data-width','148');
+  a.setAttribute('data-height','210');
+  a.setAttribute('data-pages',String(totalPages));
+  a.setAttribute('data-src',pdfUrl);
+  a.setAttribute('data-reference',PEECHO_BUTTON_KEY);
+  a.style.display='none';
+  document.body.appendChild(a);
+  setTimeout(function(){
+    a.click();
+    document.body.removeChild(a);
+    cb(null);
+  },100);
 }
 
 window.orderPhysicalAlbum=function(){
