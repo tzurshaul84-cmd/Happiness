@@ -4908,17 +4908,19 @@ function _generatePDF(photoPgs,cb){
 }
 
 function _uploadPDFAndOrder(pdfBlob,numPages,cb){
-  // Upload PDF as image type - publicly accessible
-  var fd=new FormData();
-  fd.append('file',pdfBlob,'album.pdf');
-  fd.append('upload_preset','happiness_pdf');
-  fetch('https://api.cloudinary.com/v1_1/dqt4v8qjs/image/upload',{method:'POST',body:fd})
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(!data.secure_url){cb('PDF upload failed: '+JSON.stringify(data).slice(0,80));return;}
-    _submitPeechoOrder(data.secure_url,numPages,cb);
-  })
-  .catch(function(e){cb(e.message);});
+  // Upload PDF to Supabase Storage
+  var fileName='album_'+currentUser.id+'_'+Date.now()+'.pdf';
+  sb.storage.from('albums').upload(fileName,pdfBlob,{
+    contentType:'application/pdf',
+    upsert:true
+  }).then(function(res){
+    if(res.error){cb('PDF upload failed: '+res.error.message);return;}
+    // Create signed URL valid for 60 minutes
+    sb.storage.from('albums').createSignedUrl(fileName,3600).then(function(signed){
+      if(signed.error){cb('Signed URL failed: '+signed.error.message);return;}
+      _submitPeechoOrder(signed.data.signedUrl,numPages,cb);
+    });
+  }).catch(function(e){cb(e.message);});
 }
 
 function _submitPeechoOrder(pdfUrl,numPages,cb){
