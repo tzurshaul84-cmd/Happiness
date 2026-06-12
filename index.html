@@ -4915,11 +4915,9 @@ function _uploadPDFAndOrder(pdfBlob,numPages,cb){
     upsert:true
   }).then(function(res){
     if(res.error){cb('PDF upload failed: '+res.error.message);return;}
-    // Create signed URL valid for 60 minutes
-    sb.storage.from('albums').createSignedUrl(fileName,3600).then(function(signed){
-      if(signed.error){cb('Signed URL failed: '+signed.error.message);return;}
-      _submitPeechoOrder(signed.data.signedUrl,numPages,cb);
-    });
+    // Get public URL
+    var pub=sb.storage.from('albums').getPublicUrl(fileName);
+    _submitPeechoOrder(pub.data.publicUrl,numPages,cb);
   }).catch(function(e){cb(e.message);});
 }
 
