@@ -80,16 +80,21 @@ input:focus,textarea:focus{border-color:#4444aa}
 .gear-btn{background:#13132a;border:2px solid #2a2a4a;border-radius:50%;width:36px;height:36px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .settings-panel{position:fixed;inset:0;background:#0a0a14;z-index:1100;display:none;flex-direction:column;overflow-y:auto}
 .settings-panel.on{display:flex}
-.settings-inner{max-width:480px;margin:0 auto;width:100%;padding:24px 16px;display:flex;flex-direction:column;gap:16px}
+.settings-inner{max-width:480px;margin:0 auto;width:100%;padding:20px 16px;display:flex;flex-direction:column;gap:10px}
 .settings-hdr{display:flex;justify-content:space-between;align-items:center;padding:20px 16px 0;max-width:480px;margin:0 auto;width:100%}
 .lang-opts{display:flex;gap:8px;flex-wrap:wrap}
 .lang-opt{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;padding:10px 14px;font-family:Heebo,sans-serif;font-size:14px;font-weight:700;color:#88b;cursor:pointer;text-align:center}
 .lang-opt.on{border-color:#00d4ff;color:#00d4ff;background:#00d4ff11}
-.settings-item{background:#13132a;border:2px solid #2a2a4a;border-radius:13px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer}
-.settings-item-icon{font-size:24px;width:36px;text-align:center}
+.settings-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.35),0 1px 0 rgba(255,255,255,0.05) inset;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.settings-item-icon{font-size:22px;width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .settings-item-text{flex:1}
 .settings-item-title{font-size:15px;font-weight:900}
-.settings-item-sub{font-size:12px;color:#66a;margin-top:2px}
+.settings-item-sub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:2px}
+.si-blue{background:linear-gradient(135deg,#1a3a6a,#2a5aaa);box-shadow:0 3px 10px rgba(42,90,170,0.4)}
+.si-purple{background:linear-gradient(135deg,#3a1a6a,#6a2aaa);box-shadow:0 3px 10px rgba(106,42,170,0.4)}
+.si-teal{background:linear-gradient(135deg,#0a4040,#0a8080);box-shadow:0 3px 10px rgba(10,128,128,0.4)}
+.si-gold{background:linear-gradient(135deg,#3a2a08,#8a6a08);box-shadow:0 3px 10px rgba(138,106,8,0.4)}
+.si-red{background:linear-gradient(135deg,#5a1010,#aa2020);box-shadow:0 3px 10px rgba(170,32,32,0.4)}
 .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .status-opt{background:#0d0d20;border:2px solid #2a2a4a;border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#88b}
 .status-opt.on{border-color:#00d4ff;color:#00d4ff;background:#00d4ff11}
@@ -404,7 +409,7 @@ input:focus,textarea:focus{
   </div>
   <div class="settings-inner">
     <div class="settings-item" id="set-lang-btn" style="cursor:pointer">
-      <div class="settings-item-icon">🌐</div>
+      <div class="settings-item-icon si-blue">🌐</div>
       <div class="settings-item-text">
         <div class="settings-item-title" id="set-lang-lbl">Language</div>
         <div class="settings-item-sub" id="set-lang-current">עברית 🇮🇱</div>
@@ -432,7 +437,7 @@ input:focus,textarea:focus{
       </div>
     </div>
     <div class="settings-item" id="set-profile-btn">
-      <div class="settings-item-icon">✏️</div>
+      <div class="settings-item-icon si-purple">✏️</div>
       <div class="settings-item-text">
         <div class="settings-item-title" id="set-edit-lbl">ערוך פרופיל</div>
         <div class="settings-item-sub" id="set-edit-sub">מדינה · עיר · סטטוס</div>
@@ -440,27 +445,27 @@ input:focus,textarea:focus{
       <div style="color:#446">›</div>
     </div>
     <div class="settings-item" id="set-export-csv">
-      <div class="settings-item-icon">📊</div>
+      <div class="settings-item-icon si-teal">📊</div>
       <div class="settings-item-text">
         <div class="settings-item-title">Export CSV</div>
         <div class="settings-item-sub" id="set-csv-sub">הורד את כל הנתונים</div>
       </div>
     </div>
     <div class="settings-item" id="set-pin-btn">
-      <div class="settings-item-icon">🔒</div>
+      <div class="settings-item-icon si-gold">🔒</div>
       <div class="settings-item-text">
         <div class="settings-item-title" id="set-pin-lbl">נעילת פרטיות</div>
         <div class="settings-item-sub" id="set-pin-sub">ללא נעילה</div>
       </div>
       <div id="set-pin-status" style="font-size:12px;font-weight:700;color:#88c;margin-left:8px"></div>
     </div>
-    <div class="settings-item" id="set-logout-btn" style="border-color:#ff446633">
-      <div class="settings-item-icon">🚪</div>
+    <div class="settings-item" id="set-logout-btn" style="border-color:rgba(255,68,102,0.2);background:rgba(255,40,40,0.04)">
+      <div class="settings-item-icon si-red">🚪</div>
       <div class="settings-item-text">
         <div class="settings-item-title" style="color:#ff4466" id="set-logout-lbl">התנתק</div>
       </div>
     </div>
-    <div style="font-size:11px;color:#2a2a4a;text-align:center">v7.0</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.12);text-align:center;margin-top:8px">v7.0</div>
   </div>
 </div>
 
