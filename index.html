@@ -4430,6 +4430,7 @@ window.openAlbumBuilder=function(){
   var modal=document.getElementById('album-builder-modal');
   if(!modal)return;
   modal.style.display='flex';
+  ['ab-q-month','ab-q-3m','ab-q-year','ab-q-best','ab-q-all'].forEach(function(id){var b=document.getElementById(id);if(b){b.style.background='#1a1a35';b.style.borderColor='#2a2a4a';b.style.color='#88c';}});
   history.pushState({screen:'album-builder'},'',window.location.pathname);
   abSetTexts();
   var stored=localStorage.getItem('whi-entries'),local={};
@@ -4455,13 +4456,6 @@ window.openAlbumBuilder=function(){
 };
 
 window.abQuick=function(mode){
-  var _abIds={month:'ab-q-month',last3:'ab-q-3m',year:'ab-q-year',best:'ab-q-best',all:'ab-q-all'};
-  ['ab-q-month','ab-q-3m','ab-q-year','ab-q-best','ab-q-all'].forEach(function(id){
-    var b=document.getElementById(id);
-    if(b){b.style.background='#1a1a35';b.style.borderColor='#2a2a4a';b.style.color='#88c';}
-  });
-  var _sel=document.getElementById(_abIds[mode]);
-  if(_sel){_sel.style.background='#2a2a5a';_sel.style.borderColor='#00d4ff';_sel.style.color='#fff';}
   var now=new Date(),to=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'),from=to;
   if(mode==='last3'){var f=new Date(now.getFullYear(),now.getMonth()-2,1);from=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0');}
   else if(mode==='year'){from=now.getFullYear()+'-01';}
@@ -5280,11 +5274,11 @@ function renderGallery_OLD_DISABLED(){
     <div style="background:#13132a;border:1px solid #2a2a4a;border-radius:14px;padding:16px">
       <div id="ab-label-choose" style="font-size:11px;color:#88b;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:700"></div>
       <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="window.abQuick('month')" id="ab-q-month" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer;transition:all 0.15s"></button>
-        <button onclick="window.abQuick('last3')" id="ab-q-3m" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer;transition:all 0.15s"></button>
-        <button onclick="window.abQuick('year')" id="ab-q-year" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer;transition:all 0.15s"></button>
-        <button onclick="window.abQuick('best')" id="ab-q-best" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer;transition:all 0.15s"></button>
-        <button onclick="window.abQuick('all')" id="ab-q-all" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer;transition:all 0.15s"></button>
+        <button onclick="window.abQuick('month')" id="ab-q-month" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer"></button>
+        <button onclick="window.abQuick('last3')" id="ab-q-3m" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer"></button>
+        <button onclick="window.abQuick('year')" id="ab-q-year" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer"></button>
+        <button onclick="window.abQuick('best')" id="ab-q-best" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer"></button>
+        <button onclick="window.abQuick('all')" id="ab-q-all" style="background:#1a1a35;border:2px solid #2a2a4a;border-radius:20px;color:#88c;font-family:Heebo,sans-serif;font-size:12px;font-weight:700;padding:6px 13px;cursor:pointer"></button>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
         <input type="month" id="ab-from" onchange="window.abFilterAndRender()" style="flex:1;background:#0d0d20;border:2px solid #2a2a4a;color:#fff;border-radius:10px;padding:8px 10px;font-size:13px;font-family:Heebo,sans-serif">
