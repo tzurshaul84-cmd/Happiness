@@ -4456,6 +4456,9 @@ window.openAlbumBuilder=function(){
 };
 
 window.abQuick=function(mode){
+  ['ab-q-month','ab-q-3m','ab-q-year','ab-q-best','ab-q-all'].forEach(function(id){var b=document.getElementById(id);if(b){b.style.background='#1a1a35';b.style.borderColor='#2a2a4a';b.style.color='#88c';}});
+  var _map={month:'ab-q-month',last3:'ab-q-3m',year:'ab-q-year',best:'ab-q-best',all:'ab-q-all'};
+  var _sel=document.getElementById(_map[mode]);if(_sel){_sel.style.background='#2a2a5a';_sel.style.borderColor='#00d4ff';_sel.style.color='#fff';}
   var now=new Date(),to=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'),from=to;
   if(mode==='last3'){var f=new Date(now.getFullYear(),now.getMonth()-2,1);from=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0');}
   else if(mode==='year'){from=now.getFullYear()+'-01';}
