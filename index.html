@@ -3967,9 +3967,11 @@ function moodInfoClose(){var m=document.getElementById('mood-info-modal');if(m)m
 window.moodInfoClose=moodInfoClose;
 
 window._moodHighUrl='';
+window._moodLowUrl='';
 window.moodCtaClick=function moodCtaClick(){
-  if(window._moodHighUrl){
-    window.open(window._moodHighUrl,'_blank');
+  var url=window._moodHighUrl||window._moodLowUrl||'';
+  if(url){
+    window.open(url,'_blank');
   } else {
     var s={he:'בקרוב! 🚀',en:'Coming soon! 🚀',ar:'قريباً! 🚀',ru:'Скоро! 🚀',es:'Proximamente! 🚀',pt:'Em breve! 🚀',fr:'Bientot! 🚀',de:'Demnachst! 🚀',it:'Prossimamente! 🚀',hi:'Jald aa raha hai! 🚀',zh:'即将推出! 🚀',ja:'Mousugu! 🚀',nl:'Binnenkort! 🚀',ptpt:'Em breve! 🚀',sv:'Snart! 🚀',da:'Snart! 🚀'};
     showToast(s[currentLang]||s['en']);
@@ -4008,6 +4010,8 @@ function renderMoodInfoLow(){
   var data=svc[currentLang]||svc['en'];
   var cta=svc.cta[currentLang]||svc.cta['en'];
   var color=svc.color||'#667eea';
+  window._moodLowUrl=svc.url||'';
+  window._moodHighUrl='';
   var isRtl=(currentLang==='he'||currentLang==='ar');
   document.getElementById('mood-info-title').textContent=svc.emoji+' '+data.title;
   var d=document.getElementById('mood-info-body');
