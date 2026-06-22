@@ -4893,78 +4893,77 @@ window.orderPhysicalAlbum = function() {
     if (s.b && s.b.media_url && s.b.media_url.indexOf('cloudinary') !== -1) entries.push(s.b);
   });
 
-  if (entries.length < 20) {
-    var need = 20 - entries.length;
-    var msg = (t('albPrintMin') || 'Need at least 20 photos. You have {n} — add {r} more.')
+  if (entries.length < 15) {
+    var need = 15 - entries.length;
+    var msg = (t('albPrintMin') || 'Need at least 15 photos. You have {n} — add {r} more.')
       .replace('{n}', entries.length).replace('{r}', need);
     alert('📷 ' + msg);
     return;
   }
 
   var btn = document.getElementById('alb-print-txt');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ 0/' + entries.length; }
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ מכין תמונות...'; }
 
-  // Build canvases and upload to Cloudinary one by one
-  var photoUrls = [];
-  var idx = 0;
-
-  function processNext() {
-    if (idx >= entries.length) {
-      // All uploaded — send to YAY
-      if (btn) btn.textContent = '⏳ שולח ל-YAY...';
-      var user = currentUser || {};
-      fetch('/api/yay', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: 'Happiness Album ' + new Date().getFullYear(),
-          customer: {
-            firstname: (user.user_metadata && user.user_metadata.full_name
-              ? user.user_metadata.full_name.split(' ')[0] : 'User'),
-            lastname: (user.user_metadata && user.user_metadata.full_name
-              ? user.user_metadata.full_name.split(' ').slice(1).join(' ') : ''),
-            email: user.email || 'user@example.com',
-            phone: null,
-            address: null
-          },
-          upload: {
-            numberOfImages: photoUrls.length,
-            coverUrl: photoUrls[0],
-            photoUrls: photoUrls
-          },
-          locale: (currentLang === 'he' ? 'he_IL' : currentLang === 'de' ? 'de_DE' :
-                   currentLang === 'fr' ? 'fr_FR' : currentLang === 'es' ? 'es_ES' :
-                   currentLang === 'nl' ? 'nl_NL' : 'en_US')
-        })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (btn) { btn.disabled = false; btn.textContent = t('albPrint') || '📖 Order Album'; }
-        if (data.redirectUrl) {
-          window.open(data.redirectUrl, '_blank');
-        } else {
-          alert('שגיאה: ' + JSON.stringify(data));
-        }
-      })
-      .catch(function(e) {
-        if (btn) { btn.disabled = false; btn.textContent = t('albPrint') || '📖 Order Album'; }
-        alert('שגיאה: ' + e.message);
-      });
-      return;
-    }
-
-    if (btn) btn.textContent = '⏳ ' + (idx + 1) + '/' + entries.length;
-    _buildAlbumCanvas(entries[idx], function(dataUrl) {
-      if (!dataUrl) { idx++; processNext(); return; }
-      _uploadCanvasToCloudinary(dataUrl, function(err, url) {
-        if (!err && url) photoUrls.push(url);
-        idx++;
-        processNext();
+  // Build all canvases in parallel, then upload all in parallel
+  var canvasPromises = entries.map(function(entry) {
+    return new Promise(function(resolve) {
+      _buildAlbumCanvas(entry, function(dataUrl) {
+        resolve(dataUrl);
       });
     });
-  }
+  });
 
-  processNext();
+  Promise.all(canvasPromises).then(function(dataUrls) {
+    if (btn) btn.textContent = '⏳ מעלה תמונות...';
+    var uploadPromises = dataUrls.map(function(dataUrl) {
+      if (!dataUrl) return Promise.resolve(null);
+      return new Promise(function(resolve) {
+        _uploadCanvasToCloudinary(dataUrl, function(err, url) {
+          resolve(err ? null : url);
+        });
+      });
+    });
+
+    return Promise.all(uploadPromises);
+  }).then(function(photoUrls) {
+    photoUrls = photoUrls.filter(Boolean);
+    if (btn) btn.textContent = '⏳ שולח ל-YAY...';
+    var user = currentUser || {};
+    return fetch('/api/yay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: 'Happiness Album ' + new Date().getFullYear(),
+        customer: {
+          firstname: (user.user_metadata && user.user_metadata.full_name
+            ? user.user_metadata.full_name.split(' ')[0] : 'User'),
+          lastname: (user.user_metadata && user.user_metadata.full_name
+            ? user.user_metadata.full_name.split(' ').slice(1).join(' ') : ''),
+          email: user.email || 'user@example.com',
+          phone: null,
+          address: null
+        },
+        upload: {
+          numberOfImages: photoUrls.length,
+          coverUrl: photoUrls[0],
+          photoUrls: photoUrls
+        },
+        locale: 'en_US'
+      })
+    });
+  }).then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (btn) { btn.disabled = false; btn.textContent = t('albPrint') || '📖 Order Album'; }
+    if (data.redirectUrl) {
+      window.open(data.redirectUrl, '_blank');
+    } else {
+      alert('שגיאה: ' + JSON.stringify(data));
+    }
+  })
+  .catch(function(e) {
+    if (btn) { btn.disabled = false; btn.textContent = t('albPrint') || '📖 Order Album'; }
+    alert('שגיאה: ' + e.message);
+  });
 };
 
 window._openSharedAlbum=function(pages){
