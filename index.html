@@ -4786,160 +4786,185 @@ window.shareAlbum=function(){
   });
 };
 // ===== SHARED ALBUM (READ-ONLY) =====
-// ===== PEECHO ALBUM =====
-var PEECHO_BUTTON_KEY='178107127334267113';
-var PEECHO_PRODUCT_ID='7065962';
+// ===== YAY PHOTOBOOK ALBUM =====
 
-window._buildAndSendAlbumPDF=function(photoPgs,cb){
-  // Load jsPDF from CDN
-  var script=document.createElement('script');
-  script.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-  script.onload=function(){
-    _generatePDF(photoPgs,cb);
+// Build a styled canvas for one album entry (photo + score + text + date)
+function _buildAlbumCanvas(entry, cb) {
+  var img = new Image();
+  img.crossOrigin = 'anonymous';
+  var url = entry.media_url.replace('/upload/', '/upload/w_1200,c_limit,q_auto/');
+  img.onload = function() {
+    // Canvas size: A5 portrait ratio at 1200px wide
+    var W = 848, H = 1200;
+    var canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    // Draw photo full bleed
+    var scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    var sw = img.naturalWidth * scale;
+    var sh = img.naturalHeight * scale;
+    var sx = (W - sw) / 2;
+    var sy = (H - sh) / 2;
+    ctx.drawImage(img, sx, sy, sw, sh);
+
+    // Gradient overlay at bottom
+    var grad = ctx.createLinearGradient(0, H * 0.55, 0, H);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.82)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Score bar
+    var score = entry.score || 0;
+    var barW = W - 80;
+    var barH = 6;
+    var barY = H - 160;
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.beginPath();
+    ctx.roundRect(40, barY, barW, barH, 3);
+    ctx.fill();
+    var scoreColor = score >= 80 ? '#f97316' : score >= 60 ? '#3b82f6' : score >= 40 ? '#8b5cf6' : '#64748b';
+    var grad2 = ctx.createLinearGradient(40, 0, 40 + barW * (score / 100), 0);
+    grad2.addColorStop(0, scoreColor);
+    grad2.addColorStop(1, '#ec4899');
+    ctx.fillStyle = grad2;
+    ctx.beginPath();
+    ctx.roundRect(40, barY, barW * (score / 100), barH, 3);
+    ctx.fill();
+
+    // Score number
+    ctx.font = 'bold 72px Arial';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'right';
+    ctx.fillText(score, W - 40, H - 170);
+    ctx.font = '28px Arial';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillText('/100', W - 38, H - 140);
+
+    // Score label
+    ctx.font = '28px Arial';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.textAlign = 'left';
+    ctx.fillText('📊', 40, H - 168);
+
+    // Special text
+    if (entry.special) {
+      ctx.font = 'italic 30px Arial';
+      ctx.fillStyle = 'rgba(255,255,255,0.88)';
+      ctx.textAlign = 'left';
+      var txt = entry.special.length > 60 ? entry.special.slice(0, 60) + '...' : entry.special;
+      ctx.fillText(txt, 40, H - 100);
+    }
+
+    // Date
+    ctx.font = '24px Arial';
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.textAlign = 'left';
+    ctx.fillText('📅 ' + (entry.date || ''), 40, H - 52);
+
+    cb(canvas.toDataURL('image/jpeg', 0.88));
   };
-  script.onerror=function(){cb('Failed to load PDF library');};
-  document.head.appendChild(script);
-};
-
-function _generatePDF(photoPgs,cb){
-  try{
-    var jsPDF=window.jspdf.jsPDF;
-    // A5 portrait in mm: 148 x 210
-    var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a5'});
-    var W=148,H=210;
-    var margin=8;
-    var imgW=W-margin*2;
-
-    function scoreColor(s){
-      if(s>=80)return '#22a05e';
-      if(s>=60)return '#0077aa';
-      if(s>=40)return '#cc8800';
-      return '#cc4400';
-    }
-
-    function drawEntry(entry,x,y,w,h,done){
-      if(!entry){done();return;}
-      var imgH=h-18; // leave 18mm for caption
-      var img=new Image();
-      img.crossOrigin='anonymous';
-      // Add Cloudinary transform for correct size
-      var url=entry.media_url.replace('/upload/','/upload/w_600,c_limit,q_auto/');
-      img.onload=function(){
-        try{
-          var canvas=document.createElement('canvas');
-          canvas.width=img.naturalWidth;
-          canvas.height=img.naturalHeight;
-          var ctx=canvas.getContext('2d');
-          ctx.drawImage(img,0,0);
-          var dataUrl=canvas.toDataURL('image/jpeg',0.85);
-          doc.addImage(dataUrl,'JPEG',x,y,w,imgH,undefined,'FAST');
-        }catch(e){}
-        // Caption
-        var cy=y+imgH+1;
-        doc.setFontSize(8);
-        doc.setFont('helvetica','bold');
-        doc.setTextColor(scoreColor(entry.score||0));
-        doc.text(String(entry.score||''),x+w-1,cy+4,{align:'right'});
-        doc.setTextColor('#444444');
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(7);
-        doc.text(entry.date||'',x+1,cy+4);
-        if(entry.special){
-          var sp=entry.special.slice(0,45)+(entry.special.length>45?'...':'');
-          doc.text(sp,x+1,cy+9);
-        }
-        done();
-      };
-      img.onerror=function(){done();};
-      img.src=url;
-    }
-
-    // Cover page
-    doc.setFillColor(7,7,26);
-    doc.rect(0,0,W,H,'F');
-    doc.setTextColor('#00d4ff');
-    doc.setFontSize(22);
-    doc.setFont('helvetica','bold');
-    doc.text('My Happiness Album',W/2,H/2-10,{align:'center'});
-    doc.setFontSize(11);
-    doc.setTextColor('#8888bb');
-    doc.text(new Date().getFullYear().toString(),W/2,H/2+8,{align:'center'});
-
-    // Draw pages
-    var pi=0;
-    function nextPage(){
-      if(pi>=photoPgs.length){
-        // Done — upload PDF to Cloudinary then submit to Peecho
-        var pdfBlob=doc.output('blob');
-        _uploadPDFAndOrder(pdfBlob,photoPgs.length,cb);
-        return;
-      }
-      doc.addPage();
-      var pg=photoPgs[pi++];
-      if(pg.a&&pg.b){
-        // Two photos per page
-        var hh=(H-margin*3)/2;
-        drawEntry(pg.a,margin,margin,imgW,hh,function(){
-          drawEntry(pg.b,margin,margin*2+hh,imgW,hh,nextPage);
-        });
-      } else {
-        // One photo per page
-        var imgH1=H-margin*2-20;
-        drawEntry(pg.a||pg.b,margin,margin,imgW,imgH1,nextPage);
-      }
-    }
-    nextPage();
-  }catch(e){cb(e.message);}
+  img.onerror = function() { cb(null); };
+  img.src = url;
 }
 
-function _uploadPDFAndOrder(pdfBlob,numPages,cb){
-  // Upload PDF to Supabase Storage
-  var fileName='album_'+currentUser.id+'_'+Date.now()+'.pdf';
-  sb.storage.from('albums').upload(fileName,pdfBlob,{
-    contentType:'application/pdf',
-    upsert:true
-  }).then(function(res){
-    if(res.error){cb('PDF upload failed: '+res.error.message);return;}
-    // Get public URL
-    var pub=sb.storage.from('albums').getPublicUrl(fileName);
-    _submitPeechoOrder(pub.data.publicUrl,numPages,cb);
-  }).catch(function(e){cb(e.message);});
+// Upload a base64 dataURL to Cloudinary and return public URL
+function _uploadCanvasToCloudinary(dataUrl, cb) {
+  var formData = new FormData();
+  formData.append('file', dataUrl);
+  formData.append('upload_preset', 'happiness_upload');
+  formData.append('folder', 'album_pages');
+  fetch('https://api.cloudinary.com/v1_1/dqt4v8qjs/image/upload', {
+    method: 'POST',
+    body: formData
+  }).then(function(r) { return r.json(); })
+    .then(function(d) { cb(null, d.secure_url); })
+    .catch(function(e) { cb(e.message); });
 }
 
-function _submitPeechoOrder(pdfUrl,numPages,cb){
-  // Open Peecho checkout directly with PDF URL
-  var checkoutUrl='https://www.peecho.com/checkout/'+PEECHO_PRODUCT_ID+'?src='+encodeURIComponent(pdfUrl);
-  window.open(checkoutUrl,'_blank');
-  cb(null);
-}
-
-window.orderPhysicalAlbum=function(){
-  // Collect pages with Cloudinary images only
-  var photoPgs=[];
-  _albPages.forEach(function(s){
-    if(!s)return;
-    var pa=s.a&&s.a.media_url&&s.a.media_url.indexOf('cloudinary')!==-1?s.a:null;
-    var pb=s.b&&s.b.media_url&&s.b.media_url.indexOf('cloudinary')!==-1?s.b:null;
-    if(pa||pb)photoPgs.push({a:pa,b:pb});
+window.orderPhysicalAlbum = function() {
+  // Collect entries with Cloudinary images only
+  var entries = [];
+  _albPages.forEach(function(s) {
+    if (!s) return;
+    if (s.a && s.a.media_url && s.a.media_url.indexOf('cloudinary') !== -1) entries.push(s.a);
+    if (s.b && s.b.media_url && s.b.media_url.indexOf('cloudinary') !== -1) entries.push(s.b);
   });
-  var totalPhotos=photoPgs.reduce(function(n,s){return n+(s.a?1:0)+(s.b?1:0);},0);
 
-  if(totalPhotos<20){
-    var need=20-totalPhotos;
-    var msg=(t('albPrintMin')||'Need at least 20 photos. You have {n} — add {r} more.').replace('{n}',totalPhotos).replace('{r}',need);
-    alert('📷 '+msg);
+  if (entries.length < 20) {
+    var need = 20 - entries.length;
+    var msg = (t('albPrintMin') || 'Need at least 20 photos. You have {n} — add {r} more.')
+      .replace('{n}', entries.length).replace('{r}', need);
+    alert('📷 ' + msg);
     return;
   }
 
-  // Show loading
-  var btn=document.getElementById('alb-print-txt');
-  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  var btn = document.getElementById('alb-print-txt');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 0/' + entries.length; }
 
-  // Build PDF then send to Peecho
-  window._buildAndSendAlbumPDF(photoPgs,function(err){
-    if(btn){btn.disabled=false;btn.textContent=t('albPrint')||'📖 Order Album';}
-    if(err)alert('שגיאה: '+err);
-  });
+  // Build canvases and upload to Cloudinary one by one
+  var photoUrls = [];
+  var idx = 0;
+
+  function processNext() {
+    if (idx >= entries.length) {
+      // All uploaded — send to YAY
+      if (btn) btn.textContent = '⏳ שולח ל-YAY...';
+      var user = currentUser || {};
+      fetch('/api/yay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'Happiness Album ' + new Date().getFullYear(),
+          customer: {
+            firstname: (user.user_metadata && user.user_metadata.full_name
+              ? user.user_metadata.full_name.split(' ')[0] : 'User'),
+            lastname: (user.user_metadata && user.user_metadata.full_name
+              ? user.user_metadata.full_name.split(' ').slice(1).join(' ') : ''),
+            email: user.email || 'user@example.com',
+            phone: null,
+            address: null
+          },
+          upload: {
+            numberOfImages: photoUrls.length,
+            coverUrl: photoUrls[0],
+            photoUrls: photoUrls
+          },
+          locale: (currentLang === 'he' ? 'he_IL' : currentLang === 'de' ? 'de_DE' :
+                   currentLang === 'fr' ? 'fr_FR' : currentLang === 'es' ? 'es_ES' :
+                   currentLang === 'nl' ? 'nl_NL' : 'en_US')
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (btn) { btn.disabled = false; btn.textContent = t('albPrint') || '📖 Order Album'; }
+        if (data.redirectUrl) {
+          window.open(data.redirectUrl, '_blank');
+        } else {
+          alert('שגיאה: ' + JSON.stringify(data));
+        }
+      })
+      .catch(function(e) {
+        if (btn) { btn.disabled = false; btn.textContent = t('albPrint') || '📖 Order Album'; }
+        alert('שגיאה: ' + e.message);
+      });
+      return;
+    }
+
+    if (btn) btn.textContent = '⏳ ' + (idx + 1) + '/' + entries.length;
+    _buildAlbumCanvas(entries[idx], function(dataUrl) {
+      if (!dataUrl) { idx++; processNext(); return; }
+      _uploadCanvasToCloudinary(dataUrl, function(err, url) {
+        if (!err && url) photoUrls.push(url);
+        idx++;
+        processNext();
+      });
+    });
+  }
+
+  processNext();
 };
 
 window._openSharedAlbum=function(pages){
