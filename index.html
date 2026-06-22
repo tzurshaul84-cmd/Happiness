@@ -547,8 +547,8 @@ input:focus,textarea:focus{
     <div style="font-size:14px;color:#88c;text-align:center" id="prof-sub">מלא פעם אחת — הכל אנונימי</div>
     <div>
       <span class="lbl" id="prof-country-lbl">מדינת מגורים</span>
-      <input type="text" id="profile-country" placeholder="הקלד מדינה..." autocomplete="off" list="country-dl">
-      <datalist id="country-dl"></datalist>
+      <input type="text" id="profile-country" readonly style="background:#0a0a1a;cursor:default;color:#aac" autocomplete="off">
+
     </div>
     <div>
       <span class="lbl" id="prof-city-lbl">עיר מגורים</span>
@@ -556,6 +556,7 @@ input:focus,textarea:focus{
         <input type="text" id="profile-city" readonly style="background:#0a0a1a;cursor:default;color:#aac" placeholder="לחץ על זהה מיקום..." autocomplete="off">
       </div>
       <button class="loc-btn" id="loc-btn"><span>📍</span><span id="loc-txt">זהה מיקום אוטומטי</span></button>
+      <div style="font-size:12px;color:#668;text-align:center;margin-top:6px" id="loc-hint"></div>
     </div>
     <div>
       <span class="lbl" id="prof-status-lbl">מה אתה עושה בחיים?</span>
@@ -801,6 +802,7 @@ function applyLang(lang){
   var pci=el('profile-city');if(pci)pci.placeholder=L.ciph;
   var sp=el('special');if(sp)sp.placeholder=L.sph;
   var lt=el('loc-txt');if(lt)lt.textContent=L.loc;
+  var lh=el('loc-hint');if(lh)lh.textContent='📍 '+L.loc;
   var ib=el('pwa-install-btn');if(ib)ib.textContent=L.pwaInstall;
   L.st.forEach(function(s,i){var o=el('st-'+i);if(o)o.innerHTML=s;});
   document.querySelectorAll('.lang-opt').forEach(function(o){o.classList.toggle('on',o.getAttribute('data-lang')===lang);});
@@ -825,8 +827,6 @@ function applyLang(lang){
   renderHeader();
 }
 
-var COUNTRIES_LIST=['ישראל','ארה"ב','בריטניה','גרמניה','צרפת','איטליה','ספרד','הולנד','שוודיה','נורווגיה','פינלנד','דנמרק','שוויץ','אוסטריה','בלגיה','פולין','צ\'כיה','הונגריה','רומניה','בולגריה','יוון','פורטוגל','קרואטיה','סלובקיה','סלובניה','אוסטרליה','ניו זילנד','קנדה','מקסיקו','ברזיל','ארגנטינה','צ\'ילה','קולומביה','פרו','ונצואלה','אקוודור','בוליביה','אורוגוואי','רוסיה','אוקראינה','בלארוס','קזחסטן','אזרבייג\'אן','גאורגיה','ארמניה','טורקיה','מצרים','סעודיה','איחוד האמירויות','ישראל','ירדן','לבנון','סוריה','עיראק','כווית','קטר','בחריין','אומן','תימן','איראן','אפגניסטן','פקיסטן','הודו','בנגלדש','סרי לנקה','נפאל','סין','יפן','דרום קוריאה','טייוואן','הונג קונג','ווייטנאם','תאילנד','מלזיה','סינגפור','אינדונזיה','פיליפינים','קמבודיה','מיאנמר','דרום אפריקה','ניגריה','קניה','אתיופיה','גאנה','מרוקו','תוניסיה','אלג\'יריה','לוב','סודן','אוגנדה','טנזניה','ג\'מייקה','קובה','דומיניקנה','פורטו ריקו',
-'Israel','USA','UK','Germany','France','Italy','Spain','Netherlands','Sweden','Norway','Finland','Denmark','Switzerland','Austria','Belgium','Poland','Czech Republic','Hungary','Romania','Bulgaria','Greece','Portugal','Croatia','Australia','New Zealand','Canada','Mexico','Brazil','Argentina','Chile','Colombia','Peru','Venezuela','Russia','Ukraine','Turkey','Egypt','Saudi Arabia','UAE','Jordan','Lebanon','Iraq','Kuwait','Qatar','Iran','Pakistan','India','Bangladesh','China','Japan','South Korea','Taiwan','Vietnam','Thailand','Malaysia','Singapore','Indonesia','Philippines','South Africa','Nigeria','Kenya','Morocco','Tunisia'];
 
 var IL_CITIES=['תל אביב','ירושלים','חיפה','ראשון לציון','פתח תקווה','אשדוד','נתניה','באר שבע','בני ברק','חולון','רמת גן','אשקלון','רחובות','בת ים','בית שמש','כפר סבא','הרצליה','חדרה','מודיעין','לוד','רמלה','עכו','הוד השרון','ראש העין','אלעד','יבנה','גבעתיים','קריית גת','נהריה','עפולה','טבריה','צפת','כרמיאל','דימונה','מגדל העמק','קריית אתא','קריית ביאליק','קריית ים','קריית מוצקין','טירת כרמל','נצרת','שפרעם','נצרת עילית','אום אל-פחם','סחנין','רהט','לקיה','ערד','קריית ארבע','מעלה אדומים','אריאל','מודיעין עילית','ביתר עילית','אבו גוש','גן יבנה','גדרה','גבעת שמואל','קריית אונו','אור יהודה','נס ציונה','כפר יונה','טייבה','קלנסווה','זכרון יעקב','בנימינה','פרדס חנה','אור עקיבא','קיסריה','עתלית','בית שאן','נתיבות','אופקים','שדרות','קריית מלאכי','אזור','כפר קאסם','ג\'לג\'וליה','כפר ברא','טירה','ג\'סר א-זרקא','בית דגן','יהוד','מכבים-רעות','שוהם','נוף הגליל','דבוריה','מגאר','מג\'ד אל-כרום','עיילבון','ריינה','תמרה','יפיע','ג\'דיידה-מכר','נחף','כאבול','עיבלין','כפר מנדא','אכסאל','שעב','אבו סנאן','פוריידיס','פרדיס','עין מאהל','מגדל','צמח','בית ג\'ן','חורפיש','פקיעין','חצור הגלילית','ראש פינה','קרית שמונה','כפר בלום','מנות','ניר דוד','בית אלפא','עין חרוד','נהלל','כפר יהושע','אפיקים','דגניה','כנרת','מגידו','עין דור','מרחביה','גן השומרון','תל מונד','אבן יהודה','כפר נטר','אלקנה','כפר חב"ד','צפריה','קדימה','כפר ורדים','מצפה רמון','יוקנעם','קציר','בית לחם הגלילית','גבעת אדה','גבעת עדה','בית אריה','עוקבי','כפר עקב','ג\'לג\'וליה','מזכרת בתיה','כפר חרוב','בארות יצחק','גן שמואל','מעברות','עין הים','בת שלמה','פרדסיה','כפר סירקין','תל חנן','אחיעזר','נאות הפסגה','שקמה','תל שוקד','הגושרים','שניר','מטולה','מנחמיה','קצרין','יקנעם עילית','מגדל שמס','בית ג\'ן','טמרה','ריינה','מג\'אר','עספיא','דליית אל-כרמל','כפר קרע','ערערה','מעלות-תרשיחא','שלומי','כרמיאל','שפרעם','בועיינה-נוג\'ידאת','כפר מנדא','זמר','בקה אל-גרביה','ג\'ת','אום אל-קוטוף','רכסים','קריית ים','קריית ביאליק','קריית מוצקין','קריית אתא','חצור הגלילית','קרית שמונה','מטולה','כפר ורדים','מעלה גמלא','אלמגור','נאות גולן','כנף','קצרין','נוב','חספין','מיצר','אל-רום','שעל','עין זיוון'];
 
@@ -1481,7 +1481,6 @@ document.addEventListener('visibilitychange',function(){
 // ─────────────────────────────────────────────────────────────────────────────
 
 // PROFILE
-function fillDL(){var dl=el('country-dl');if(!dl)return;dl.innerHTML='';COUNTRIES_LIST.forEach(function(c){var o=document.createElement('option');o.value=c;dl.appendChild(o);});}
 el('status-grid').querySelectorAll('.status-opt').forEach(function(opt){
   opt.addEventListener('click',function(){el('status-grid').querySelectorAll('.status-opt').forEach(function(o){o.classList.remove('on');});this.classList.add('on');selectedStatus=this.getAttribute('data-val');});
 });
@@ -3333,7 +3332,7 @@ function initApp(){
 
 
   window._exitReady=true;
-  fillDL();renderHeader();updateUI(70);renderWeekCard();renderVsCard();renderGlobe(_worldAvg);fetchWorldAvg();
+  renderHeader();updateUI(70);renderWeekCard();renderVsCard();renderGlobe(_worldAvg);fetchWorldAvg();
   goTo('today',true);
   if(allE().length>0)loadAI();
 }
@@ -3473,7 +3472,6 @@ window.addEventListener('DOMContentLoaded',function(){
   currentLang=localStorage.getItem('whi-lang')||navigator.language.slice(0,2)||'he';
   if(!T[currentLang])currentLang='he';window.currentLang=currentLang;window.currentLang=currentLang;
   applyLang(currentLang);
-  fillDL();
 
   // Check for shared report BEFORE auth
   var _sharedReportId=(new URLSearchParams(window.location.search)).get('report');
