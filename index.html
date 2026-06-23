@@ -4849,13 +4849,22 @@ function _buildAlbumCanvas(entry, cb) {
     ctx.textAlign = 'left';
     ctx.fillText('📊', 40, H - 168);
 
-    // Special text
+    // Special text — up to 3 lines, 45 chars each
     if (entry.special) {
       ctx.font = 'italic 30px Arial';
       ctx.fillStyle = 'rgba(255,255,255,0.88)';
       ctx.textAlign = 'left';
-      var txt = entry.special.length > 60 ? entry.special.slice(0, 60) + '...' : entry.special;
-      ctx.fillText(txt, 40, H - 100);
+      var sp = entry.special;
+      if (sp.length <= 45) {
+        ctx.fillText(sp, 40, H - 108);
+      } else if (sp.length <= 90) {
+        ctx.fillText(sp.slice(0, 45), 40, H - 124);
+        ctx.fillText(sp.slice(45), 40, H - 88);
+      } else {
+        ctx.fillText(sp.slice(0, 45), 40, H - 140);
+        ctx.fillText(sp.slice(45, 90), 40, H - 104);
+        ctx.fillText(sp.slice(90, 135) + (sp.length > 135 ? '...' : ''), 40, H - 68);
+      }
     }
 
     // Date
