@@ -387,7 +387,16 @@ input:focus,textarea:focus{
 @keyframes onboardIn{from{opacity:0}to{opacity:1}}
 .onboard.on{animation:onboardIn 0.3s ease both;}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script></head>
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script><script>eruda.init();</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(r){console.log('[SW] registered:',r.scope);})
+      .catch(function(e){console.warn('[SW] failed:',e);});
+  });
+}
+</script></head>
 <body>
 <div id="app-bg"><div id="bg-orb1"></div><div id="bg-orb2"></div><div id="bg-orb3"></div></div>
 <div class="stars" id="stars"></div>
