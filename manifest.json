@@ -1,5 +1,6 @@
 {
   "name": "Happiness Index",
+  "id": "com.happinessindex.app",
   "short_name": "Happiness",
   "description": "Track your daily happiness and see how the world feels",
   "start_url": "/",
