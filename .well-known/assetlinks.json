@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.happiness_eta_ochre.twa",
+        "sha256_cert_fingerprints": ["13:4D:A0:BD:E1:34:19:92:64:FC:F6:49:1F:E3:AF:46:23:D6:89:44:0F:2E:50:55:BF:1E:48:C5:AC:23:1C:CC"]
+      }
+    }]
